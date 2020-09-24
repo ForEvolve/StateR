@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Blazor components and utilities for use with the StateR library.</Description>
+    <PackageTags>stator,stater,redux,blazor,state,dotnet,dotnetcore,net,netcore,aspnetcore,asp.net,core,aspnet,asp,forevolve</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

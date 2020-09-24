@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>StateR, pronounced stator, is an experimental C# 9.0-based, Redux-inspired, state management library for .NET.</Description>
+    <PackageTags>stator,stater,redux,blazor,state,dotnet,dotnetcore,net,netcore,aspnetcore,asp.net,core,aspnet,asp,forevolve</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
