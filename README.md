@@ -1,6 +1,6 @@
 # StateR
 
-This is an **experiment** of a Redux-inspired .NET/C# 9.0 (preview) library.
+This is a Redux-inspired **experiment** using C# 9.0 (preview).
 It works well with Blazor and [MobileBlazorBindings](https://github.com/xamarin/MobileBlazorBindings),
 including sharing states between the Xamarin part and the Blazor part of a hybrid app.
 It should also work with any other .NET stateful client model.
