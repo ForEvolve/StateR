@@ -1,0 +1,62 @@
+name: Build, Test, and Deploy
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'samples/**'
+
+  pull_request:
+    branches:
+      - master
+
+env:
+  DOTNET_2_VERSION: 2.1.808
+  DOTNET_3_VERSION: 3.1.302
+  DOTNET_5_VERSION: 5.0.0-rc.1.20451.17
+  BUILD_CONFIGURATION: Release
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup .NET Core
+        uses: coderpatros/setup-dotnet@sxs
+        with:
+          dotnet-version: ${{ env.DOTNET_2_VERSION }},${{ env.DOTNET_3_VERSION }},${{ env.DOTNET_5_VERSION }}
+
+      - name: Build
+        run: dotnet build --configuration ${{ env.BUILD_CONFIGURATION }}
+
+      - name: Unit Test
+        run: dotnet test --configuration ${{ env.BUILD_CONFIGURATION }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup .NET Core
+        uses: coderpatros/setup-dotnet@sxs
+        with:
+          dotnet-version: ${{ env.DOTNET_2_VERSION }},${{ env.DOTNET_3_VERSION }},${{ env.DOTNET_5_VERSION }}
+
+      - uses: aarnott/nbgv@v0.3
+        with:
+          setAllVars: true
+
+      - name: Pack
+        run: dotnet pack --configuration ${{ env.BUILD_CONFIGURATION }}
+
+      - name: Push to feedz.io
+        run: dotnet nuget push **/*.nupkg -k ${{ secrets.FEEDZ_API_KEY }} -s https://f.feedz.io/forevolve/stator/nuget/index.json
+        if: github.event_name == 'pull_request'
+
+      - name: Push to NuGet.org
+        run: dotnet nuget push **/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+        if: github.event_name == 'push'
