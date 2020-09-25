@@ -17,6 +17,9 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IStatorBuilder AddStateR(this IServiceCollection services, params Assembly[] assembliesToScan)
         {
+            // Add dependencies
+            services.AddMediatR(assembliesToScan);
+
             // Register the store
             services.AddSingleton<IStore, Store>();
 
