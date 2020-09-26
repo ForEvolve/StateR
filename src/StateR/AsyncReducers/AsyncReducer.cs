@@ -24,11 +24,10 @@ namespace StateR
                 if (initialState.RecordState == AsyncOperationState.Idle)
                 {
                     await Store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Loading), cancellationToken);
-                    var updatedState = await LoadAsync(action, initialState);
-                    var completedAction = CreateCompletedAction(action, initialState, updatedState);
+                    var completedAction = await LoadAsync(action, initialState);
                     await Store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Succeeded), cancellationToken);
                     await Store.DispatchAsync(completedAction, cancellationToken);
-                    return updatedState;
+                    return Store.GetState<TState>();
                 }
             }
             catch (Exception ex)
@@ -41,8 +40,7 @@ namespace StateR
             return initialState;
         }
 
-        protected abstract Task<TState> LoadAsync(TAction action, TState initalState, CancellationToken cancellationToken = default);
-        protected abstract IAction CreateCompletedAction(TAction action, TState initalState, TState updatedState);
+        protected abstract Task<IAction> LoadAsync(TAction action, TState initalState, CancellationToken cancellationToken = default);
 
         public virtual TState Reduce(OperationStateUpdated action, TState initialState)
             => initialState with { RecordState = action.NewRecordState };
