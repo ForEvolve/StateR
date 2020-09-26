@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 
 namespace StateR
 {
-    public interface IAsyncReducer<TAction, TState>
-        where TAction : IAction
+    public interface IAsyncReducer<TAction, TState, TResponse>
+        where TAction : IAsyncAction<TResponse>
         where TState : AsyncState
     {
-        Task<TState> ReduceAsync(TAction action, TState initialState, CancellationToken cancellationToken = default);
+        Task ReduceAsync(TAction action, TState initialState, CancellationToken cancellationToken = default);
     }
 }

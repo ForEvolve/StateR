@@ -67,18 +67,6 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var iReducerType = typeof(IReducer<,>);
             var reducerHandler = typeof(ReducerHandler<,>);
-            return SharedAddReducers(builder, iReducerType, reducerHandler);
-        }
-
-        private static IStatorBuilder AddAsyncReducers(this IStatorBuilder builder)
-        {
-            var iReducerType = typeof(IAsyncReducer<,>);
-            var reducerHandler = typeof(AsyncReducerHandler<,>);
-            return SharedAddReducers(builder, iReducerType, reducerHandler);
-        }
-
-        private static IStatorBuilder SharedAddReducers(IStatorBuilder builder, Type iReducerType, Type reducerHandler)
-        {
             builder.All
                 .Where(type => type
                     .GetTypeInfo()
@@ -104,7 +92,35 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
-        //AsyncReducerHandler<TState, TAction> : IRequestHandler<TAction>
+        private static IStatorBuilder AddAsyncReducers(this IStatorBuilder builder)
+        {
+            var iReducerType = typeof(IAsyncReducer<,,>);
+            var reducerHandler = typeof(AsyncReducerHandler<,,>);
+            builder.All
+                .Where(type => type
+                    .GetTypeInfo()
+                    .GetInterfaces()
+                    .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == iReducerType)
+                ).ToList()
+                .ForEach(reducerType => reducerType
+                    .GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == iReducerType)
+                    .ToList().ForEach(reducerInterfaceType =>
+                    {
+                        // Equivalent to: AddSingleton<IRequestHandler<TAction, TResponse>, AsyncReducerHandler<TState, TAction, TResponse>>
+                        var stateType = reducerInterfaceType.GenericTypeArguments[0];
+                        var actionType = reducerInterfaceType.GenericTypeArguments[1];
+                        var responseType = reducerInterfaceType.GenericTypeArguments[2];
+                        var requestHandlerServiceType = iRequestHandlerType.MakeGenericType(actionType, responseType);
+                        var requestHandlerImplementationType = reducerHandler.MakeGenericType(stateType, actionType, responseType);
+                        builder.Services.AddSingleton(requestHandlerServiceType, requestHandlerImplementationType);
+
+                        // Equivalent to: AddSingleton<IAsyncReducer<TState, TAction, TResponse>, Reducer>();
+                        builder.Services.AddSingleton(reducerInterfaceType, reducerType);
+                    })
+                );
+            return builder;
+        }
 
         private class StatorBuilder : IStatorBuilder
         {
