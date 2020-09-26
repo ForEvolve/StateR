@@ -41,7 +41,7 @@ namespace StateR
             return initialState;
         }
 
-        protected abstract Task<TState> LoadAsync(TAction action, TState initalState);
+        protected abstract Task<TState> LoadAsync(TAction action, TState initalState, CancellationToken cancellationToken = default);
         protected abstract IAction CreateCompletedAction(TAction action, TState initalState, TState updatedState);
 
         public virtual TState Reduce(OperationStateUpdated action, TState initialState)
