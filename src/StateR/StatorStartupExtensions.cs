@@ -31,14 +31,14 @@ namespace Microsoft.Extensions.DependencyInjection
             var allTypes = assembliesToScan.SelectMany(a => a.GetTypes()).ToList();
             var foundStates = allTypes.Where(type => type.IsSubclassOf(baseStateType)).ToList();
             return new StatorBuilder(services, allTypes, foundStates)
-                .AddInitialStates()
-                .AddStates()
-                .AddReducers()
-                .AddAsyncReducers()
+                //.AddInitialStates()
+                //.AddStates()
+                //.AddReducers()
+                //.AddAsyncReducers()
             ;
         }
 
-        private static IStatorBuilder AddInitialStates(this IStatorBuilder builder)
+        public static IStatorBuilder AddInitialStates(this IStatorBuilder builder)
         {
             var iInitialStateType = typeof(IInitialState<>);
             builder.Services.Scan(s => s
@@ -50,7 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
-        private static IStatorBuilder AddStates(this IStatorBuilder builder)
+        public static IStatorBuilder AddStates(this IStatorBuilder builder)
         {
             foreach (var type in builder.States)
             {
@@ -63,14 +63,14 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
 
-        private static IStatorBuilder AddReducers(this IStatorBuilder builder)
+        public static IStatorBuilder AddReducers(this IStatorBuilder builder)
         {
             var iReducerType = typeof(IReducer<,>);
             var reducerHandler = typeof(ReducerHandler<,>);
             return SharedAddReducers(builder, iReducerType, reducerHandler);
         }
 
-        private static IStatorBuilder AddAsyncReducers(this IStatorBuilder builder)
+        public static IStatorBuilder AddAsyncReducers(this IStatorBuilder builder)
         {
             var iReducerType = typeof(IAsyncReducer<,>);
             var reducerHandler = typeof(AsyncReducerHandler<,>);
@@ -103,8 +103,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 );
             return builder;
         }
-
-        //AsyncReducerHandler<TState, TAction> : IRequestHandler<TAction>
 
         private class StatorBuilder : IStatorBuilder
         {
