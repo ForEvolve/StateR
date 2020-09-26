@@ -29,14 +29,33 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddMediatR(assembliesToScan);
             services.AddSingleton<IStore, Store>();
 
-            var allTypes = assembliesToScan.SelectMany(a => a.GetTypes()).ToList();
-            //var foundStates = allTypes.Where(type => type.IsSubclassOf(baseStateType)).ToList();
-            return new StatorBuilder(services, allTypes)
-                //.AddInitialStates()
-                //.AddStates()
-                //.AddReducers()
-                //.AddAsyncReducers()
-            ;
+            var allTypes = assembliesToScan.SelectMany(a => a.GetTypes());
+            return new StatorBuilder(services, allTypes);
+        }
+
+        //public static IStatorBuilder AddInternalTypes(this IStatorBuilder builder)
+        //{
+        //    var thisAssembly = typeof(StatorStartupExtensions).Assembly;
+        //    var allTypes = thisAssembly.GetTypes();
+        //    return builder.AddTypes(allTypes);
+        //}
+
+        public static IStatorBuilder OutputStates(this IStatorBuilder builder)
+        {
+            foreach (var state in builder.States)
+            {
+                Console.WriteLine($"state: {state.FullName}");
+            }
+            return builder;
+        }
+
+        public static IStatorBuilder OutputActions(this IStatorBuilder builder)
+        {
+            foreach (var action in builder.Actions)
+            {
+                Console.WriteLine($"action: {action.FullName}");
+            }
+            return builder;
         }
 
         public static IStatorBuilder AddInitialStates(this IStatorBuilder builder)
@@ -66,13 +85,44 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IStatorBuilder AddReducers(this IStatorBuilder builder)
         {
+
             var iReducerType = typeof(IReducer<,>);
             var reducerHandler = typeof(ReducerHandler<,>);
             return SharedAddReducers(builder, iReducerType, reducerHandler);
         }
 
+        public static IStatorBuilder AddState<TState, TInitialState>(this IStatorBuilder builder)
+            where TState : StateBase
+            where TInitialState : class, IInitialState<TState>
+        {
+            builder.Services
+                .AddSingleton<IInitialState<TState>, TInitialState>()
+                .AddSingleton<IState<TState>, State<TState>>()
+            ;
+            builder.AddTypes(new[] {
+                typeof(TState),
+                typeof(TInitialState),
+            });
+            return builder;
+        }
+
         public static IStatorBuilder AddAsyncReducers(this IStatorBuilder builder)
         {
+            builder.AddState<AsyncErrorState, InitialAsyncErrorState>();
+
+            // Default error handlers
+            // TODO: parametrize that so consumers can customize it
+            builder.Services
+                .AddSingleton<IRequestHandler<AsyncErrorOccured, Unit>, ReducerHandler<AsyncErrorState, AsyncErrorOccured>>()
+                .AddSingleton<IReducer<AsyncErrorOccured, AsyncErrorState>, AsyncErrorOccuredReducer>()
+            ;
+            builder.AddTypes(new[] {
+                typeof(ReducerHandler<AsyncErrorState, AsyncErrorOccured>),
+                typeof(AsyncErrorOccuredReducer),
+                typeof(AsyncErrorOccured)
+            });
+
+            // Scan for IAsyncReducer
             var iReducerType = typeof(IAsyncReducer<,>);
             var reducerHandler = typeof(AsyncReducerHandler<,>);
             return SharedAddReducers(builder, iReducerType, reducerHandler);
@@ -91,14 +141,14 @@ namespace Microsoft.Extensions.DependencyInjection
                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == iReducerType)
                     .ToList().ForEach(reducerInterfaceType =>
                     {
-                        // Equivalent to: AddSingleton<IRequestHandler<TAction, Unit>, ReducerHandler<TState, TAction>>
+                        // Equivalent to: AddSingleton<IRequestHandler<TAction, Unit>, [Async]ReducerHandler<TState, TAction>>
                         var actionType = reducerInterfaceType.GenericTypeArguments[0];
                         var stateType = reducerInterfaceType.GenericTypeArguments[1];
                         var requestHandlerServiceType = iRequestHandlerType.MakeGenericType(actionType, unitType);
                         var requestHandlerImplementationType = reducerHandler.MakeGenericType(stateType, actionType);
                         builder.Services.AddSingleton(requestHandlerServiceType, requestHandlerImplementationType);
 
-                        // Equivalent to: AddSingleton<IReducer<TState, TAction>, Reducer>();
+                        // Equivalent to: AddSingleton<I[Async]Reducer<TState, TAction>, Reducer>();
                         builder.Services.AddSingleton(reducerInterfaceType, reducerType);
                     })
                 );
@@ -107,34 +157,41 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private class StatorBuilder : IStatorBuilder
         {
-            public StatorBuilder(IServiceCollection services, IList<Type> all)
+            public StatorBuilder(IServiceCollection services, IEnumerable<Type> all)
             {
                 Services = services ?? throw new ArgumentNullException(nameof(services));
                 if (all == null) { throw new ArgumentNullException(nameof(all)); }
 
-                All = new ReadOnlyCollection<Type>(all);
-                States = GetStates();
-                Actions = GetActions();
+                AddTypes(all);
             }
-            private ReadOnlyCollection<Type> GetStates()
+
+            public static IEnumerable<Type> GetStates(IEnumerable<Type> types)
             {
-                var states = All.Where(type => type.IsSubclassOf(baseStateType)).ToList();
-                return new ReadOnlyCollection<Type>(states);
+                var states = types.Where(type => type.IsSubclassOf(baseStateType));
+                return states;
             }
-            private ReadOnlyCollection<Type> GetActions()
+            public static IEnumerable<Type> GetActions(IEnumerable<Type> types)
             {
-                var actions = All.Where(type => type
+                var actions = types.Where(type => type
                     .GetTypeInfo()
                     .GetInterfaces()
                     .Any(i => i == iActionType)
-                ).ToList();
-                return new ReadOnlyCollection<Type>(actions);
+                );
+                return actions;
+            }
+
+            public IStatorBuilder AddTypes(IEnumerable<Type> types)
+            {
+                All.AddRange(types);
+                States.AddRange(GetStates(types));
+                Actions.AddRange(GetActions(types));
+                return this;
             }
 
             public IServiceCollection Services { get; }
-            public ReadOnlyCollection<Type> Actions { get; }
-            public ReadOnlyCollection<Type> States { get; }
-            public ReadOnlyCollection<Type> All { get; }
+            public List<Type> Actions { get; } = new List<Type>();
+            public List<Type> States { get; } = new List<Type>();
+            public List<Type> All { get; } = new List<Type>();
         }
 
         private class InitialState<TState> : IInitialState<TState>

@@ -3,6 +3,7 @@ using StateR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,38 +41,53 @@ namespace Microsoft.Extensions.DependencyInjection
 
             public void Set(TState state)
             {
-                Console.WriteLine($"{nameof(Set)} {Sanitize(state.ToString())}");
+                Console.WriteLine($"[{StateTypeName}] {nameof(Set)} {Sanitize(state.ToString())}");
                 _state.Set(state);
             }
 
             public void Subscribe(Action stateHasChangedDelegate)
             {
-                Console.WriteLine($"{nameof(Subscribe)} to {stateHasChangedDelegate}");
+                Console.WriteLine($"[{StateTypeName}] {nameof(Subscribe)} to {stateHasChangedDelegate}");
                 _state.Subscribe(stateHasChangedDelegate);
             }
 
             public void Transform(Func<TState, TState> stateTransform)
             {
-                Console.WriteLine($"{nameof(Transform)}ing {Sanitize(Current.ToString())}");
+                Console.WriteLine($"[{StateTypeName}] {nameof(Transform)}ing {Sanitize(Current.ToString())}");
                 _state.Transform(stateTransform);
-                Console.WriteLine($"{nameof(Transform)}ed {Sanitize(Current.ToString())}");
+                Console.WriteLine($"[{StateTypeName}] {nameof(Transform)}ed {Sanitize(Current.ToString())}");
             }
 
             public void Unsubscribe(Action stateHasChangedDelegate)
             {
-                Console.WriteLine($"{nameof(Unsubscribe)} to {stateHasChangedDelegate}");
+                Console.WriteLine($"[{StateTypeName}] {nameof(Unsubscribe)} to {stateHasChangedDelegate}");
                 _state.Unsubscribe(stateHasChangedDelegate);
             }
 
             public void Notify()
             {
-                Console.WriteLine($"{nameof(Notify)}");
+                Console.WriteLine($"[{StateTypeName}] {nameof(Notify)}");
                 _state.Notify();
             }
 
             private string Sanitize(string input)
             {
                 return input.Replace(Environment.NewLine, "\\n");
+            }
+
+            private string _stateTypeName;
+            private string StateTypeName
+            {
+                get
+                {
+                    if (string.IsNullOrEmpty(_stateTypeName))
+                    {
+                        var fullName = typeof(TState).FullName;
+                        var lastDotIndex = fullName.LastIndexOf('.');
+                        _stateTypeName = fullName.Substring(lastDotIndex + 1);
+                    }
+                    return _stateTypeName;
+                }
             }
         }
     }

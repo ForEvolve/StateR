@@ -35,8 +35,7 @@ namespace StateR
             {
                 await ExceptionCatchedAsync(ex, cancellationToken);
                 await Store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Failed), cancellationToken);
-                var errorState = new AsyncErrorState<TAction, TState>(action, initialState, ex);
-                var errorAction = new AsyncErrorOccured<TAction, TState>(errorState);
+                var errorAction = new AsyncErrorOccured(action, initialState, Store.GetState<TState>(), ex);
                 await Store.DispatchAsync(errorAction, cancellationToken);
                 await ExceptionDispatchedAsync(ex, cancellationToken);
             }
