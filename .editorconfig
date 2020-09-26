@@ -230,8 +230,13 @@ dotnet_naming_style.interfaces_style.capitalization = pascal_case
 dotnet_naming_style.interfaces_style.required_prefix = I
 
 
+# IDE1006: Naming Styles
+# This fix record class naming issues; to be targetted at records only when possible
+dotnet_diagnostic.IDE1006.severity = suggestion
+
 # private fields and Async methods naming are optional for tests.
 # this allows to declare `private sut` and name async test without the `Async` suffix.
 [**/*.{Tests,IntegrationTests,FunctionalTests}/**.cs]
 dotnet_naming_rule.private_fields_should_be_camel_case.severity = suggestion
 dotnet_naming_rule.async_methods_should_end_in_async.severity = suggestion
+
