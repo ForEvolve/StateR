@@ -10,58 +10,76 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class StatorStartupExtensions
     {
+        internal static readonly Type baseStateType = typeof(StateBase);
+        internal static readonly Type iStateType = typeof(IState<>);
+        internal static readonly Type stateType = typeof(State<>);
+
+        internal static readonly Type iRequestHandlerType = typeof(IRequestHandler<,>);
+        internal static readonly Type unitType = typeof(Unit);
+
         public static IStatorBuilder AddStateR(this IServiceCollection services, params Assembly[] assembliesToScan)
         {
-            // Add dependencies
             services.AddMediatR(assembliesToScan);
-
-            // Register the store
             services.AddSingleton<IStore, Store>();
 
-            // Register initial states
-            services.Scan(s => s
-                .FromAssemblies(assembliesToScan)
-                .AddClasses(classes => classes.AssignableTo(typeof(IInitialState<>)))
+            var allTypes = assembliesToScan.SelectMany(a => a.GetTypes()).ToList();
+            var foundStates = allTypes.Where(type => type.IsSubclassOf(baseStateType)).ToList();
+            return new StatorBuilder(services, allTypes, foundStates)
+                .AddInitialStates()
+                .AddStates()
+                .AddReducers()
+                .AddAsyncReducers()
+            ;
+        }
+
+        private static IStatorBuilder AddInitialStates(this IStatorBuilder builder)
+        {
+            var iInitialStateType = typeof(IInitialState<>);
+            builder.Services.Scan(s => s
+                .AddTypes(builder.All)
+                .AddClasses(classes => classes.AssignableTo(iInitialStateType))
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
             );
+            return builder;
+        }
 
-            // Register states
-            var iStateType = typeof(IState<>);
-            var stateType = typeof(State<>);
-            var baseStateType = typeof(StateBase);
-            var iBrowsableStateType = typeof(IBrowsableState<>);
-            var browsableStateDecoratorType = typeof(BrowsableStateDecorator<>);
-            var allTypes = assembliesToScan.SelectMany(a => a.GetTypes());
-            allTypes.Where(type => type.IsSubclassOf(baseStateType))
-                .ToList()
-                .ForEach(type =>
-                {
-                    // Equivalent to: AddSingleton<IState<TState>, State<TState>>();
-                    var stateServiceType = iStateType.MakeGenericType(type);
-                    var stateImplementationType = stateType.MakeGenericType(type);
-                    services.AddSingleton(stateServiceType, stateImplementationType);
+        private static IStatorBuilder AddStates(this IStatorBuilder builder)
+        {
+            foreach (var type in builder.States)
+            {
+                // Equivalent to: AddSingleton<IState<TState>, State<TState>>();
+                var stateServiceType = iStateType.MakeGenericType(type);
+                var stateImplementationType = stateType.MakeGenericType(type);
+                builder.Services.AddSingleton(stateServiceType, stateImplementationType);
+            }
+            return builder;
+        }
 
-                    // Equivalent to: 
-                    // - Decorate<IState<TState>, BrowsableStateDecorator<TState>>();
-                    // - AddSingleton<IBrowsableState<TState>>(p => p.GetRequiredService<IState<TState>>());
-                    var browsableStateServiceType = iBrowsableStateType.MakeGenericType(type);
-                    var browsableStateImplementationType = browsableStateDecoratorType.MakeGenericType(type);
-                    services.Decorate(stateServiceType, browsableStateImplementationType);
-                    services.AddSingleton(browsableStateServiceType, p => p.GetRequiredService(stateServiceType));
-                });
 
-            // Register reducers
+        private static IStatorBuilder AddReducers(this IStatorBuilder builder)
+        {
             var iReducerType = typeof(IReducer<,>);
             var reducerHandler = typeof(ReducerHandler<,>);
-            var iRequestHandlerType = typeof(IRequestHandler<,>);
-            var unitType = typeof(Unit);
-            allTypes
+            return SharedAddReducers(builder, iReducerType, reducerHandler);
+        }
+
+        private static IStatorBuilder AddAsyncReducers(this IStatorBuilder builder)
+        {
+            var iReducerType = typeof(IAsyncReducer<,>);
+            var reducerHandler = typeof(AsyncReducerHandler<,>);
+            return SharedAddReducers(builder, iReducerType, reducerHandler);
+        }
+
+        private static IStatorBuilder SharedAddReducers(IStatorBuilder builder, Type iReducerType, Type reducerHandler)
+        {
+            builder.All
                 .Where(type => type
                     .GetTypeInfo()
                     .GetInterfaces()
@@ -77,30 +95,31 @@ namespace Microsoft.Extensions.DependencyInjection
                         var actionType = reducerInterfaceType.GenericTypeArguments[1];
                         var requestHandlerServiceType = iRequestHandlerType.MakeGenericType(actionType, unitType);
                         var requestHandlerImplementationType = reducerHandler.MakeGenericType(stateType, actionType);
-                        services.AddSingleton(requestHandlerServiceType, requestHandlerImplementationType);
+                        builder.Services.AddSingleton(requestHandlerServiceType, requestHandlerImplementationType);
 
                         // Equivalent to: AddSingleton<IReducer<TState, TAction>, Reducer>();
-                        services.AddSingleton(reducerInterfaceType, reducerType);
+                        builder.Services.AddSingleton(reducerInterfaceType, reducerType);
                     })
                 );
-
-            // Register BrowsableState options
-            services
-                .Configure<BrowsableStateOptions>(options => { })
-                .AddSingleton(ctx => ctx.GetService<IOptionsMonitor<BrowsableStateOptions>>().CurrentValue)
-            ;
-
-            // BrowsableStateOptions
-            return new StatorBuilder(services);
+            return builder;
         }
+
+        //AsyncReducerHandler<TState, TAction> : IRequestHandler<TAction>
 
         private class StatorBuilder : IStatorBuilder
         {
-            public StatorBuilder(IServiceCollection services)
+            public StatorBuilder(IServiceCollection services, IList<Type> all, IList<Type> states)
             {
                 Services = services ?? throw new ArgumentNullException(nameof(services));
+                if (all == null) { throw new ArgumentNullException(nameof(all)); }
+                if (states == null) { throw new ArgumentNullException(nameof(states)); }
+
+                States = new ReadOnlyCollection<Type>(states);
+                All = new ReadOnlyCollection<Type>(all);
             }
             public IServiceCollection Services { get; }
+            public ReadOnlyCollection<Type> States { get; }
+            public ReadOnlyCollection<Type> All { get; }
         }
 
         private class InitialState<TState> : IInitialState<TState>
@@ -166,154 +185,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
             }
-        }
-
-        private class BrowsableStateDecorator<TState> : IBrowsableState<TState>, IState<TState>, IDisposable
-            where TState : StateBase
-        {
-            private readonly List<StateHistoryEntry<TState>> _states = new();
-            private readonly BrowsableStateOptions _options;
-
-            private int _cursorIndex;
-
-            public BrowsableStateDecorator(IState<TState> state, BrowsableStateOptions options)
-            {
-                _state = state ?? throw new ArgumentNullException(nameof(state));
-                _options = options ?? throw new ArgumentNullException(nameof(options));
-                _state.Subscribe(StateChanged);
-                PushCurrentState();
-            }
-
-            private void StateChanged()
-            {
-                if (Current == Cursor?.State)
-                {
-                    return;
-                }
-                PushCurrentState();
-            }
-
-            private void PushCurrentState() => PushState(Current);
-            private void PushState(TState state)
-            {
-                if (state == Cursor?.State)
-                {
-                    return;
-                }
-
-                _states.Add(new StateHistoryEntry<TState>(state, DateTime.UtcNow));
-                ResetCursorPosition();
-
-                if (_options.HasAMaxHistoryLength() && _states.Count >= _options.MaxHistoryLength)
-                {
-                    _states.RemoveAt(0);
-                    ResetCursorPosition();
-                }
-
-                void ResetCursorPosition()
-                {
-                    _cursorIndex = _states.Count - 1;
-                }
-            }
-
-            private StateHistoryEntry<TState>[] _history;
-            private int _lastStateCount = 0;
-            public IReadOnlyCollection<StateHistoryEntry<TState>> History
-            {
-                get
-                {
-                    if (_history is null || _states.Count != _lastStateCount)
-                    {
-                        _history = _states.ToArray().Reverse().ToArray();
-                        _lastStateCount = _states.Count;
-                    }
-                    return _history;
-                }
-            }
-
-            public StateHistoryEntry<TState> Cursor
-                => _states.Count > _cursorIndex ? _states[_cursorIndex] : default;
-
-            public bool Redo()
-            {
-                if (_cursorIndex + 1 >= _states.Count)
-                {
-                    return false;
-                }
-                _cursorIndex++;
-                Set(Cursor.State);
-                Notify();
-                return true;
-            }
-
-            public bool Undo()
-            {
-                if (_cursorIndex - 1 < 0)
-                {
-                    return false;
-                }
-                _cursorIndex--;
-                Set(Cursor.State);
-                Notify();
-                return true;
-            }
-
-            #region IState<TState> Facade
-
-            private readonly IState<TState> _state;
-
-            public TState Current => _state.Current;
-
-            public void Set(TState state)
-            {
-                _state.Set(state);
-            }
-
-            public void Subscribe(Action stateHasChangedDelegate)
-            {
-                _state.Subscribe(stateHasChangedDelegate);
-            }
-
-            public void Transform(Func<TState, TState> stateTransform)
-            {
-                _state.Transform(stateTransform);
-            }
-
-            public void Unsubscribe(Action stateHasChangedDelegate)
-            {
-                _state.Unsubscribe(stateHasChangedDelegate);
-            }
-
-            public void Notify()
-            {
-                _state.Notify();
-            }
-
-            #endregion
-
-            #region IDisposable
-
-            private bool disposedValue;
-
-            protected virtual void Dispose(bool disposing)
-            {
-                if (!disposedValue)
-                {
-                    if (disposing)
-                    {
-                        Unsubscribe(StateChanged);
-                    }
-                    disposedValue = true;
-                }
-            }
-
-            public void Dispose()
-            {
-                Dispose(disposing: true);
-                GC.SuppressFinalize(this);
-            }
-
-            #endregion
         }
     }
 }
