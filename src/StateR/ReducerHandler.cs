@@ -23,7 +23,7 @@ namespace StateR
         {
             foreach (var reducer in _reducers)
             {
-                _state.Transform(state => reducer.Reduce(state, action));
+                _state.Transform(state => reducer.Reduce(action, state));
             }
             _state.Notify();
         }
