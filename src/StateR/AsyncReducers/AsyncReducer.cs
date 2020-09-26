@@ -10,11 +10,12 @@ namespace StateR
         where TAction : IAction
         where TState : AsyncState
     {
-        private readonly IStore _store;
         public AsyncReducer(IStore store)
         {
-            _store = store ?? throw new ArgumentNullException(nameof(store));
+            Store = store ?? throw new ArgumentNullException(nameof(store));
         }
+
+        protected IStore Store { get; }
 
         public async Task<TState> ReduceAsync(TAction action, TState initialState, CancellationToken cancellationToken = default)
         {
@@ -22,20 +23,20 @@ namespace StateR
             {
                 if (initialState.RecordState == AsyncOperationState.Idle)
                 {
-                    await _store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Loading), cancellationToken);
+                    await Store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Loading), cancellationToken);
                     var updatedState = await LoadAsync(action, initialState);
                     var completedAction = CreateCompletedAction(action, initialState, updatedState);
-                    await _store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Succeeded), cancellationToken);
-                    await _store.DispatchAsync(completedAction, cancellationToken);
+                    await Store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Succeeded), cancellationToken);
+                    await Store.DispatchAsync(completedAction, cancellationToken);
                     return updatedState;
                 }
             }
             catch (Exception ex)
             {
-                await _store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Failed), cancellationToken);
+                await Store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Failed), cancellationToken);
                 var errorState = new AsyncErrorState<TAction, TState>(action, initialState, ex);
                 var errorAction = new AsyncErrorOccured<TAction, TState>(errorState);
-                await _store.DispatchAsync(errorAction, cancellationToken);
+                await Store.DispatchAsync(errorAction, cancellationToken);
             }
             return initialState;
         }
