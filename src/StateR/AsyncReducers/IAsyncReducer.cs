@@ -7,6 +7,6 @@ namespace StateR
         where TAction : IAction
         where TState : AsyncState
     {
-        Task<TState> ReduceAsync(TAction action, TState initialState, CancellationToken cancellationToken = default);
+        Task ReduceAsync(TAction action, TState initialState, CancellationToken cancellationToken = default);
     }
 }

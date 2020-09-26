@@ -7,6 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public interface IStatorBuilder
     {
         IServiceCollection Services { get; }
+        ReadOnlyCollection<Type> Actions { get; }
         ReadOnlyCollection<Type> States { get; }
         ReadOnlyCollection<Type> All { get; }
     }

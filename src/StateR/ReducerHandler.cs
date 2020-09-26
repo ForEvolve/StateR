@@ -10,10 +10,10 @@ namespace StateR
         where TState : StateBase
         where TAction : IAction
     {
-        private readonly IEnumerable<IReducer<TState, TAction>> _reducers;
+        private readonly IEnumerable<IReducer<TAction, TState>> _reducers;
         private readonly IState<TState> _state;
 
-        public ReducerHandler(IState<TState> state, IEnumerable<IReducer<TState, TAction>> reducers)
+        public ReducerHandler(IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers)
         {
             _state = state ?? throw new ArgumentNullException(nameof(state));
             _reducers = reducers ?? throw new ArgumentNullException(nameof(reducers));

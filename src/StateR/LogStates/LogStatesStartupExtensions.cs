@@ -18,9 +18,9 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 // Equivalent to: 
                 // - Decorate<IState<TState>, StateLoggerDecorator<TState>>();
-                var stateServiceType = iStateType.MakeGenericType(type);
-                var stateLoggerDecoratorImplementationType = stateLoggerDecorator.MakeGenericType(type);
-                builder.Services.Decorate(stateServiceType, stateLoggerDecoratorImplementationType);
+                var serviceType = iStateType.MakeGenericType(type);
+                var implementationType = stateLoggerDecorator.MakeGenericType(type);
+                builder.Services.Decorate(serviceType, implementationType);
             }
             return builder;
         }
@@ -29,33 +29,37 @@ namespace Microsoft.Extensions.DependencyInjection
         private class StateLoggerDecorator<TState> : IState<TState>
             where TState : StateBase
         {
-            #region IState<TState> Facade
-
             private readonly IState<TState> _state;
+
+            public StateLoggerDecorator(IState<TState> state)
+            {
+                _state = state ?? throw new ArgumentNullException(nameof(state));
+            }
 
             public TState Current => _state.Current;
 
             public void Set(TState state)
             {
-                Console.WriteLine($"{nameof(Set)}: {state}");
+                Console.WriteLine($"{nameof(Set)} {Sanitize(state.ToString())}");
                 _state.Set(state);
             }
 
             public void Subscribe(Action stateHasChangedDelegate)
             {
-                Console.WriteLine($"{nameof(Subscribe)}: {stateHasChangedDelegate}");
+                Console.WriteLine($"{nameof(Subscribe)} to {stateHasChangedDelegate}");
                 _state.Subscribe(stateHasChangedDelegate);
             }
 
             public void Transform(Func<TState, TState> stateTransform)
             {
-                Console.WriteLine($"{nameof(Transform)}: {stateTransform}");
+                Console.WriteLine($"{nameof(Transform)}ing {Sanitize(Current.ToString())}");
                 _state.Transform(stateTransform);
+                Console.WriteLine($"{nameof(Transform)}ed {Sanitize(Current.ToString())}");
             }
 
             public void Unsubscribe(Action stateHasChangedDelegate)
             {
-                Console.WriteLine($"{nameof(Unsubscribe)}: {stateHasChangedDelegate}");
+                Console.WriteLine($"{nameof(Unsubscribe)} to {stateHasChangedDelegate}");
                 _state.Unsubscribe(stateHasChangedDelegate);
             }
 
@@ -65,7 +69,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 _state.Notify();
             }
 
-            #endregion
+            private string Sanitize(string input)
+            {
+                return input.Replace(Environment.NewLine, "\\n");
+            }
         }
     }
 }

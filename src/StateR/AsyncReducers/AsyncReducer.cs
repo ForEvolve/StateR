@@ -1,12 +1,13 @@
 ﻿using MediatR;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace StateR
 {
-    public abstract class AsyncReducer<TAction, TState> : IAsyncReducer<TAction, TState>, IReducer<TState, OperationStateUpdated>
+    public abstract class AsyncReducer<TAction, TState> : IAsyncReducer<TAction, TState>, IReducer<OperationStateUpdated, TState>
         where TAction : IAction
         where TState : AsyncState
     {
@@ -17,28 +18,32 @@ namespace StateR
 
         protected IStore Store { get; }
 
-        public async Task<TState> ReduceAsync(TAction action, TState initialState, CancellationToken cancellationToken = default)
+        public async Task ReduceAsync(TAction action, TState initialState, CancellationToken cancellationToken = default)
         {
             try
             {
                 if (initialState.RecordState == AsyncOperationState.Idle)
                 {
-                    await Store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Loading), cancellationToken);
-                    var completedAction = await LoadAsync(action, initialState);
-                    await Store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Succeeded), cancellationToken);
-                    await Store.DispatchAsync(completedAction, cancellationToken);
-                    return Store.GetState<TState>();
+                    const bool configureAwait = true;
+                    await Store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Loading), cancellationToken).ConfigureAwait(configureAwait);
+                    var completedAction = await LoadAsync(action, initialState).ConfigureAwait(configureAwait);
+                    await Store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Succeeded), cancellationToken).ConfigureAwait(configureAwait);
+                    await Store.DispatchAsync(completedAction, cancellationToken).ConfigureAwait(configureAwait);
                 }
             }
             catch (Exception ex)
             {
+                await ExceptionCatchedAsync(ex, cancellationToken);
                 await Store.DispatchAsync(new OperationStateUpdated(AsyncOperationState.Failed), cancellationToken);
                 var errorState = new AsyncErrorState<TAction, TState>(action, initialState, ex);
                 var errorAction = new AsyncErrorOccured<TAction, TState>(errorState);
                 await Store.DispatchAsync(errorAction, cancellationToken);
+                await ExceptionDispatchedAsync(ex, cancellationToken);
             }
-            return initialState;
         }
+
+        protected virtual Task ExceptionCatchedAsync(Exception exception, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        protected virtual Task ExceptionDispatchedAsync(Exception exception, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
         protected abstract Task<IAction> LoadAsync(TAction action, TState initalState, CancellationToken cancellationToken = default);
 
@@ -64,10 +69,8 @@ namespace StateR
         {
             foreach (var reducer in _reducers)
             {
-                var updatedState = await reducer.ReduceAsync(action, _state.Current, cancellationToken);
-                _state.Set(updatedState);
+                await reducer.ReduceAsync(action, _state.Current, cancellationToken);
             }
-            _state.Notify();
             return Unit.Value;
         }
     }

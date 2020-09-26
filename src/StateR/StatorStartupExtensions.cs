@@ -19,6 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
         internal static readonly Type baseStateType = typeof(StateBase);
         internal static readonly Type iStateType = typeof(IState<>);
         internal static readonly Type stateType = typeof(State<>);
+        internal static readonly Type iActionType = typeof(IAction);
 
         internal static readonly Type iRequestHandlerType = typeof(IRequestHandler<,>);
         internal static readonly Type unitType = typeof(Unit);
@@ -29,8 +30,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IStore, Store>();
 
             var allTypes = assembliesToScan.SelectMany(a => a.GetTypes()).ToList();
-            var foundStates = allTypes.Where(type => type.IsSubclassOf(baseStateType)).ToList();
-            return new StatorBuilder(services, allTypes, foundStates)
+            //var foundStates = allTypes.Where(type => type.IsSubclassOf(baseStateType)).ToList();
+            return new StatorBuilder(services, allTypes)
                 //.AddInitialStates()
                 //.AddStates()
                 //.AddReducers()
@@ -91,8 +92,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     .ToList().ForEach(reducerInterfaceType =>
                     {
                         // Equivalent to: AddSingleton<IRequestHandler<TAction, Unit>, ReducerHandler<TState, TAction>>
-                        var stateType = reducerInterfaceType.GenericTypeArguments[0];
-                        var actionType = reducerInterfaceType.GenericTypeArguments[1];
+                        var actionType = reducerInterfaceType.GenericTypeArguments[0];
+                        var stateType = reducerInterfaceType.GenericTypeArguments[1];
                         var requestHandlerServiceType = iRequestHandlerType.MakeGenericType(actionType, unitType);
                         var requestHandlerImplementationType = reducerHandler.MakeGenericType(stateType, actionType);
                         builder.Services.AddSingleton(requestHandlerServiceType, requestHandlerImplementationType);
@@ -106,16 +107,32 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private class StatorBuilder : IStatorBuilder
         {
-            public StatorBuilder(IServiceCollection services, IList<Type> all, IList<Type> states)
+            public StatorBuilder(IServiceCollection services, IList<Type> all)
             {
                 Services = services ?? throw new ArgumentNullException(nameof(services));
                 if (all == null) { throw new ArgumentNullException(nameof(all)); }
-                if (states == null) { throw new ArgumentNullException(nameof(states)); }
 
-                States = new ReadOnlyCollection<Type>(states);
                 All = new ReadOnlyCollection<Type>(all);
+                States = GetStates();
+                Actions = GetActions();
             }
+            private ReadOnlyCollection<Type> GetStates()
+            {
+                var states = All.Where(type => type.IsSubclassOf(baseStateType)).ToList();
+                return new ReadOnlyCollection<Type>(states);
+            }
+            private ReadOnlyCollection<Type> GetActions()
+            {
+                var actions = All.Where(type => type
+                    .GetTypeInfo()
+                    .GetInterfaces()
+                    .Any(i => i == iActionType)
+                ).ToList();
+                return new ReadOnlyCollection<Type>(actions);
+            }
+
             public IServiceCollection Services { get; }
+            public ReadOnlyCollection<Type> Actions { get; }
             public ReadOnlyCollection<Type> States { get; }
             public ReadOnlyCollection<Type> All { get; }
         }
