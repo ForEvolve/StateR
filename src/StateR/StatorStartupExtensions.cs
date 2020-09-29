@@ -28,6 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddMediatR(assembliesToScan);
             services.AddSingleton<IStore, Store>();
+            services.AddSingleton<IDispatcher, Store>();
 
             var allTypes = assembliesToScan.SelectMany(a => a.GetTypes());
             return new StatorBuilder(services, allTypes);
