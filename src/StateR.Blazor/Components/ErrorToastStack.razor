@@ -1,0 +1,66 @@
+﻿@inject IState<AsyncErrorState> State
+
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@inject IWebAssemblyHostEnvironment HostEnvironment
+
+<div aria-live="polite" aria-atomic="true" class="stator-toast-stack">
+    <div class="inner-stack">
+
+        @if (Errors.Count > 0)
+        {
+            foreach (var error in Errors)
+            {
+                <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="mr-auto">An error occured!</strong>
+                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" @onclick="@(() => Dismiss(error))">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="toast-body">
+                        @error.Exception.Message
+                        @if (HostEnvironment.IsDevelopment())
+                        {
+                            <ul class="list-group mt-3">
+                                <li class="list-group-item">
+                                    <strong>Action:</strong>
+                                    <br />@error.Action
+                                    <br /><small>@error.Action.GetType().FullName</small>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Initial State:</strong>
+                                    <br />@error.InitialState
+                                    <br /><strong>Actual State:</strong>
+                                    <br />@error.ActualState
+                                    <br /><small>@error.InitialState.GetType().FullName</small>
+                                </li>
+                                <li class="list-group-item">
+                                    <pre class="text-light">@error.Exception.StackTrace</pre>
+                                </li>
+                            </ul>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code{
+    private List<AsyncErrorState> Errors { get; } = new();
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        State.Subscribe(() =>
+        {
+            Errors.Add(State.Current);
+            StateHasChanged();
+        });
+    }
+
+    private void Dismiss(AsyncErrorState state)
+    {
+        Errors.Remove(state);
+        StateHasChanged();
+    }
+}

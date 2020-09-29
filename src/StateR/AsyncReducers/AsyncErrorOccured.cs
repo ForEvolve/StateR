@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 
 namespace StateR
 {
@@ -19,6 +20,11 @@ namespace StateR
     public class AsyncErrorOccuredReducer : IReducer<AsyncErrorOccured, AsyncErrorState>
     {
         public AsyncErrorState Reduce(AsyncErrorOccured action, AsyncErrorState initialState)
-            => initialState with { Action = action.Action, InitialState = action.InitialState, ActualState = action.ActualState, Exception = action.Exception };
+            => initialState with {
+                Action = action.Action,
+                InitialState = action.InitialState,
+                ActualState = action.ActualState,
+                Exception = action.Exception
+            };
     }
 }
