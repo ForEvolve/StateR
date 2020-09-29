@@ -122,3 +122,42 @@ If you would like to contribute to the project, first, thank you for your intere
 ## Contributor Covenant Code of Conduct
 
 Also, please read the [Contributor Covenant Code of Conduct](https://github.com/ForEvolve/Toc/blob/master/CODE_OF_CONDUCT.md) that applies to all ForEvolve repositories.
+
+## Brainstorming
+
+-   Run code that affect actions, before reducers using `IActionInterceptor<TAction>` that intercept `TAction`
+
+    ```csharp
+    public interface IActionInterceptor<TAction>
+        where TAction : IAction
+    {
+        Task InterceptAsync(ActionInterceptorContext<TAction> context, CancellationToken cancellationToken);
+    }
+    public class ActionInterceptorContext<TAction>
+        where TAction : IAction
+    {
+        public TAction Action { get;set;  }
+
+        public bool SkipReduce { get; set; }
+        public bool SkipInterception { get; set; }
+        public bool SkipAfterEffect { get; set; }
+    }
+    ```
+
+-   Run reducers
+    ```csharp
+    public interface IReducer<TAction, TState>
+        where TAction : IAction
+        where TState : StateBase
+    {
+        TState Reduce(TAction action, TState initialState);
+    }
+    ```
+-   Run `IAfterEffects<TAction>` after reducers.
+    ```csharp
+    public interface IAfterEffects<TAction>
+        where TAction : IAction
+    {
+        Task HandleAsync(TAction action, CancellationToken cancellationToken);
+    }
+    ```
