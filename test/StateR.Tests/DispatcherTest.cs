@@ -3,7 +3,7 @@ using Xunit;
 
 namespace StateR.Test
 {
-    public class UnitTest1
+    public class DispatcherTest
     {
         [Fact]
         public void Test1()
