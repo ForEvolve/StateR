@@ -9,6 +9,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
+using StateR.Reducers;
+using StateR.AfterEffects;
+using StateR.Interceptors;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -113,7 +116,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IStatorBuilder AddAfterEffects(this IStatorBuilder builder)
         {
-            var iAfterEffectType = typeof(IAfterEffects<>);
+            var iAfterEffectType = typeof(IActionAfterEffects<>);
             builder.AfterEffects.ForEach(afterEffectType => {
                 afterEffectType
                     .GetInterfaces()
@@ -158,7 +161,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // Scan for IAsyncReducer
             var iReducerType = typeof(IAsyncReducer<,>);
             var reducerHandler = typeof(AsyncReducerHandler<,>);
-            var handlerType = typeof(IAfterEffects<>);
+            var handlerType = typeof(IActionAfterEffects<>);
             return SharedAddReducers(builder, iReducerType, reducerHandler, handlerType);
             //throw new NotImplementedException();
         }
@@ -238,7 +241,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             public IEnumerable<Type> FindAfterEffects(IEnumerable<Type> types)
             {
-                var iAfterEffects = typeof(IAfterEffects<>);
+                var iAfterEffects = typeof(IActionAfterEffects<>);
                 return types.Where(type => !type.IsAbstract && type
                     .GetTypeInfo()
                     .GetInterfaces()

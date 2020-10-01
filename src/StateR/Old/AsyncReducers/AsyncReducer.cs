@@ -1,4 +1,6 @@
-﻿using System;
+﻿using StateR.AfterEffects;
+using StateR.Reducers;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -49,7 +51,7 @@ namespace StateR
             => initialState with { RecordState = action.NewRecordState };
     }
 
-    public class AsyncReducerHandler<TState, TAction> : IAfterEffects<TAction>
+    public class AsyncReducerHandler<TState, TAction> : IActionAfterEffects<TAction>
         where TAction : IAction
         where TState : AsyncState
 

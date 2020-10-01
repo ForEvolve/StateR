@@ -1,4 +1,6 @@
 ﻿using StateR;
+using StateR.AfterEffects;
+using StateR.Interceptors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IStatorBuilder AddActionLogger(this IStatorBuilder builder)
         {
             var actionInterceptorType = typeof(IActionInterceptor<>);
-            var afterEffects = typeof(IAfterEffects<>);
+            var afterEffects = typeof(IActionAfterEffects<>);
             var actionLoggerType = typeof(ActionLogger<>);
             foreach (var type in builder.Actions)
             {
@@ -30,7 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
-        public class ActionLogger<TAction> : IActionInterceptor<TAction>, IAfterEffects<TAction>
+        public class ActionLogger<TAction> : IActionInterceptor<TAction>, IActionAfterEffects<TAction>
             where TAction : IAction
         {
             public Task InterceptAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken)

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StateR
+namespace StateR.Reducers
 {
     public interface IReducer<TAction, TState>
         where TAction : IAction

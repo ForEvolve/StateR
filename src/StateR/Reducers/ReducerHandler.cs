@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR
+namespace StateR.Reducers
 {
     public class ReducerHandler<TState, TAction> : IActionHandler<TAction>
         where TState : StateBase
