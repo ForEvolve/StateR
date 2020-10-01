@@ -1,12 +1,11 @@
-﻿using MediatR;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace StateR
 {
-    public class ReducerHandler<TState, TAction> : RequestHandler<TAction>
+    public class ReducerHandler<TState, TAction> : IActionHandler<TAction>
         where TState : StateBase
         where TAction : IAction
     {
@@ -19,11 +18,20 @@ namespace StateR
             _reducers = reducers ?? throw new ArgumentNullException(nameof(reducers));
         }
 
-        protected override void Handle(TAction action)
+        public void Handle(TAction action)
         {
             foreach (var reducer in _reducers)
             {
                 _state.Transform(state => reducer.Reduce(action, state));
+            }
+            _state.Notify();
+        }
+
+        public void Handle(DispatchContext<TAction> context)
+        {
+            foreach (var reducer in _reducers)
+            {
+                _state.Transform(state => reducer.Reduce(context.Action, state));
             }
             _state.Notify();
         }

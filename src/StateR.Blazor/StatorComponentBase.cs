@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,10 +10,11 @@ namespace StateR.Blazor
         private bool disposedValue;
 
         [Inject]
-        public IStore Store { get; set; }
+        public IDispatcher Dispatcher { get; set; }
 
-        protected virtual async Task DispatchAsync(IAction action, CancellationToken cancellationToken = default)
-            => await Store.DispatchAsync(action, cancellationToken);
+        protected virtual async Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken = default)
+            where TAction : IAction
+            => await Dispatcher.DispatchAsync(action, cancellationToken);
 
         protected virtual void Dispose(bool disposing)
         {

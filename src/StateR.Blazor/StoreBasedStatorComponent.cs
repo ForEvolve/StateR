@@ -14,6 +14,9 @@ namespace StateR.Blazor
         private bool _subscribed = false;
         private readonly List<Action> _unsubscribeDelegates = new List<Action>();
 
+        [Inject]
+        public IStore Store { get; set; }
+
         protected virtual TState GetState<TState>() where TState : StateBase
         {
             Subscribe<TState>();

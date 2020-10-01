@@ -1,5 +1,4 @@
-﻿using MediatR;
-using MediatR.Pipeline;
+﻿using StateR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,28 +12,39 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IStatorBuilder AddActionLogger(this IStatorBuilder builder)
         {
-            var iPipelineBehaviorType = typeof(IPipelineBehavior<,>);
+            var actionInterceptorType = typeof(IActionInterceptor<>);
+            var afterEffects = typeof(IAfterEffects<>);
             var actionLoggerType = typeof(ActionLogger<>);
             foreach (var type in builder.Actions)
             {
                 // Equivalent to: 
-                // - AddSingleton<IPipelineBehavior<TAction, Unit>, ActionLogger<TAction>>();
-                var serviceType = iPipelineBehaviorType.MakeGenericType(type, StatorStartupExtensions.unitType);
+                // - AddSingleton<IActionInterceptor<TAction>, ActionLogger<TAction>>();
+                // - AddSingleton<IAfterEffects<TAction>, ActionLogger<TAction>>();
+                var actionInterceptorServiceType = actionInterceptorType.MakeGenericType(type);
+                var afterEffectsServiceType = afterEffects.MakeGenericType(type);
                 var implementationType = actionLoggerType.MakeGenericType(type);
-                builder.Services.AddSingleton(serviceType, implementationType);
+                builder.Services
+                    .AddSingleton(actionInterceptorServiceType, implementationType)
+                    .AddSingleton(afterEffectsServiceType, implementationType);
             }
             return builder;
         }
 
-        public class ActionLogger<TAction> : IPipelineBehavior<TAction, Unit>
+        public class ActionLogger<TAction> : IActionInterceptor<TAction>, IAfterEffects<TAction>
+            where TAction : IAction
         {
-            public async Task<Unit> Handle(TAction action, CancellationToken cancellationToken, RequestHandlerDelegate<Unit> next)
+            public Task InterceptAsync(DispatchContext<TAction> context, CancellationToken cancellationToken)
             {
-                var actionName = action.GetType().Name;
+                var actionName = context.Action.GetName();
                 Console.WriteLine($"[ActionLogger] Begin {actionName}");
-                var response = await next();
+                return Task.CompletedTask;
+            }
+
+            public Task HandleAfterEffectAsync(DispatchContext<TAction> context, CancellationToken cancellationToken)
+            {
+                var actionName = context.Action.GetName();
                 Console.WriteLine($"[ActionLogger] End {actionName}");
-                return response;
+                return Task.CompletedTask;
             }
         }
     }

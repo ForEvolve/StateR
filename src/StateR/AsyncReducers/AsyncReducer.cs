@@ -1,5 +1,4 @@
-﻿using MediatR;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -50,7 +49,7 @@ namespace StateR
             => initialState with { RecordState = action.NewRecordState };
     }
 
-    public class AsyncReducerHandler<TState, TAction> : IRequestHandler<TAction>
+    public class AsyncReducerHandler<TState, TAction> : IAfterEffects<TAction>
         where TAction : IAction
         where TState : AsyncState
 
@@ -64,13 +63,12 @@ namespace StateR
             _state = state ?? throw new ArgumentNullException(nameof(state));
         }
 
-        public async Task<Unit> Handle(TAction action, CancellationToken cancellationToken)
+        public async Task HandleAfterEffectAsync(DispatchContext<TAction> context, CancellationToken cancellationToken)
         {
             foreach (var reducer in _reducers)
             {
-                await reducer.ReduceAsync(action, _state.Current, cancellationToken);
+                await reducer.ReduceAsync(context.Action, _state.Current, cancellationToken);
             }
-            return Unit.Value;
         }
     }
 }

@@ -9,6 +9,10 @@ namespace Microsoft.Extensions.DependencyInjection
         IServiceCollection Services { get; }
         List<Type> Actions { get; }
         List<Type> States { get; }
+        List<Type> Interceptors { get; }
+        List<Type> ActionHandlers { get; }
+        List<Type> AfterEffects { get; }
+        List<Type> Reducers { get; }
         List<Type> All { get; }
         IStatorBuilder AddTypes(IEnumerable<Type> types);
     }
