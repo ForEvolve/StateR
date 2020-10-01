@@ -33,14 +33,14 @@ namespace Microsoft.Extensions.DependencyInjection
         public class ActionLogger<TAction> : IActionInterceptor<TAction>, IAfterEffects<TAction>
             where TAction : IAction
         {
-            public Task InterceptAsync(DispatchContext<TAction> context, CancellationToken cancellationToken)
+            public Task InterceptAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken)
             {
                 var actionName = context.Action.GetName();
                 Console.WriteLine($"[ActionLogger] Begin {actionName}");
                 return Task.CompletedTask;
             }
 
-            public Task HandleAfterEffectAsync(DispatchContext<TAction> context, CancellationToken cancellationToken)
+            public Task HandleAfterEffectAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken)
             {
                 var actionName = context.Action.GetName();
                 Console.WriteLine($"[ActionLogger] End {actionName}");

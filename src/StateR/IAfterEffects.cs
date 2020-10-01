@@ -6,6 +6,6 @@ namespace StateR
     public interface IAfterEffects<TAction>
         where TAction : IAction
     {
-        Task HandleAfterEffectAsync(DispatchContext<TAction> context, CancellationToken cancellationToken);
+        Task HandleAfterEffectAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken);
     }
 }

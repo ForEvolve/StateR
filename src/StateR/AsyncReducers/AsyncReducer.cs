@@ -63,7 +63,7 @@ namespace StateR
             _state = state ?? throw new ArgumentNullException(nameof(state));
         }
 
-        public async Task HandleAfterEffectAsync(DispatchContext<TAction> context, CancellationToken cancellationToken)
+        public async Task HandleAfterEffectAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken)
         {
             foreach (var reducer in _reducers)
             {

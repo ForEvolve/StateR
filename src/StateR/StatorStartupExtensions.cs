@@ -191,11 +191,11 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
-        public static IStatorBuilder AddLoggingDispatcher(this IStatorBuilder builder)
-        {
-            builder.Services.AddSingleton<IDispatcher, LoggingDispatcher>();
-            return builder;
-        }
+        //public static IStatorBuilder AddLoggingDispatcher(this IStatorBuilder builder)
+        //{
+        //    builder.Services.AddSingleton<IDispatcher, LoggingDispatcher>();
+        //    return builder;
+        //}
 
         private class StatorBuilder : IStatorBuilder
         {
