@@ -4,6 +4,9 @@ using Moq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using StateR.Interceptors;
+using StateR.Reducers;
+using StateR.AfterEffects;
 
 namespace StateR
 {
@@ -17,11 +20,11 @@ namespace StateR
 
         public DispatcherTest()
         {
-            _dispatchContextFactory = new Mock<IDispatchContextFactory>();
-            _interceptorsManager = new Mock<IInterceptorsManager>();
-            _reducersManager = new Mock<IReducersManager>();
-            _afterEffectsManager = new Mock<IAfterEffectsManager>();
-            sut = new Dispatcher(_dispatchContextFactory.Object, _interceptorsManager.Object, _reducersManager.Object, _afterEffectsManager.Object);
+            _dispatchContextFactory = new();
+            _interceptorsManager = new();
+            _reducersManager = new();
+            _afterEffectsManager = new();
+            sut = new(_dispatchContextFactory.Object, _interceptorsManager.Object, _reducersManager.Object, _afterEffectsManager.Object);
         }
 
         public class DispatchAsync : DispatcherTest
