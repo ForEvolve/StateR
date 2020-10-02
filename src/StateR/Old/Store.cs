@@ -32,7 +32,7 @@ namespace StateR
         public void SetState<TState>(Func<TState, TState> stateTransform) where TState : StateBase
         {
             var state = _serviceProvider.GetRequiredService<IState<TState>>();
-            state.Transform(stateTransform);
+            state.Set(stateTransform(state.Current));
             state.Notify();
         }
 

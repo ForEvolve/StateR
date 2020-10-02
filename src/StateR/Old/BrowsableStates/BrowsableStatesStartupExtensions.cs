@@ -139,11 +139,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 _state.Subscribe(stateHasChangedDelegate);
             }
 
-            public void Transform(Func<TState, TState> stateTransform)
-            {
-                _state.Transform(stateTransform);
-            }
-
             public void Unsubscribe(Action stateHasChangedDelegate)
             {
                 _state.Unsubscribe(stateHasChangedDelegate);

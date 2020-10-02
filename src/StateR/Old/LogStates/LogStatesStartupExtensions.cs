@@ -51,13 +51,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 _state.Subscribe(stateHasChangedDelegate);
             }
 
-            public void Transform(Func<TState, TState> stateTransform)
-            {
-                Console.WriteLine($"[{StateTypeName}] {nameof(Transform)}ing {Sanitize(Current.ToString())}");
-                _state.Transform(stateTransform);
-                Console.WriteLine($"[{StateTypeName}] {nameof(Transform)}ed {Sanitize(Current.ToString())}");
-            }
-
             public void Unsubscribe(Action stateHasChangedDelegate)
             {
                 Console.WriteLine($"[{StateTypeName}] {nameof(Unsubscribe)} to {stateHasChangedDelegate}");

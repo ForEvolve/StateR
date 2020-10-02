@@ -7,6 +7,5 @@ namespace StateR
     {
         TState Current { get; }
         void Set(TState state);
-        void Transform(Func<TState, TState> stateTransform);
     }
 }

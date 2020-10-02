@@ -32,7 +32,7 @@ namespace StateR.Reducers
                 {
                     await middleware.BeforeReducerAsync(context, _state, reducer, cancellationToken);
                 }
-                _state.Transform(state => reducer.Reduce(context.Action, state));
+                _state.Set(reducer.Reduce(context.Action, _state.Current));
                 foreach (var middleware in _middlewares)
                 {
                     await middleware.AfterReducerAsync(context, _state, reducer, cancellationToken);
@@ -41,6 +41,9 @@ namespace StateR.Reducers
             foreach (var middleware in _middlewares)
             {
                 await middleware.AfterReducersAsync(context, _state, _reducers, cancellationToken);
+            }
+            foreach (var middleware in _middlewares)
+            {
                 await middleware.BeforeNotifyAsync(context, _state, _reducers, cancellationToken);
             }
             _state.Notify();
