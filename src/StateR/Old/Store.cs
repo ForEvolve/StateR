@@ -12,6 +12,7 @@ namespace StateR
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IDispatcher _dispatcher;
+
         public Store(IServiceProvider serviceProvider, IDispatcher dispatcher)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
