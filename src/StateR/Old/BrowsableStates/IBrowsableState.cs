@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace StateR
+namespace StateR.Old
 {
     public interface IBrowsableState<TState> : IState<TState>
         where TState : StateBase

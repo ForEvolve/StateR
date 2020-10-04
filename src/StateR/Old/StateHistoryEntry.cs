@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StateR
+namespace StateR.Old
 {
     public record StateHistoryEntry<TState>(TState State, DateTime CreatedTime)
         where TState : StateBase;

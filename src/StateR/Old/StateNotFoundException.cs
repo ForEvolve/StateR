@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StateR
+namespace StateR.Old
 {
     public class StateNotFoundException : Exception
     {

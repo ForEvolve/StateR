@@ -1,4 +1,4 @@
-﻿namespace StateR
+﻿namespace StateR.Old
 {
     public abstract record AsyncState : StateBase
     {

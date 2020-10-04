@@ -1,4 +1,4 @@
-﻿namespace StateR
+﻿namespace StateR.Old
 {
     public class BrowsableStateOptions
     {

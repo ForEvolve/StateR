@@ -2,7 +2,7 @@
 using System;
 using System.Collections;
 
-namespace StateR
+namespace StateR.Old
 {
     public record AsyncErrorOccured(IAction Action, AsyncState InitialState, AsyncState ActualState, Exception Exception) : IAction;
     public record AsyncErrorState(IAction Action, AsyncState InitialState, AsyncState ActualState, Exception Exception) : StateBase

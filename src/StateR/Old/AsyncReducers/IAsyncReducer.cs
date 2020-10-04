@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR
+namespace StateR.Old
 {
     public interface IAsyncReducer<TAction, TState>
         where TAction : IAction

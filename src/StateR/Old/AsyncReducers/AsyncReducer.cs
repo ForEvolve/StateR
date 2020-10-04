@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR
+namespace StateR.Old
 {
     public abstract class AsyncReducer<TAction, TState> : IAsyncReducer<TAction, TState>, IReducer<OperationStateUpdated, TState>
         where TAction : IAction
