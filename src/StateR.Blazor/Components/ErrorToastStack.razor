@@ -1,7 +1,7 @@
 ﻿@using StateR.AsyncLogic
 @using Microsoft.AspNetCore.Components.WebAssembly.Hosting
 
-@inject IState<AsyncErrorState> State
+@inject IState<AsyncError.State> State
 @inject IWebAssemblyHostEnvironment HostEnvironment
 
 <div aria-live="polite" aria-atomic="true" class="stator-toast-stack">
@@ -48,7 +48,7 @@
 </div>
 
 @code{
-    private List<AsyncErrorState> Errors { get; } = new();
+    private List<AsyncError.State> Errors { get; } = new();
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -59,7 +59,7 @@
         });
     }
 
-    private void Dismiss(AsyncErrorState state)
+    private void Dismiss(AsyncError.State state)
     {
         Errors.Remove(state);
         StateHasChanged();
