@@ -17,8 +17,8 @@ namespace StateR
     {
         public static IStatorBuilder AddStateR(this IServiceCollection services)
         {
-            services.AddSingleton<IStore, Store>();
-            services.AddSingleton<IDispatcher, Dispatcher>();
+            services.TryAddSingleton<IStore, Store>();
+            services.TryAddSingleton<IDispatcher, Dispatcher>();
             services.TryAddSingleton<IInterceptorsManager, InterceptorsManager>();
             services.TryAddSingleton<IReducersManager, ReducersManager>();
             services.TryAddSingleton<IAfterEffectsManager, AfterEffectsManager>();
@@ -73,16 +73,6 @@ namespace StateR
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
 
-                // Equivalent to: AddSingleton<IActionHandler<TState>, Implementation>();
-                .AddClasses(classes => classes.AssignableTo(typeof(IActionHandler<>)))
-                .AsImplementedInterfaces()
-                .WithSingletonLifetime()
-
-                // Equivalent to: AddSingleton<IReducer<TState>, Implementation>();
-                .AddClasses(classes => classes.AssignableTo(typeof(IReducer<,>)))
-                .AsImplementedInterfaces()
-                .WithSingletonLifetime()
-
                 // Equivalent to: AddSingleton<IActionAfterEffects<TState>, Implementation>();
                 .AddClasses(classes => classes.AssignableTo(typeof(IActionAfterEffects<>)))
                 .AsImplementedInterfaces()
@@ -100,22 +90,10 @@ namespace StateR
                 builder.Services.AddSingleton(stateServiceType, stateImplementationType);
             }
 
-            // Register Actions
-            foreach (var action in builder.Actions)
-            {
-                Console.WriteLine($"action: {action.FullName}");
-            }
-
-            // Register Reducers
-            //internal static readonly Type baseStateType = typeof(StateBase);
-            //internal static readonly Type iStateType = typeof(IState<>);
-            //internal static readonly Type stateType = typeof(State<>);
-            //internal static readonly Type iActionType = typeof(IAction);
-
+            // Register Reducers and their respective IActionHandler
             var iReducerType = typeof(IReducer<,>);
             var reducerHandler = typeof(ReducerHandler<,>);
             var handlerType = typeof(IActionHandler<>);
-
             foreach (var reducer in builder.Reducers)
             {
                 Console.WriteLine($"reducer: {reducer.FullName}");
@@ -123,55 +101,21 @@ namespace StateR
                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == iReducerType);
                 foreach (var @interface in interfaces)
                 {
-                    // Equivalent to: AddSingleton<IActionHandler<TAction>, ReducerHandler<TState, TAction>>
+                    // Equivalent to: TryAddSingleton<IActionHandler<TAction>, ReducerHandler<TState, TAction>>
                     var actionType = @interface.GenericTypeArguments[0];
                     var stateType = @interface.GenericTypeArguments[1];
                     var iActionHandlerServiceType = handlerType.MakeGenericType(actionType);
                     var reducerHandlerImplementationType = reducerHandler.MakeGenericType(stateType, actionType);
-                    builder.Services.AddSingleton(iActionHandlerServiceType, reducerHandlerImplementationType);
+                    builder.Services.TryAddSingleton(iActionHandlerServiceType, reducerHandlerImplementationType);
 
                     // Equivalent to: AddSingleton<IReducer<TState, TAction>, Reducer>();
                     builder.Services.AddSingleton(@interface, reducer);
 
-                    Console.WriteLine($"- AddSingleton<{iActionHandlerServiceType.GetStatorName()}, {reducerHandlerImplementationType.GetStatorName()}>()");
+                    Console.WriteLine($"- TryAddSingleton<{iActionHandlerServiceType.GetStatorName()}, {reducerHandlerImplementationType.GetStatorName()}>()");
                     Console.WriteLine($"- AddSingleton<{@interface.GetStatorName()}, {reducer.GetStatorName()}>()");
                 }
             }
-
-            // Register ActionHandlers
-            foreach (var actionHandler in builder.ActionHandlers)
-            {
-                //AddSingleton(typeof(IActionHandler<>), typeof(ReducerHandler<,>));
-                Console.WriteLine($"actionHandler: {actionHandler.FullName}");
-            }
-
-            //IActionInterceptor<TAction>
-            //IActionHandler<TAction>
-            //IActionAfterEffects<TAction>
-
-            //IReducer<TAction, TState>
             return builder.Services;
         }
-
-        //public static IStatorBuilder AddState<TState, TInitialState>(this IStatorBuilder builder)
-        //    where TState : StateBase
-        //    where TInitialState : class, IInitialState<TState>
-        //{
-        //    builder.Services
-        //        .AddSingleton<IInitialState<TState>, TInitialState>()
-        //        .AddSingleton<IState<TState>, State<TState>>()
-        //    ;
-        //    //builder.AddTypes(new[] {
-        //    //    typeof(TInitialState),
-        //    //    typeof(TState),
-        //    //    typeof(State<TState>),
-        //    //});
-        //    return builder;
-        //}
-
-        //public static IStatorBuilder ScanStates(this IStatorBuilder builder)
-        //{
-
-        //}
     }
 }

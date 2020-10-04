@@ -6,6 +6,6 @@ namespace StateR.Reducers
         where TAction : IAction
         where TState : StateBase
     {
-        TState Reduce(TAction action, TState initialState);
+        TState Reduce(TAction action, TState state);
     }
 }

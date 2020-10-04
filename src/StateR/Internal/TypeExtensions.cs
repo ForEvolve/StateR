@@ -10,9 +10,13 @@ namespace StateR.Internal
     {
         public static string GetStatorName(this Type type)
         {
+            //if (type == null) { throw new ArgumentNullException(nameof(type)); }
             //Console.WriteLine($"[GetStatorName] {type.FullName}");
             if (type.IsGenericType)
             {
+                //Console.WriteLine($"[GetStatorName](type) {type}");
+                //Console.WriteLine($"[GetStatorName](Name) {type.Name}");
+                //Console.WriteLine($"[GetStatorName](type.FullName) {type.FullName}");
                 var indexOfThing = type.FullName.IndexOf('`');
                 var name = type.FullName.Substring(0, indexOfThing);
                 var indexOfDot = name.LastIndexOf('.');
