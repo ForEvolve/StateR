@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace StateR.AsyncLogic
 {
-    public abstract class AsyncOperation<TAction, TState, TSuccessAction> : IActionAfterEffects<TAction>, IReducer<StatusUpdated, TState>
+    public abstract class AsyncOperation<TAction, TState, TSuccessAction> : IActionAfterEffects<TAction>, IReducer<StatusUpdated<TState>, TState>
         where TAction : IAction
         where TState : AsyncState
         where TSuccessAction : IAction
@@ -22,7 +22,7 @@ namespace StateR.AsyncLogic
 
         protected IStore Store { get; }
 
-        public virtual TState Reduce(StatusUpdated action, TState state) => state with { Status = action.status };
+        public virtual TState Reduce(StatusUpdated<TState> action, TState state) => state with { Status = action.status };
 
         public async Task HandleAfterEffectAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken)
         {
@@ -52,7 +52,7 @@ namespace StateR.AsyncLogic
 
         protected virtual async Task DispatchStatusUpdateAsync(AsyncOperationStatus status, CancellationToken cancellationToken)
         {
-            await Store.DispatchAsync(new StatusUpdated(status), cancellationToken);
+            await Store.DispatchAsync(new StatusUpdated<TState>(status), cancellationToken);
         }
 
         protected abstract Task<TSuccessAction> LoadAsync(TAction action, TState initalState, CancellationToken cancellationToken = default);

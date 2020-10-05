@@ -122,7 +122,7 @@ namespace StateR
         public static IStatorBuilder AddAsyncOperations(this IStatorBuilder builder)
         {
             //Async Operations
-            builder.AddTypes(new[] { typeof(StatusUpdated) });
+            builder.AddTypes(new[] { typeof(StatusUpdated<>) });
 
             // Async Operation's Errors
             builder.Services.TryAddSingleton<IActionHandler<AsyncError.Occured>, ReducerHandler<AsyncError.State, AsyncError.Occured>>();
