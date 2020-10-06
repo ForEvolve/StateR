@@ -102,17 +102,17 @@ namespace StateR
                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == iReducerType);
                 foreach (var @interface in interfaces)
                 {
-                    // Equivalent to: TryAddSingleton<IActionHandler<TAction>, ReducerHandler<TState, TAction>>
+                    // Equivalent to: AddSingleton<IActionHandler<TAction>, ReducerHandler<TState, TAction>>
                     var actionType = @interface.GenericTypeArguments[0];
                     var stateType = @interface.GenericTypeArguments[1];
                     var iActionHandlerServiceType = handlerType.MakeGenericType(actionType);
                     var reducerHandlerImplementationType = reducerHandler.MakeGenericType(stateType, actionType);
-                    builder.Services.TryAddSingleton(iActionHandlerServiceType, reducerHandlerImplementationType);
+                    builder.Services.AddSingleton(iActionHandlerServiceType, reducerHandlerImplementationType);
 
                     // Equivalent to: AddSingleton<IReducer<TState, TAction>, Reducer>();
                     builder.Services.AddSingleton(@interface, reducer);
 
-                    Console.WriteLine($"- TryAddSingleton<{iActionHandlerServiceType.GetStatorName()}, {reducerHandlerImplementationType.GetStatorName()}>()");
+                    Console.WriteLine($"- AddSingleton<{iActionHandlerServiceType.GetStatorName()}, {reducerHandlerImplementationType.GetStatorName()}>()");
                     Console.WriteLine($"- AddSingleton<{@interface.GetStatorName()}, {reducer.GetStatorName()}>()");
                 }
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace StateR.Internal
 {
@@ -43,9 +44,9 @@ namespace StateR.Internal
         {
             lock (_subscriberLock)
             {
-                foreach (var subscriber in _subscribers)
+                for (var i = 0; i < _subscribers.Count; i++)
                 {
-                    subscriber();
+                    _subscribers.ElementAt(i)();
                 }
             }
         }

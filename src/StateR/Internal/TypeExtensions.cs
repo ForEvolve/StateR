@@ -31,7 +31,7 @@ namespace StateR.Internal
                 name += ">";
                 return name;
             }
-            if (type.FullName.IndexOf('+') > -1)
+            if (type.FullName?.IndexOf('+') > -1)
             {
                 var fullName = type.FullName;
                 var lastDot = fullName.LastIndexOf('.');

@@ -22,7 +22,8 @@ namespace StateR.AsyncLogic
 
         protected IStore Store { get; }
 
-        public virtual TState Reduce(StatusUpdated<TState> action, TState state) => state with { Status = action.status };
+        public virtual TState Reduce(StatusUpdated<TState> action, TState state)
+            => state with { Status = action.status };
 
         public async Task HandleAfterEffectAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken)
         {
