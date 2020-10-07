@@ -30,7 +30,7 @@ namespace StateR.AsyncLogic
             var state = Store.GetState<TState>();
             try
             {
-                if (state.Status == AsyncOperationStatus.Idle)
+                if (ShouldLoadData(context, state))
                 {
                     await DispatchStatusUpdateAsync(AsyncOperationStatus.Loading, cancellationToken);
                     var completedAction = await LoadAsync(context.Action, state);
@@ -42,6 +42,11 @@ namespace StateR.AsyncLogic
             {
                 await HandleExceptionAsync(context, state, ex, cancellationToken);
             }
+        }
+
+        protected virtual bool ShouldLoadData(IDispatchContext<TAction> context, TState state)
+        {
+            return state.Status == AsyncOperationStatus.Idle;
         }
 
         protected virtual async Task HandleExceptionAsync(IDispatchContext<TAction> context, TState state, Exception ex, CancellationToken cancellationToken)
