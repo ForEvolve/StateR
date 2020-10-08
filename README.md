@@ -161,3 +161,19 @@ Also, please read the [Contributor Covenant Code of Conduct](https://github.com/
         Task HandleAsync(TAction action, CancellationToken cancellationToken);
     }
     ```
+
+# Test
+
+## Coverlet code coverage
+
+-   `dotnet test /p:CollectCoverage=true` => coverage.json
+-   `dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura` => coverage.cobertura.xml
+-   `dotnet test --collect:"XPlat Code Coverage"` => TestResults/{GUID}/coverage.cobertura.xml
+
+-   `dotnet tool install -g dotnet-reportgenerator-globaltool`
+-   `reportgenerator -reports:coverage.cobertura.xml -targetdir:coveragereport -reporttypes:Html`
+
+```bash
+dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+reportgenerator "-reports:test\**\coverage.cobertura.xml" -targetdir:coveragereport -reporttypes:Html
+```
