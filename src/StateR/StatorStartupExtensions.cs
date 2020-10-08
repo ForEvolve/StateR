@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using StateR.AfterEffects;
-using StateR.AsyncLogic;
 using StateR.Interceptors;
 using StateR.Internal;
 using StateR.Reducers;
@@ -117,19 +116,6 @@ namespace StateR
                 }
             }
             return builder.Services;
-        }
-
-        public static IStatorBuilder AddAsyncOperations(this IStatorBuilder builder)
-        {
-            //Async Operations
-            builder.AddTypes(new[] { typeof(StatusUpdated<>) });
-
-            // Async Operation's Errors
-            builder.Services.TryAddSingleton<IActionHandler<AsyncError.Occured>, ReducerHandler<AsyncError.State, AsyncError.Occured>>();
-            builder.Services.TryAddSingleton<IReducer<AsyncError.Occured, AsyncError.State>, AsyncError.Reducers>();
-            builder.Services.TryAddSingleton<IInitialState<AsyncError.State>, AsyncError.InitialState>();
-            builder.Services.TryAddSingleton<IState<AsyncError.State>, Internal.State<AsyncError.State>>();
-            return builder;
         }
     }
 }
