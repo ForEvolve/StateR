@@ -9,6 +9,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using StateR.Reducers;
 using System.Threading;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 
 namespace StateR.Blazor.ReduxDevTools
 {
@@ -53,14 +55,22 @@ namespace StateR.Blazor.ReduxDevTools
     public class ReduxDevToolsInterop : IDisposable, IReducersMiddleware
     {
         public bool DevToolsBrowserPluginDetected { get; private set; }
-        private readonly Func<Task> _onCommit;
-        private readonly Func<JumpToStateCallback, Task> _onJumpToState;
         private readonly IJSRuntime _jsRuntime;
         private readonly DotNetObjectReference<ReduxDevToolsInterop> _dotNetRef;
         private readonly IStore _store;
-        private bool _isInitializing;
 
         private readonly DevToolsStateCollection _states;
+
+        private int _historyIndex;
+        private int HistoryIndex
+        {
+            get => _historyIndex;
+            set
+            {
+                Console.WriteLine($"SET HistoryIndex = {value}");
+                _historyIndex = value;
+            }
+        }
 
         public ReduxDevToolsInterop(ReduxDevToolsInteropInitializer initializer)
         {
@@ -74,15 +84,32 @@ namespace StateR.Blazor.ReduxDevTools
 
         public async ValueTask InitializeAsync()
         {
-            _isInitializing = true;
-            try
+            var states = GetAppState();
+            foreach (var state in _states)
             {
-                await InvokeFluxorDevToolsMethodAsync("init", _dotNetRef);
+                _store.SubscribeToState(state, StateHasChanged);
             }
-            finally
+            _history.Add(new TypeState(revertStateAction, executeAction)
             {
-                _isInitializing = false;
+                Status = TypeStateStatus.AfterReducer,
+            });
+            await _jsRuntime.InvokeAsync<object>(
+                "__StateRDevTools__.init",
+                CancellationToken.None,
+                _dotNetRef,
+                states
+            );
+            void revertStateAction() => Console.WriteLine("@@INIT (revertStateAction) | TODO: implement this");
+            void executeAction() => Console.WriteLine("@@INIT (executeAction) | TODO: implement this");
+        }
+
+        private void StateHasChanged()
+        {
+            if (!DevToolsBrowserPluginDetected)
+            {
+                return;
             }
+
         }
 
         [JSInvokable("DevToolsCallback")]
@@ -100,29 +127,41 @@ namespace StateR.Blazor.ReduxDevTools
 
                 case "COMMIT":
                     Console.WriteLine($"COMMIT | {messageAsJson}");
-                    //Func<Task> commit = _onCommit;
-                    //if (commit != null)
-                    //{
-                    //    Task task = commit();
-                    //    if (task != null)
-                    //        await task;
-                    //}
                     break;
 
                 case "JUMP_TO_STATE":
-                    Console.WriteLine($"JUMP_TO_STATE | {messageAsJson}");
+                    var jumpToState = JsonSerializer.Deserialize<JumpToStateCallback>(messageAsJson);
+                    if (HistoryIndex > jumpToState.payload.actionId)
+                    {
+                        HistoryIndex = jumpToState.payload.actionId;
+                        _history[HistoryIndex].Undo();
+                    }
+                    else
+                    {
+                        HistoryIndex = jumpToState.payload.actionId;
+                        _history[HistoryIndex].Redo();
+                    }
                     break;
                 case "JUMP_TO_ACTION":
-                    Console.WriteLine($"JUMP_TO_ACTION | {messageAsJson}");
-
-                    //Func<JumpToStateCallback, Task> jumpToState = _onJumpToState;
-                    //if (jumpToState != null)
-                    //{
-                    //    var callbackInfo = JsonSerializer.Deserialize<JumpToStateCallback>(messageAsJson);
-                    //    Task task = jumpToState(callbackInfo);
-                    //    if (task != null)
-                    //        await task;
-                    //}
+                    var jumpToAction = JsonSerializer.Deserialize<JumpToStateCallback>(messageAsJson);
+                    Console.WriteLine($"JUMP_TO_ACTION | _historyIndex: {HistoryIndex} | actionId: {jumpToAction.payload.actionId}");
+                    if (HistoryIndex > jumpToAction.payload.actionId)
+                    {
+                        for (var i = HistoryIndex; i >= jumpToAction.payload.actionId; i--)
+                        {
+                            Console.WriteLine($"JUMP_TO_ACTION | RevertState {i}");
+                            _history[i].Undo();
+                        }
+                    }
+                    else
+                    {
+                        for (var i = HistoryIndex + 1; i <= jumpToAction.payload.actionId; i++)
+                        {
+                            Console.WriteLine($"JUMP_TO_ACTION | RevertState {i}");
+                            _history[i].Redo();
+                        }
+                    }
+                    HistoryIndex = jumpToAction.payload.actionId;
                     break;
             }
         }
@@ -132,13 +171,8 @@ namespace StateR.Blazor.ReduxDevTools
             _dotNetRef.Dispose();
         }
 
-        private async Task InvokeFluxorDevToolsMethodAsync(string identifier, object arg)
+        private Dictionary<string, object> GetAppState()
         {
-            if (!DevToolsBrowserPluginDetected && !_isInitializing)
-            {
-                return;
-            }
-
             var states = new Dictionary<string, object>();
             foreach (var s in _states)
             {
@@ -147,92 +181,123 @@ namespace StateR.Blazor.ReduxDevTools
                 states.Add(name, value);
             }
 
-            if (!_isInitializing)
-            {
-                arg = JsonSerializer.Serialize(arg);
-            }
-            await _jsRuntime.InvokeAsync<object>($"__StateRDevTools__.{identifier}", CancellationToken.None, arg, states);
+            return states;
         }
 
-        public Task BeforeReducersAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, CancellationToken cancellationToken)
-            where TAction : IAction
-            where TState : StateBase
-        {
-            return Task.CompletedTask;
+        private class TypeState {
+            private Action _undoStateAction;
+            private Action _redoStateAction;
+            public TypeState(Action undoStateAction, Action redoStateAction)
+            {
+                _undoStateAction = undoStateAction ?? throw new ArgumentNullException(nameof(undoStateAction));
+                _redoStateAction = redoStateAction ?? throw new ArgumentNullException(nameof(redoStateAction));
+            }
+            public object ContextRef { get; init; }
+            public TypeStateStatus Status { get; set; }
+
+            public void Undo()
+            {
+                if (Status == TypeStateStatus.AfterReducer)
+                {
+                    _undoStateAction();
+                }
+            }
+            public void Redo()
+            {
+                if (Status == TypeStateStatus.AfterReducer)
+                {
+                    _redoStateAction();
+                }
+            }
         }
+
+        private enum TypeStateStatus
+        {
+            Unknown,
+            BeforeReducer,
+            AfterReducer
+        }
+
+        private List<TypeState> _history { get; } = new();
 
         public Task BeforeReducerAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IReducer<TAction, TState> reducer, CancellationToken cancellationToken)
             where TAction : IAction
             where TState : StateBase
         {
+            var action = context.Action;
+            var current = state.Current;
+            var next = reducer.Reduce(action, current);
+            _history.Add(new TypeState(undoStateAction, redoStateAction)
+            {
+                ContextRef = reducer,
+                Status = TypeStateStatus.BeforeReducer,
+            });
+            HistoryIndex = _history.Count - 1;
             return Task.CompletedTask;
+
+            void undoStateAction()
+            {
+                Console.WriteLine($"Undo {current.GetType().GetStatorName()} to {current} from action: {typeof(TAction).GetStatorName()} with reducer {reducer.GetType().GetStatorName()}");
+                state.Set(current);
+                state.Notify();
+            }
+
+            void redoStateAction()
+            {
+                Console.WriteLine($"Redo {current.GetType().GetStatorName()} to {next} from action: {typeof(TAction).GetStatorName()} with reducer {reducer.GetType().GetStatorName()}");
+                state.Set(next);
+                state.Notify();
+            }
         }
 
-        public Task AfterReducerAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IReducer<TAction, TState> reducer, CancellationToken cancellationToken)
-            where TAction : IAction
-            where TState : StateBase
-            => InvokeFluxorDevToolsMethodAsync("dispatch", new ActionInfo(context.Action));
-        
-
-        public Task AfterReducersAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, CancellationToken cancellationToken)
+        public async Task AfterReducerAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IReducer<TAction, TState> reducer, CancellationToken cancellationToken)
             where TAction : IAction
             where TState : StateBase
         {
-            return Task.CompletedTask;
+            var serializedActionInfo = JsonSerializer.Serialize(new ActionInfo(context.Action));
+            var states = GetAppState();
+            await _jsRuntime.InvokeAsync<object>(
+                "__StateRDevTools__.dispatch",
+                CancellationToken.None,
+                serializedActionInfo,
+                states
+            );
+            _history.LastOrDefault(h => h.ContextRef == reducer).Status = TypeStateStatus.AfterReducer;
         }
 
-        public Task BeforeNotifyAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, CancellationToken cancellationToken)
-            where TAction : IAction
-            where TState : StateBase
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task AfterNotifyAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, CancellationToken cancellationToken)
-            where TAction : IAction
-            where TState : StateBase
-        {
-            return Task.CompletedTask;
-        }
+        public Task BeforeReducersAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, CancellationToken cancellationToken) where TAction : IAction where TState : StateBase => Task.CompletedTask;
+        public Task AfterReducersAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, CancellationToken cancellationToken) where TAction : IAction where TState : StateBase => Task.CompletedTask;
+        public Task BeforeNotifyAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, CancellationToken cancellationToken) where TAction : IAction where TState : StateBase => Task.CompletedTask;
+        public Task AfterNotifyAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, CancellationToken cancellationToken) where TAction : IAction where TState : StateBase => Task.CompletedTask;
     }
 
     public class BaseCallbackObject<TPayload>
         where TPayload : BasePayload
     {
-#pragma warning disable IDE1006 // Naming Styles
         public string type { get; set; }
         public TPayload payload { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
     }
 
     public class BaseCallbackObject : BaseCallbackObject<BasePayload> { }
 
     public class BasePayload
     {
-#pragma warning disable IDE1006 // Naming Styles
         public string type { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
     }
 
     public class JumpToStateCallback : BaseCallbackObject<JumpToStatePayload>
     {
-#pragma warning disable IDE1006 // Naming Styles
         public string state { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
     }
     public class JumpToStatePayload : BasePayload
     {
-#pragma warning disable IDE1006 // Naming Styles
         public int index { get; set; }
         public int actionId { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
     }
     public class ActionInfo
     {
-#pragma warning disable IDE1006 // Naming Styles
         public string type { get; }
-#pragma warning restore IDE1006 // Naming Styles
-        public object Payload { get; }
+        public object payload { get; }
 
         public ActionInfo(object action)
         {
@@ -240,13 +305,32 @@ namespace StateR.Blazor.ReduxDevTools
                 throw new ArgumentNullException(nameof(action));
 
             type = action.GetType().GetStatorName();
-            Payload = action;
+            payload = action;
         }
     }
 
     public static class StoreExtensions
     {
+        public static void SubscribeToState(this IStore store, Type state, Action stateHasChangedDelegate)
+        {
+            var genericMethod = GetStoreMethod(store, state, nameof(IStore.Subscribe));
+            genericMethod.Invoke(store, new[] { stateHasChangedDelegate });
+        }
+
+        public static void UnsubscribeToState(this IStore store, Type state, Action stateHasChangedDelegate)
+        {
+            var genericMethod = GetStoreMethod(store, state, nameof(IStore.Unsubscribe));
+            genericMethod.Invoke(store, new[] { stateHasChangedDelegate });
+        }
+
         public static object GetStateValue(this IStore store, Type state)
+        {
+            var genericMethod = GetStoreMethod(store, state, nameof(IStore.GetState));
+            var result = genericMethod.Invoke(store, null);
+            return result;
+        }
+
+        private static MethodInfo GetStoreMethod(IStore store, Type state, string methodName)
         {
             var iStateType = typeof(IState<>);
             if (!state.IsGenericType)
@@ -257,12 +341,12 @@ namespace StateR.Blazor.ReduxDevTools
             {
                 throw new InvalidStateTypeException(state);
             }
-            var getState = store.GetType().GetMethod(nameof(IStore.GetState));
+            var getState = store.GetType().GetMethod(methodName);
             var stateArgs = state.GetGenericArguments()[0];
             var genericMethod = getState.MakeGenericMethod(stateArgs);
-            var result = genericMethod.Invoke(store, null);
-            return result;
+            return genericMethod;
         }
+
         public static string GetStateName(this Type state)
         {
             var iStateType = typeof(IState<>);

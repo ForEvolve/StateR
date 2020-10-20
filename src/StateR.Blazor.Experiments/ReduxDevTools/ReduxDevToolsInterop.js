@@ -4,6 +4,7 @@ window.__StateRDevTools__ = (function () {
     if (typeof reduxDevTools === 'undefined') {
         return {
             init: function () {},
+            dispatch: function (action, state) {},
         };
     }
 
@@ -11,6 +12,7 @@ window.__StateRDevTools__ = (function () {
     if (typeof statorDevTools === 'undefined') {
         return {
             init: function () {},
+            dispatch: function (action, state) {},
         };
     }
     statorDevTools.subscribe((message) => {

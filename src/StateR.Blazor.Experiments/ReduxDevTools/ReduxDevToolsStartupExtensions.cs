@@ -29,17 +29,5 @@ namespace StateR.Blazor.ReduxDevTools
             builder.Services.AddSingleton<IReducersMiddleware>(sp => sp.GetService<ReduxDevToolsInterop>());
             return builder;
         }
-
-        private static Task OnJumpToState(JumpToStateCallback callbackInfo)
-        {
-            Console.WriteLine($"[OnJumpToState] {callbackInfo}");
-            return Task.CompletedTask;
-        }
-
-        private static Task OnCommit()
-        {
-            Console.WriteLine("[OnCommit]");
-            return Task.CompletedTask;
-        }
     }
 }
