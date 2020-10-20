@@ -20,6 +20,11 @@
   <ItemGroup>
     <Content Remove="wwwroot\css\StateR.Blazor.css" />
     <Content Remove="wwwroot\css\StateR.Blazor.min.css" />
+    <Content Remove="wwwroot\js\ReduxDevToolsInterop.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="ReduxDevTools\ReduxDevToolsInterop.js" />
   </ItemGroup>
 
   <ItemGroup>
