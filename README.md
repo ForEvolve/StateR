@@ -1,6 +1,6 @@
-# StateR
+# Stator
 
-This is a Redux-inspired **experiment** using C# 9.0 (preview).
+This is a Redux-inspired or Model-View-Update (MVU) **experiment** using C# 9.0 (preview).
 It works well with Blazor and [MobileBlazorBindings](https://github.com/xamarin/MobileBlazorBindings),
 including sharing states between the Xamarin part and the Blazor part of a hybrid app.
 It should also work with any other .NET stateful client model.
@@ -8,8 +8,7 @@ It should also work with any other .NET stateful client model.
 This project uses:
 
 -   C# 9 (preview) record classes to ensure immutability and to simplify reducers.
--   MediatR, under the hood, to mediate actions.
--   Dependency Injection to manage states
+-   Dependency Injection to manage states (and everything else)
 
 # How to install?
 
@@ -81,14 +80,10 @@ Then from a Blazor component that inherits from `StatorComponent`, we can dispat
 
 I played around with a few other libraries that aim at the same goal (another project)
 and I was not 100% satisfied with how they did stuff, so while playing around with
-MobileBlazorBindings and the new hybrid apps, I tough that C# 9 records were a great fit
+MobileBlazorBindings and the new hybrid apps, I found that C# 9 records were a great fit
 for this and I started experimenting and ended up with this project.
 
-## The name
-
-Why the name? StateR, pronounced **stator**, is written this way as a wink to MediatR.
-
-### Definition of a stator
+## Definition of a stator
 
 > The stator is the stationary part of a rotary system [...].
 > Energy flows through a stator to or from the rotating component of the system.
@@ -97,7 +92,7 @@ Source: [wikipedia](https://en.wikipedia.org/wiki/Stator)
 
 ## Why Redux?
 
-After hearing about it for a while, I read about it and found the concept brilliant.
+After hearing about it for years, I read about it and found the concept brilliant.
 
 ## What is different from the other libraries?
 
@@ -123,46 +118,7 @@ If you would like to contribute to the project, first, thank you for your intere
 
 Also, please read the [Contributor Covenant Code of Conduct](https://github.com/ForEvolve/Toc/blob/master/CODE_OF_CONDUCT.md) that applies to all ForEvolve repositories.
 
-## Brainstorming
-
--   Run code that affect actions, before reducers using `IActionInterceptor<TAction>` that intercept `TAction`
-
-    ```csharp
-    public interface IActionInterceptor<TAction>
-        where TAction : IAction
-    {
-        Task InterceptAsync(ActionInterceptorContext<TAction> context, CancellationToken cancellationToken);
-    }
-    public class ActionInterceptorContext<TAction>
-        where TAction : IAction
-    {
-        public TAction Action { get;set;  }
-
-        public bool SkipReduce { get; set; }
-        public bool SkipInterception { get; set; }
-        public bool SkipAfterEffect { get; set; }
-    }
-    ```
-
--   Run reducers
-    ```csharp
-    public interface IReducer<TAction, TState>
-        where TAction : IAction
-        where TState : StateBase
-    {
-        TState Reduce(TAction action, TState initialState);
-    }
-    ```
--   Run `IAfterEffects<TAction>` after reducers.
-    ```csharp
-    public interface IAfterEffects<TAction>
-        where TAction : IAction
-    {
-        Task HandleAsync(TAction action, CancellationToken cancellationToken);
-    }
-    ```
-
-# Test
+# Test (my clipboard/notes)
 
 ## Coverlet code coverage
 
