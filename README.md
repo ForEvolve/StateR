@@ -37,13 +37,11 @@ namespace BlazorMobileHybridExperiments.Features
             public State Value => new State(0);
         }
 
-        public record Set(int Value) : IAction;
         public record Increment : IAction;
         public record Decrement : IAction;
 
-        public class Reducers : IReducer<State, Set>, IReducer<State, Increment>, IReducer<State, Decrement>
+        public class Reducers : IReducer<State, Increment>, IReducer<State, Decrement>
         {
-            public State Reduce(State state, Set action) => state with { Count = action.Value };
             public State Reduce(State state, Increment action) => state with { Count = state.Count + 1 };
             public State Reduce(State state, Decrement action) => state with { Count = state.Count - 1 };
         }
@@ -59,31 +57,23 @@ Then from a Blazor component that inherits from `StatorComponent`, we can dispat
 @inject IState<Features.Counter.State> CounterState
 
 <h1>Counter</h1>
-
 <p>Current count: @CounterState.Current.Count</p>
-
 <button class="btn btn-primary" @onclick="@(async () => await DispatchAsync(new Features.Counter.Increment()))">+</button>
 <button class="btn btn-primary" @onclick="@(async () => await DispatchAsync(new Features.Counter.Decrement()))">-</button>
-
-<hr />
-
-<input @bind="SetTo" />
-<button class="btn btn-secondary" @onclick="@(async () => await DispatchAsync(new Features.Counter.Set(SetTo)))">Set</button>
-
-@code
-{
-    private int SetTo;
-}
 ```
 
 # The origin
 
-I played around with a few other libraries that aim at the same goal (another project)
-and I was not 100% satisfied with how they did stuff, so while playing around with
-MobileBlazorBindings and the new hybrid apps, I found that C# 9 records were a great fit
-for this and I started experimenting and ended up with this project.
+I played around with a few other libraries and I was not 100% satisfied with how they did stuff.
+So while playing around with MobileBlazorBindings and the new hybrid apps, I found that C# 9 records
+were a great fit for this. I started experimenting with transforming immutable types (records) and
+ended up creating this project.
 
-## Definition of a stator
+## Origin of the name
+
+The name `StateR`, pronounced `Stator`, is inspired by `MediatR` that was initially used under the hood to mediate the commands.
+
+## Definition of a Stator
 
 > The stator is the stationary part of a rotary system [...].
 > Energy flows through a stator to or from the rotating component of the system.
