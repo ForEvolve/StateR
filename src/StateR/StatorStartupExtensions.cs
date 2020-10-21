@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using StateR.AfterEffects;
+using StateR.AfterEffects.Hooks;
 using StateR.Interceptors;
 using StateR.Internal;
 using StateR.Reducers;
@@ -23,6 +24,7 @@ namespace StateR
             services.TryAddSingleton<IReducersManager, ReducersManager>();
             services.TryAddSingleton<IAfterEffectsManager, AfterEffectsManager>();
             services.TryAddSingleton<IDispatchContextFactory, DispatchContextFactory>();
+            services.TryAddSingleton<IAfterEffectHooksCollection, AfterEffectHooksCollection>();
             return new StatorBuilder(services);
         }
 
@@ -53,8 +55,12 @@ namespace StateR
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
 
-                // Equivalent to: AddSingleton<IAfterEffectsMiddleware, Implementation>();
-                .AddClasses(classes => classes.AssignableTo(typeof(IAfterEffectsMiddleware)))
+                // Equivalent to: AddSingleton<IBeforeAfterEffectHook, Implementation>();
+                .AddClasses(classes => classes.AssignableTo(typeof(IBeforeAfterEffectHook)))
+                .AsImplementedInterfaces()
+                .WithSingletonLifetime()
+                // Equivalent to: AddSingleton<IAfterAfterEffectHook, Implementation>();
+                .AddClasses(classes => classes.AssignableTo(typeof(IAfterAfterEffectHook)))
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
 
@@ -74,7 +80,7 @@ namespace StateR
                 .WithSingletonLifetime()
 
                 // Equivalent to: AddSingleton<IActionAfterEffects<TState>, Implementation>();
-                .AddClasses(classes => classes.AssignableTo(typeof(IActionAfterEffects<>)))
+                .AddClasses(classes => classes.AssignableTo(typeof(IAfterEffects<>)))
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
             );

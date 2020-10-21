@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace StateR.AsyncLogic
 {
-    public abstract class AsyncOperation<TAction, TState, TSuccessAction> : IActionAfterEffects<TAction>, IReducer<StatusUpdated<TState>, TState>
+    public abstract class AsyncOperation<TAction, TState, TSuccessAction> : IAfterEffects<TAction>, IReducer<StatusUpdated<TState>, TState>
         where TAction : IAction
         where TState : AsyncState
         where TSuccessAction : IAction
