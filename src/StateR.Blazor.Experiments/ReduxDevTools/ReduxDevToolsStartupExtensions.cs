@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using StateR.Reducers;
+using StateR.Reducers.Hooks;
 using System;
 using System.Collections.Generic;
 using System.Linq;

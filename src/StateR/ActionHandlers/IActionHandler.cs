@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR.Reducers
+namespace StateR.ActionHandlers
 {
     public interface IActionHandler<TAction>
         where TAction : IAction

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using StateR.ActionHandlers.Hooks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,20 +9,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace StateR.Reducers
+namespace StateR.ActionHandlers
 {
-    public class ReducersManagerTest
+    public class ActionHandlerManagerTest
     {
-        protected ReducersManager CreateReducersManager(Action<ServiceCollection> configureServices)
+        private readonly Mock<IActionHandlerHooksCollection> _hooksCollectionMock = new();
+
+        protected ActionHandlersManager CreateReducersManager(Action<ServiceCollection> configureServices)
         {
             var services = new ServiceCollection();
             configureServices?.Invoke(services);
             var serviceProvider = services.BuildServiceProvider();
-            var middlewares = serviceProvider.GetServices<IActionHandlerMiddleware>();
-            return new ReducersManager(middlewares, serviceProvider);
+            return new ActionHandlersManager(_hooksCollectionMock.Object, serviceProvider);
         }
 
-        public class DispatchAsync : ReducersManagerTest
+        public class DispatchAsync : ActionHandlerManagerTest
         {
             [Fact]
             public async Task Should_call_all_action_handlers()
@@ -85,14 +87,17 @@ namespace StateR.Reducers
                 var actionHandler2 = new Mock<IActionHandler<TestAction>>();
                 actionHandler2.Setup(x => x.HandleAsync(context, token))
                     .Callback(() => operationQueue.Enqueue("actionHandler2.HandleAsync"));
-                var middleware1 = new QueueActionHandlerMiddleware("middleware1", operationQueue);
-                var middleware2 = new QueueActionHandlerMiddleware("middleware2", operationQueue);
+                _hooksCollectionMock
+                    .Setup(x => x.BeforeHandlerAsync(context, It.IsAny<IActionHandler<TestAction>>(), token))
+                    .Callback(() => operationQueue.Enqueue("BeforeHandlerAsync"));
+                _hooksCollectionMock
+                    .Setup(x => x.AfterHandlerAsync(context, It.IsAny<IActionHandler<TestAction>>(), token))
+                    .Callback(() => operationQueue.Enqueue("AfterHandlerAsync"));
+
                 var sut = CreateReducersManager(services =>
                 {
                     services.AddSingleton(actionHandler1.Object);
                     services.AddSingleton(actionHandler2.Object);
-                    services.AddSingleton<IActionHandlerMiddleware>(middleware1);
-                    services.AddSingleton<IActionHandlerMiddleware>(middleware2);
                 });
 
                 // Act
@@ -100,61 +105,17 @@ namespace StateR.Reducers
 
                 // Assert
                 Assert.Collection(operationQueue,
-                    op => Assert.Equal("middleware1.BeforeHandlersAsync", op),
-                    op => Assert.Equal("middleware2.BeforeHandlersAsync", op),
-
-                    op => Assert.Equal("middleware1.BeforeHandlerAsync", op),
-                    op => Assert.Equal("middleware2.BeforeHandlerAsync", op),
+                    op => Assert.Equal("BeforeHandlerAsync", op),
                     op => Assert.Equal("actionHandler1.HandleAsync", op),
-                    op => Assert.Equal("middleware1.AfterHandlerAsync", op),
-                    op => Assert.Equal("middleware2.AfterHandlerAsync", op),
+                    op => Assert.Equal("AfterHandlerAsync", op),
 
-                    op => Assert.Equal("middleware1.BeforeHandlerAsync", op),
-                    op => Assert.Equal("middleware2.BeforeHandlerAsync", op),
+                    op => Assert.Equal("BeforeHandlerAsync", op),
                     op => Assert.Equal("actionHandler2.HandleAsync", op),
-                    op => Assert.Equal("middleware1.AfterHandlerAsync", op),
-                    op => Assert.Equal("middleware2.AfterHandlerAsync", op),
-
-                    op => Assert.Equal("middleware1.AfterHandlersAsync", op),
-                    op => Assert.Equal("middleware2.AfterHandlersAsync", op)
+                    op => Assert.Equal("AfterHandlerAsync", op)
                 );
             }
         }
 
         public record TestAction : IAction;
-        private class QueueActionHandlerMiddleware : IActionHandlerMiddleware
-        {
-            private readonly string _name;
-            private readonly Queue<string> _operationQueue;
-            public QueueActionHandlerMiddleware(string name, Queue<string> operationQueue)
-            {
-                _name = name ?? throw new ArgumentNullException(nameof(name));
-                _operationQueue = operationQueue ?? throw new ArgumentNullException(nameof(operationQueue));
-            }
-
-            public Task AfterHandlerAsync<TAction>(IDispatchContext<TAction> context, IActionHandler<TAction> interceptor, CancellationToken cancellationToken) where TAction : IAction
-            {
-                _operationQueue.Enqueue($"{_name}.AfterHandlerAsync");
-                return Task.CompletedTask;
-            }
-
-            public Task AfterHandlersAsync<TAction>(IDispatchContext<TAction> context, IEnumerable<IActionHandler<TAction>> interceptors, CancellationToken cancellationToken) where TAction : IAction
-            {
-                _operationQueue.Enqueue($"{_name}.AfterHandlersAsync");
-                return Task.CompletedTask;
-            }
-
-            public Task BeforeHandlerAsync<TAction>(IDispatchContext<TAction> context, IActionHandler<TAction> interceptor, CancellationToken cancellationToken) where TAction : IAction
-            {
-                _operationQueue.Enqueue($"{_name}.BeforeHandlerAsync");
-                return Task.CompletedTask;
-            }
-
-            public Task BeforeHandlersAsync<TAction>(IDispatchContext<TAction> context, IEnumerable<IActionHandler<TAction>> interceptors, CancellationToken cancellationToken) where TAction : IAction
-            {
-                _operationQueue.Enqueue($"{_name}.BeforeHandlersAsync");
-                return Task.CompletedTask;
-            }
-        }
     }
 }

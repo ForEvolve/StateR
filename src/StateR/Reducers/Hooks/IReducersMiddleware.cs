@@ -2,8 +2,16 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR.Reducers
+namespace StateR.Reducers.Hooks
 {
+    public interface IReducerHooksCollection
+    {
+
+    }
+    public class ReducerHooksCollection : IReducerHooksCollection
+    {
+
+    }
     public interface IReducersMiddleware
     {
         Task BeforeReducersAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, CancellationToken cancellationToken)

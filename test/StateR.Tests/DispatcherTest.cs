@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using StateR.Interceptors;
 using StateR.Reducers;
 using StateR.AfterEffects;
+using StateR.ActionHandlers;
 
 namespace StateR
 {
@@ -14,7 +15,7 @@ namespace StateR
     {
         private readonly Mock<IDispatchContextFactory> _dispatchContextFactory;
         private readonly Mock<IInterceptorsManager> _interceptorsManager;
-        private readonly Mock<IReducersManager> _reducersManager;
+        private readonly Mock<IActionHandlersManager> _actionHandlersManager;
         private readonly Mock<IAfterEffectsManager> _afterEffectsManager;
         private readonly Dispatcher sut;
 
@@ -22,9 +23,9 @@ namespace StateR
         {
             _dispatchContextFactory = new();
             _interceptorsManager = new();
-            _reducersManager = new();
+            _actionHandlersManager = new();
             _afterEffectsManager = new();
-            sut = new(_dispatchContextFactory.Object, _interceptorsManager.Object, _reducersManager.Object, _afterEffectsManager.Object);
+            sut = new(_dispatchContextFactory.Object, _interceptorsManager.Object, _actionHandlersManager.Object, _afterEffectsManager.Object);
         }
 
         public class DispatchAsync : DispatcherTest
@@ -53,7 +54,7 @@ namespace StateR
 
                 // Assert
                 _interceptorsManager.Verify(x => x.DispatchAsync(context, token), Times.Once);
-                _reducersManager.Verify(x => x.DispatchAsync(context, token), Times.Once);
+                _actionHandlersManager.Verify(x => x.DispatchAsync(context, token), Times.Once);
                 _afterEffectsManager.Verify(x => x.DispatchAsync(context, token), Times.Once);
             }
             [Fact]
@@ -66,7 +67,7 @@ namespace StateR
                 _interceptorsManager
                     .Setup(x => x.DispatchAsync(It.IsAny< IDispatchContext<TestAction>>(), token))
                     .Callback(() => operationQueue.Enqueue("Interceptors"));
-                _reducersManager
+                _actionHandlersManager
                     .Setup(x => x.DispatchAsync(It.IsAny<IDispatchContext<TestAction>>(), token))
                     .Callback(() => operationQueue.Enqueue("Reducers"));
                 _afterEffectsManager

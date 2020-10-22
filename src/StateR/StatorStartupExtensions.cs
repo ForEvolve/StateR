@@ -1,11 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using StateR.ActionHandlers;
+using StateR.ActionHandlers.Hooks;
 using StateR.AfterEffects;
 using StateR.AfterEffects.Hooks;
 using StateR.Interceptors;
 using StateR.Interceptors.Hooks;
 using StateR.Internal;
 using StateR.Reducers;
+using StateR.Reducers.Hooks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,11 +24,17 @@ namespace StateR
         {
             services.TryAddSingleton<IStore, Store>();
             services.TryAddSingleton<IDispatcher, Dispatcher>();
+
             services.TryAddSingleton<IInterceptorsManager, InterceptorsManager>();
-            services.TryAddSingleton<IReducersManager, ReducersManager>();
+            services.TryAddSingleton<IActionHandlersManager, ActionHandlersManager>();
             services.TryAddSingleton<IAfterEffectsManager, AfterEffectsManager>();
             services.TryAddSingleton<IDispatchContextFactory, DispatchContextFactory>();
+
             services.TryAddSingleton<IAfterEffectHooksCollection, AfterEffectHooksCollection>();
+            services.TryAddSingleton<IInterceptorsHooksCollection, InterceptorsHooksCollection>();
+            services.TryAddSingleton<IActionHandlerHooksCollection, ActionHandlerHooksCollection>();
+            services.TryAddSingleton<IReducerHooksCollection, ReducerHooksCollection>();
+
             return new StatorBuilder(services);
         }
 
@@ -69,15 +78,19 @@ namespace StateR
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
 
-                // Equivalent to: AddSingleton<IActionHandlerMiddleware, Implementation>();
-                .AddClasses(classes => classes.AssignableTo(typeof(IActionHandlerMiddleware)))
+                // Equivalent to: AddSingleton<IBeforeActionHook, Implementation>();
+                .AddClasses(classes => classes.AssignableTo(typeof(IBeforeActionHook)))
+                .AsImplementedInterfaces()
+                .WithSingletonLifetime()
+                // Equivalent to: AddSingleton<IAfterActionHook, Implementation>();
+                .AddClasses(classes => classes.AssignableTo(typeof(IAfterActionHook)))
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
 
-                // Equivalent to: AddSingleton<IReducersMiddleware, Implementation>();
-                .AddClasses(classes => classes.AssignableTo(typeof(IReducersMiddleware)))
-                .AsImplementedInterfaces()
-                .WithSingletonLifetime()
+                //// Equivalent to: AddSingleton<IReducersMiddleware, Implementation>();
+                //.AddClasses(classes => classes.AssignableTo(typeof(IReducersMiddleware)))
+                //.AsImplementedInterfaces()
+                //.WithSingletonLifetime()
 
                 // Equivalent to: AddSingleton<IInterceptor<TState>, Implementation>();
                 .AddClasses(classes => classes.AssignableTo(typeof(IInterceptor<>)))
