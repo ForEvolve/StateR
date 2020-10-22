@@ -11,48 +11,26 @@ namespace StateR.Reducers
         where TState : StateBase
         where TAction : IAction
     {
-        private readonly IEnumerable<IReducersMiddleware> _middlewares;
+        private readonly IReducerHooksCollection _hooks;
         private readonly IEnumerable<IReducer<TAction, TState>> _reducers;
         private readonly IState<TState> _state;
 
-        public ReducerHandler(IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, IEnumerable<IReducersMiddleware> middlewares)
+        public ReducerHandler(IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, IReducerHooksCollection hooks)
         {
             _state = state ?? throw new ArgumentNullException(nameof(state));
             _reducers = reducers ?? throw new ArgumentNullException(nameof(reducers));
-            _middlewares = middlewares ?? throw new ArgumentNullException(nameof(middlewares));
+            _hooks = hooks ?? throw new ArgumentNullException(nameof(hooks));
         }
 
         public async Task HandleAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken)
         {
-            foreach (var middleware in _middlewares)
-            {
-                await middleware.BeforeReducersAsync(context, _state, _reducers, cancellationToken);
-            }
             foreach (var reducer in _reducers)
             {
-                foreach (var middleware in _middlewares)
-                {
-                    await middleware.BeforeReducerAsync(context, _state, reducer, cancellationToken);
-                }
+                await _hooks.BeforeReducerAsync(context, _state, reducer, cancellationToken);
                 _state.Set(reducer.Reduce(context.Action, _state.Current));
-                foreach (var middleware in _middlewares)
-                {
-                    await middleware.AfterReducerAsync(context, _state, reducer, cancellationToken);
-                }
-            }
-            foreach (var middleware in _middlewares)
-            {
-                await middleware.AfterReducersAsync(context, _state, _reducers, cancellationToken);
-            }
-            foreach (var middleware in _middlewares)
-            {
-                await middleware.BeforeNotifyAsync(context, _state, _reducers, cancellationToken);
+                await _hooks.AfterReducerAsync(context, _state, reducer, cancellationToken);
             }
             _state.Notify();
-            foreach (var middleware in _middlewares)
-            {
-                await middleware.AfterNotifyAsync(context, _state, _reducers, cancellationToken);
-            }
         }
     }
 }

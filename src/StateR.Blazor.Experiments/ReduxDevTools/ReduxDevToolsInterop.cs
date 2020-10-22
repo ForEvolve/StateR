@@ -53,7 +53,7 @@ namespace StateR.Blazor.ReduxDevTools
         }
     }
 
-    public class ReduxDevToolsInterop : IDisposable, IReducersMiddleware
+    public class ReduxDevToolsInterop : IDisposable, IBeforeReducerHook, IAfterReducerHook
     {
         public bool DevToolsBrowserPluginDetected { get; private set; }
         private readonly IJSRuntime _jsRuntime;
@@ -265,11 +265,6 @@ namespace StateR.Blazor.ReduxDevTools
             );
             _history.LastOrDefault(h => h.ContextRef == reducer).Status = TypeStateStatus.AfterReducer;
         }
-
-        public Task BeforeReducersAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, CancellationToken cancellationToken) where TAction : IAction where TState : StateBase => Task.CompletedTask;
-        public Task AfterReducersAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, CancellationToken cancellationToken) where TAction : IAction where TState : StateBase => Task.CompletedTask;
-        public Task BeforeNotifyAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, CancellationToken cancellationToken) where TAction : IAction where TState : StateBase => Task.CompletedTask;
-        public Task AfterNotifyAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IEnumerable<IReducer<TAction, TState>> reducers, CancellationToken cancellationToken) where TAction : IAction where TState : StateBase => Task.CompletedTask;
     }
 
     public class BaseCallbackObject<TPayload>

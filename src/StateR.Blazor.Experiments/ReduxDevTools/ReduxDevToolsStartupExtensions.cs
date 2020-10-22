@@ -27,7 +27,8 @@ namespace StateR.Blazor.ReduxDevTools
             });
             builder.Services.AddSingleton<ReduxDevToolsInteropInitializer>();
             builder.Services.AddSingleton<ReduxDevToolsInterop>();
-            builder.Services.AddSingleton<IReducersMiddleware>(sp => sp.GetService<ReduxDevToolsInterop>());
+            builder.Services.AddSingleton<IBeforeReducerHook>(sp => sp.GetService<ReduxDevToolsInterop>());
+            builder.Services.AddSingleton<IAfterReducerHook>(sp => sp.GetService<ReduxDevToolsInterop>());
             return builder;
         }
     }

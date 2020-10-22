@@ -87,10 +87,14 @@ namespace StateR
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
 
-                //// Equivalent to: AddSingleton<IReducersMiddleware, Implementation>();
-                //.AddClasses(classes => classes.AssignableTo(typeof(IReducersMiddleware)))
-                //.AsImplementedInterfaces()
-                //.WithSingletonLifetime()
+                // Equivalent to: AddSingleton<IBeforeReducerHook, Implementation>();
+                .AddClasses(classes => classes.AssignableTo(typeof(IBeforeReducerHook)))
+                .AsImplementedInterfaces()
+                .WithSingletonLifetime()
+                // Equivalent to: AddSingleton<IAfterReducerHook, Implementation>();
+                .AddClasses(classes => classes.AssignableTo(typeof(IAfterReducerHook)))
+                .AsImplementedInterfaces()
+                .WithSingletonLifetime()
 
                 // Equivalent to: AddSingleton<IInterceptor<TState>, Implementation>();
                 .AddClasses(classes => classes.AssignableTo(typeof(IInterceptor<>)))
