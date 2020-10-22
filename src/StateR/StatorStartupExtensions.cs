@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using StateR.AfterEffects;
 using StateR.AfterEffects.Hooks;
 using StateR.Interceptors;
+using StateR.Interceptors.Hooks;
 using StateR.Internal;
 using StateR.Reducers;
 using System;
@@ -50,8 +51,12 @@ namespace StateR
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
 
-                // Equivalent to: AddSingleton<IInterceptorsMiddleware, Implementation>();
-                .AddClasses(classes => classes.AssignableTo(typeof(IInterceptorsMiddleware)))
+                // Equivalent to: AddSingleton<IBeforeInterceptorHook, Implementation>();
+                .AddClasses(classes => classes.AssignableTo(typeof(IBeforeInterceptorHook)))
+                .AsImplementedInterfaces()
+                .WithSingletonLifetime()
+                // Equivalent to: AddSingleton<IAfterInterceptorHook, Implementation>();
+                .AddClasses(classes => classes.AssignableTo(typeof(IAfterInterceptorHook)))
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
 
@@ -74,8 +79,8 @@ namespace StateR
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
 
-                // Equivalent to: AddSingleton<IActionInterceptor<TState>, Implementation>();
-                .AddClasses(classes => classes.AssignableTo(typeof(IActionInterceptor<>)))
+                // Equivalent to: AddSingleton<IInterceptor<TState>, Implementation>();
+                .AddClasses(classes => classes.AssignableTo(typeof(IInterceptor<>)))
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
 

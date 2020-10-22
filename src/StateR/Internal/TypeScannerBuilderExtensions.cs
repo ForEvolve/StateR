@@ -61,7 +61,7 @@ namespace StateR.Internal
 
         //public IStatorBuilder FindInterceptors(this IStatorBuilder builder)
         //{
-        //    var iActionInterceptor = typeof(IActionInterceptor<>);
+        //    var iActionInterceptor = typeof(IInterceptor<>);
         //    return types.Where(type => !type.IsAbstract && type
         //        .GetTypeInfo()
         //        .GetInterfaces()
@@ -71,7 +71,7 @@ namespace StateR.Internal
 
         //public IStatorBuilder FindAfterEffects(this IStatorBuilder builder)
         //{
-        //    var iAfterEffects = typeof(IActionAfterEffects<>);
+        //    var iAfterEffects = typeof(IAfterEffects<>);
         //    return types.Where(type => !type.IsAbstract && type
         //        .GetTypeInfo()
         //        .GetInterfaces()
