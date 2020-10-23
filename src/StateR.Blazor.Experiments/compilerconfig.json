@@ -1,0 +1,10 @@
+﻿[
+  {
+    "outputFile": "wwwroot/css/StateR.Blazor.css",
+    "inputFile": "Components/ErrorToastStack.razor.scss"
+  },
+  {
+    "outputFile": "wwwroot/js/ReduxDevToolsInterop.js",
+    "inputFile": "ReduxDevTools/ReduxDevToolsInterop.js"
+  }
+]

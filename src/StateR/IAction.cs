@@ -1,5 +1,4 @@
-﻿using MediatR;
-namespace StateR
+﻿namespace StateR
 {
-    public interface IAction : IRequest, INotification { }
+    public interface IAction { }
 }

@@ -338,3 +338,8 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# Coverlet code coverage
+coverage.cobertura.xml
+coverage.json
+coveragereport/

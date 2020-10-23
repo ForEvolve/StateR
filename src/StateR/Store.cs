@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace StateR
@@ -12,17 +11,17 @@ namespace StateR
     public class Store : IStore
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly IMediator _mediator;
-        public Store(IServiceProvider serviceProvider, IMediator mediator)
+        private readonly IDispatcher _dispatcher;
+
+        public Store(IServiceProvider serviceProvider, IDispatcher dispatcher)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
         }
 
-        public async Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken = default) where TAction : IAction
+        public Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken = default) where TAction : IAction
         {
-            await _mediator.Send(action, cancellationToken);
-            await _mediator.Publish(action, cancellationToken);
+            return _dispatcher.DispatchAsync(action, cancellationToken);
         }
 
         public TState GetState<TState>() where TState : StateBase
@@ -34,7 +33,7 @@ namespace StateR
         public void SetState<TState>(Func<TState, TState> stateTransform) where TState : StateBase
         {
             var state = _serviceProvider.GetRequiredService<IState<TState>>();
-            state.Transform(stateTransform);
+            state.Set(stateTransform(state.Current));
             state.Notify();
         }
 
