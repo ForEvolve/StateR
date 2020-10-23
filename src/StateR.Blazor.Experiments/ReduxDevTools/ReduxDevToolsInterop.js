@@ -1,5 +1,4 @@
-﻿// Source based on https://github.com/mrpmorris/Fluxor/blob/master/Source/Fluxor.Blazor.Web.ReduxDevTools/ReduxDevToolsInterop.cs
-window.__StateRDevTools__ = (function () {
+﻿window.__StateRDevTools__ = (function () {
     const reduxDevTools = window.__REDUX_DEVTOOLS_EXTENSION__;
     if (typeof reduxDevTools === 'undefined') {
         return {
@@ -27,7 +26,7 @@ window.__StateRDevTools__ = (function () {
             window.statorDevToolsDotNetInterop = dotNetCallbacks;
             statorDevTools.init(state);
             if (window.statorDevToolsDotNetInterop) {
-                // Notify StatoR of the presence of the browser plugin
+                // Notify Stator of the presence of the browser plugin
                 const detectedMessage = {
                     payload: {
                         type: 'detected',
