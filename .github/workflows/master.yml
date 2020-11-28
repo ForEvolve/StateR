@@ -17,13 +17,12 @@ env:
   DOTNET_5_VERSION: '5.0.x'
   BUILD_CONFIGURATION: Release
 
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dotnet: [${{ env.DOTNET_2_VERSION }}, ${{ env.DOTNET_3_VERSION }}, ${{ env.DOTNET_5_VERSION }}]
+        dotnet: ['2.1.x', '3.1.x', '5.0.x']
 
     steps:
       - uses: actions/checkout@v1
@@ -44,7 +43,8 @@ jobs:
     needs: build-and-test
     strategy:
       matrix:
-        dotnet: [${{ env.DOTNET_2_VERSION }}, ${{ env.DOTNET_3_VERSION }}, ${{ env.DOTNET_5_VERSION }}]
+        dotnet: ['2.1.x', '3.1.x', '5.0.x']
+
     steps:
       - uses: actions/checkout@v1
 
