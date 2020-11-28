@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -45,5 +45,5 @@
     <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.0.0" />
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.3.37" />
   </ItemGroup>
-
+  
 </Project>

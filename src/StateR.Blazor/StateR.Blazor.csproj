@@ -19,6 +19,10 @@
     <!-- <EmbeddedResource Include="content\**" Exclude="**\*.js;**\*.css" LogicalName="blazor:file:%(RecursiveDir)%(Filename)%(Extension)" /> -->
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.3.37" />
+  </ItemGroup>
+
   <Choose>
     <When Condition="'$(TargetFramework)'=='netstandard2.0'">
       <ItemGroup>
