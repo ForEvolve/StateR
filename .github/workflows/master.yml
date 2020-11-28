@@ -12,9 +12,7 @@ on:
       - master
 
 env:
-  DOTNET_2_VERSION: 2.1.808
-  DOTNET_3_VERSION: 3.1.302
-  DOTNET_5_VERSION: 5.0.100
+  DOTNET_VERSIONS: ['2.1.x', '3.1.x', '5.0.x']
   BUILD_CONFIGURATION: Release
 
 jobs:
@@ -25,9 +23,9 @@ jobs:
       - uses: actions/checkout@v1
 
       - name: Setup .NET Core
-        uses: coderpatros/setup-dotnet@sxs
+        uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: ${{ env.DOTNET_2_VERSION }},${{ env.DOTNET_3_VERSION }},${{ env.DOTNET_5_VERSION }}
+          dotnet-version: ${{ env.DOTNET_VERSIONS }}
 
       - name: Build
         run: dotnet build --configuration ${{ env.BUILD_CONFIGURATION }}
@@ -42,9 +40,9 @@ jobs:
       - uses: actions/checkout@v1
 
       - name: Setup .NET Core
-        uses: coderpatros/setup-dotnet@sxs
+        uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: ${{ env.DOTNET_2_VERSION }},${{ env.DOTNET_3_VERSION }},${{ env.DOTNET_5_VERSION }}
+          dotnet-version: ${{ env.DOTNET_VERSIONS }}
 
       - uses: aarnott/nbgv@v0.3
         with:
