@@ -16,6 +16,7 @@ env:
   DOTNET_3_VERSION: '3.1.x'
   DOTNET_5_VERSION: '5.0.x'
   BUILD_CONFIGURATION: Release
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
 jobs:
   build-and-test:
