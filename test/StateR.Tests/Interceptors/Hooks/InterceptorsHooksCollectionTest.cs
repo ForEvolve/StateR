@@ -18,7 +18,7 @@ namespace StateR.Interceptors.Hooks
         private readonly Mock<IAfterInterceptorHook> _after2Mock = new();
 
         private readonly Mock<IInterceptor<TestAction>> _afterEffectMock = new();
-        private readonly IDispatchContext<TestAction> dispatchContext = new DispatchContext<TestAction>(new TestAction());
+        private readonly IDispatchContext<TestAction> dispatchContext = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
         private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
         private readonly InterceptorsHooksCollection sut;

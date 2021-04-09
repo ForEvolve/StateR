@@ -1,17 +1,21 @@
-﻿namespace StateR
+﻿using System;
+namespace StateR
 {
     public class DispatchContext<TAction> : IDispatchContext<TAction>
         where TAction : IAction
     {
-        public DispatchContext(TAction action)
+        public DispatchContext(TAction action, IDispatcher dispatcher)
         {
             Action = action;
+            Dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
         }
 
+        public IDispatcher Dispatcher { get; }
         public TAction Action { get; set; }
 
         public bool StopReduce { get; set; }
         public bool StopInterception { get; set; }
         public bool StopAfterEffect { get; set; }
+
     }
 }

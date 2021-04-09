@@ -28,7 +28,7 @@ namespace StateR.Reducers
 
         public ReducerHandlerTest()
         {
-            _context = new(_action);
+            _context = new(_action, new Mock<IDispatcher>().Object);
 
             _stateMock.Setup(x => x.Current).Returns(_state);
             _stateMock.Setup(x => x.Notify())

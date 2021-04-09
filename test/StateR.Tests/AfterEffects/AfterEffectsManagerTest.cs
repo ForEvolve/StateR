@@ -31,7 +31,7 @@ namespace StateR.AfterEffects
             public async Task Should_handle_all_after_effects()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction());
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
                 var token = CancellationToken.None;
 
                 var afterEffect1 = new Mock<IAfterEffects<TestAction>>();
@@ -54,7 +54,7 @@ namespace StateR.AfterEffects
             public async Task Should_break_after_effects_when_StopAfterEffect_is_true()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction());
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
                 var token = CancellationToken.None;
 
                 var afterEffect1 = new Mock<IAfterEffects<TestAction>>();
@@ -79,7 +79,7 @@ namespace StateR.AfterEffects
             public async Task Should_call_hooks_and_after_effects_methods_in_order()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction());
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
                 var token = CancellationToken.None;
 
                 var operationQueue = new Queue<string>();

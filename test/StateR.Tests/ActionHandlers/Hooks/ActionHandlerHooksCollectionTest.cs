@@ -17,7 +17,7 @@ namespace StateR.ActionHandlers.Hooks
         private readonly Mock<IAfterActionHook> _after2Mock = new();
 
         private readonly Mock<IActionHandler<TestAction>> _afterEffectMock = new();
-        private readonly IDispatchContext<TestAction> dispatchContext = new DispatchContext<TestAction>(new TestAction());
+        private readonly IDispatchContext<TestAction> dispatchContext = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
         private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
         private readonly ActionHandlerHooksCollection sut;

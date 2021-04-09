@@ -19,7 +19,7 @@ namespace StateR.Reducers.Hooks
         private readonly Mock<IState<TestState>> _stateMock = new();
         private readonly Mock<IReducer<TestAction, TestState>> _reducer = new();
 
-        private readonly IDispatchContext<TestAction> _dispatchContext = new DispatchContext<TestAction>(new TestAction());
+        private readonly IDispatchContext<TestAction> _dispatchContext = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
         private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
         private readonly ReducerHooksCollection sut;

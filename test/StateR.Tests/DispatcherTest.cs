@@ -35,7 +35,7 @@ namespace StateR
             {
                 var action = new TestAction();
                 await sut.DispatchAsync(action, CancellationToken.None);
-                _dispatchContextFactory.Verify(x => x.Create(action), Times.Once);
+                _dispatchContextFactory.Verify(x => x.Create(action, sut), Times.Once);
             }
 
             [Fact]
@@ -43,10 +43,10 @@ namespace StateR
             {
                 // Arrange
                 var action = new TestAction();
-                var context = new DispatchContext<TestAction>(action);
+                var context = new DispatchContext<TestAction>(action, new Mock<IDispatcher>().Object);
                 var token = CancellationToken.None;
                 _dispatchContextFactory
-                    .Setup(x => x.Create(action))
+                    .Setup(x => x.Create(action, sut))
                     .Returns(context);
 
                 // Act

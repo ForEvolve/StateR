@@ -29,7 +29,7 @@ namespace StateR.ActionHandlers
             public async Task Should_call_all_action_handlers()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction());
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
                 var token = CancellationToken.None;
 
                 var handler1 = new Mock<IActionHandler<TestAction>>();
@@ -52,7 +52,7 @@ namespace StateR.ActionHandlers
             public async Task Should_break_handlers_when_StopReduce_is_true()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction());
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
                 var token = CancellationToken.None;
 
                 var afterEffect1 = new Mock<IActionHandler<TestAction>>();
@@ -77,7 +77,7 @@ namespace StateR.ActionHandlers
             public async Task Should_call_middleware_and_handlers_in_order()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction());
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
                 var token = CancellationToken.None;
 
                 var operationQueue = new Queue<string>();

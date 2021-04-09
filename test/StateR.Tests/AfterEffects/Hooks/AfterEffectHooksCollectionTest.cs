@@ -17,7 +17,7 @@ namespace StateR.AfterEffects.Hooks
         private readonly Mock<IAfterAfterEffectHook> _after2Mock = new();
 
         private readonly Mock<IAfterEffects<TestAction>> _afterEffectMock = new();
-        private readonly IDispatchContext<TestAction> dispatchContext = new DispatchContext<TestAction>(new TestAction());
+        private readonly IDispatchContext<TestAction> dispatchContext = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
         private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
         private readonly AfterEffectHooksCollection sut;

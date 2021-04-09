@@ -37,7 +37,7 @@ namespace StateR.Interceptors
                     services.AddSingleton(interceptor1.Object);
                     services.AddSingleton(interceptor2.Object);
                 });
-                var context = new DispatchContext<TestAction>(new TestAction());
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
                 var token = CancellationToken.None;
 
                 // Act
@@ -52,7 +52,7 @@ namespace StateR.Interceptors
             public async Task Should_call_middleware_and_interceptors_methods_in_order()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction());
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
                 var token = CancellationToken.None;
 
                 var operationQueue = new Queue<string>();
@@ -93,7 +93,7 @@ namespace StateR.Interceptors
             public async Task Should_break_interception_when_StopInterception_is_true()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction());
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
                 var token = CancellationToken.None;
 
                 var interceptor1 = new Mock<IInterceptor<TestAction>>();

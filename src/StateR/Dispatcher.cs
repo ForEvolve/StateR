@@ -25,7 +25,7 @@ namespace StateR
 
         public async Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken) where TAction : IAction
         {
-            var dispatchContext = _dispatchContextFactory.Create(action);
+            var dispatchContext = _dispatchContextFactory.Create(action, this);
             await _interceptorsManager.DispatchAsync(dispatchContext, cancellationToken);
             await _actionHandlersManager.DispatchAsync(dispatchContext, cancellationToken);
             await _afterEffectsManager.DispatchAsync(dispatchContext, cancellationToken);
