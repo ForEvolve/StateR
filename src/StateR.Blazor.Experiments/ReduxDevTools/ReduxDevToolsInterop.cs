@@ -114,10 +114,12 @@ namespace StateR.Blazor.ReduxDevTools
         }
 
         [JSInvokable("DevToolsCallback")]
-        public async Task DevToolsCallback(string messageAsJson)
+        public Task DevToolsCallbackAsync(string messageAsJson)
         {
             if (string.IsNullOrWhiteSpace(messageAsJson))
-                return;
+            {
+                return Task.CompletedTask;
+            }
 
             var message = JsonSerializer.Deserialize<BaseCallbackObject>(messageAsJson);
             switch (message?.payload?.type)
@@ -165,6 +167,7 @@ namespace StateR.Blazor.ReduxDevTools
                     HistoryIndex = jumpToAction.payload.actionId;
                     break;
             }
+            return Task.CompletedTask;
         }
 
         void IDisposable.Dispose()
