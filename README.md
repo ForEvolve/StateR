@@ -1,13 +1,15 @@
 # Stator
 
-Stator is a simple, DI-oriented, Redux-inspired or Model-View-Update (MVU) **experiment** using C# 9.0 (preview).
+Stator is a simple, DI-oriented, Redux-inspired or Model-View-Update (MVU) **experiment** using C# 9.0.
 It works well with Blazor and [MobileBlazorBindings](https://github.com/xamarin/MobileBlazorBindings),
 including sharing states between the Xamarin part and the Blazor part of a hybrid mobile app.
 It should also work with any other .NET stateful client model.
 
+> As of 2021-04-08, the project does not support .NET Standard 2.0, only .NET 5+
+
 This project uses:
 
--   C# 9 (preview) record classes to ensure immutability and to simplify reducers.
+-   C# 9 record classes to ensure immutability and to simplify reducers.
 -   Dependency Injection to manage states (and everything else)
 
 # How to install?
