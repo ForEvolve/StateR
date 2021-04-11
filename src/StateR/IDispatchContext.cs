@@ -8,5 +8,7 @@
         bool StopReduce { get; set; }
         bool StopInterception { get; set; }
         bool StopAfterEffect { get; set; }
+
+        void DoNotContinue();
     }
 }
