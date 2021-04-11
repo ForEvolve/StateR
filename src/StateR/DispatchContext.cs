@@ -17,5 +17,11 @@ namespace StateR
         public bool StopInterception { get; set; }
         public bool StopAfterEffect { get; set; }
 
+        public void DoNotContinue()
+        {
+            StopAfterEffect = true;
+            StopInterception = true;
+            StopReduce = true;
+        }
     }
 }
