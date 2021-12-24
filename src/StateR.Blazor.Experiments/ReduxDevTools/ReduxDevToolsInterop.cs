@@ -7,11 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using StateR.Reducers;
+using StateR.Updater;
 using System.Threading;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using StateR.Reducers.Hooks;
+using StateR.Updater.Hooks;
 
 namespace StateR.Blazor.ReduxDevTools
 {
@@ -53,7 +53,7 @@ namespace StateR.Blazor.ReduxDevTools
         }
     }
 
-    public class ReduxDevToolsInterop : IDisposable, IBeforeReducerHook, IAfterReducerHook
+    public class ReduxDevToolsInterop : IDisposable, IBeforeUpdateHook, IAfterUpdateHook
     {
         public bool DevToolsBrowserPluginDetected { get; private set; }
         private readonly IJSRuntime _jsRuntime;
@@ -92,7 +92,7 @@ namespace StateR.Blazor.ReduxDevTools
             }
             _history.Add(new TypeState(revertStateAction, executeAction)
             {
-                Status = TypeStateStatus.AfterReducer,
+                Status = TypeStateStatus.AfterUpdater,
             });
             await _jsRuntime.InvokeAsync<object>(
                 "__StateRDevTools__.init",
@@ -201,14 +201,14 @@ namespace StateR.Blazor.ReduxDevTools
 
             public void Undo()
             {
-                if (Status == TypeStateStatus.AfterReducer)
+                if (Status == TypeStateStatus.AfterUpdater)
                 {
                     _undoStateAction();
                 }
             }
             public void Redo()
             {
-                if (Status == TypeStateStatus.AfterReducer)
+                if (Status == TypeStateStatus.AfterUpdater)
                 {
                     _redoStateAction();
                 }
@@ -218,43 +218,43 @@ namespace StateR.Blazor.ReduxDevTools
         private enum TypeStateStatus
         {
             Unknown,
-            BeforeReducer,
-            AfterReducer
+            BeforeUpdater,
+            AfterUpdater
         }
 
         private List<TypeState> _history { get; } = new();
 
-        public Task BeforeReducerAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IReducer<TAction, TState> reducer, CancellationToken cancellationToken)
+        public Task BeforeUpdateAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IUpdater<TAction, TState> updater, CancellationToken cancellationToken)
             where TAction : IAction
             where TState : StateBase
         {
             var action = context.Action;
             var current = state.Current;
-            var next = reducer.Reduce(action, current);
+            var next = updater.Update(action, current);
             _history.Add(new TypeState(undoStateAction, redoStateAction)
             {
-                ContextRef = reducer,
-                Status = TypeStateStatus.BeforeReducer,
+                ContextRef = updater,
+                Status = TypeStateStatus.BeforeUpdater,
             });
             HistoryIndex = _history.Count - 1;
             return Task.CompletedTask;
 
             void undoStateAction()
             {
-                Console.WriteLine($"Undo {current.GetType().GetStatorName()} to {current} from action: {typeof(TAction).GetStatorName()} with reducer {reducer.GetType().GetStatorName()}");
+                Console.WriteLine($"Undo {current.GetType().GetStatorName()} to {current} from action: {typeof(TAction).GetStatorName()} with updater {updater.GetType().GetStatorName()}");
                 state.Set(current);
                 state.Notify();
             }
 
             void redoStateAction()
             {
-                Console.WriteLine($"Redo {current.GetType().GetStatorName()} to {next} from action: {typeof(TAction).GetStatorName()} with reducer {reducer.GetType().GetStatorName()}");
+                Console.WriteLine($"Redo {current.GetType().GetStatorName()} to {next} from action: {typeof(TAction).GetStatorName()} with updater {updater.GetType().GetStatorName()}");
                 state.Set(next);
                 state.Notify();
             }
         }
 
-        public async Task AfterReducerAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IReducer<TAction, TState> reducer, CancellationToken cancellationToken)
+        public async Task AfterUpdateAsync<TAction, TState>(IDispatchContext<TAction> context, IState<TState> state, IUpdater<TAction, TState> updater, CancellationToken cancellationToken)
             where TAction : IAction
             where TState : StateBase
         {
@@ -266,7 +266,7 @@ namespace StateR.Blazor.ReduxDevTools
                 serializedActionInfo,
                 states
             );
-            _history.LastOrDefault(h => h.ContextRef == reducer).Status = TypeStateStatus.AfterReducer;
+            _history.LastOrDefault(h => h.ContextRef == updater).Status = TypeStateStatus.AfterUpdater;
         }
     }
 

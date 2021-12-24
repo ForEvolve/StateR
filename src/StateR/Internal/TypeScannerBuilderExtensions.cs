@@ -1,5 +1,5 @@
 ﻿using StateR.ActionHandlers;
-using StateR.Reducers;
+using StateR.Updater;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace StateR.Internal
             return builder
                 .FindStates()
                 .FindActions()
-                .FindReducers()
+                .FindUpdaters()
                 .FindActionHandlers()
             ;
         }
@@ -39,15 +39,15 @@ namespace StateR.Internal
             return builder.AddActions(actions);
         }
 
-        public static IStatorBuilder FindReducers(this IStatorBuilder builder)
+        public static IStatorBuilder FindUpdaters(this IStatorBuilder builder)
         {
-            var reducers = builder.All
+            var updaters = builder.All
                 .Where(type => !type.IsAbstract && type
                 .GetTypeInfo()
                 .GetInterfaces()
-                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReducer<,>))
+                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IUpdater<,>))
             );
-            return builder.AddReducers(reducers);
+            return builder.AddUpdaters(updaters);
         }
         public static IStatorBuilder FindActionHandlers(this IStatorBuilder builder)
         {
@@ -57,7 +57,7 @@ namespace StateR.Internal
                 .GetInterfaces()
                 .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IActionHandler<>))
             );
-            return builder.AddReducers(handlers);
+            return builder.AddUpdaters(handlers);
         }
 
         //public IStatorBuilder FindInterceptors(this IStatorBuilder builder)

@@ -15,7 +15,7 @@ namespace StateR.ActionHandlers
     {
         private readonly Mock<IActionHandlerHooksCollection> _hooksCollectionMock = new();
 
-        protected ActionHandlersManager CreateReducersManager(Action<ServiceCollection> configureServices)
+        protected ActionHandlersManager CreateUpdatersManager(Action<ServiceCollection> configureServices)
         {
             var services = new ServiceCollection();
             configureServices?.Invoke(services);
@@ -34,7 +34,7 @@ namespace StateR.ActionHandlers
 
                 var handler1 = new Mock<IActionHandler<TestAction>>();
                 var handler2 = new Mock<IActionHandler<TestAction>>();
-                var sut = CreateReducersManager(services =>
+                var sut = CreateUpdatersManager(services =>
                 {
                     services.AddSingleton(handler1.Object);
                     services.AddSingleton(handler2.Object);
@@ -49,7 +49,7 @@ namespace StateR.ActionHandlers
             }
 
             [Fact]
-            public async Task Should_break_handlers_when_StopReduce_is_true()
+            public async Task Should_break_handlers_when_StopUpdate_is_true()
             {
                 // Arrange
                 var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
@@ -57,9 +57,9 @@ namespace StateR.ActionHandlers
 
                 var afterEffect1 = new Mock<IActionHandler<TestAction>>();
                 afterEffect1.Setup(x => x.HandleAsync(context, token))
-                    .Callback((IDispatchContext<TestAction> context, CancellationToken cancellationToken) => context.StopReduce = true);
+                    .Callback((IDispatchContext<TestAction> context, CancellationToken cancellationToken) => context.StopUpdate = true);
                 var afterEffect2 = new Mock<IActionHandler<TestAction>>();
-                var sut = CreateReducersManager(services =>
+                var sut = CreateUpdatersManager(services =>
                 {
                     services.AddSingleton(afterEffect1.Object);
                     services.AddSingleton(afterEffect2.Object);
@@ -94,7 +94,7 @@ namespace StateR.ActionHandlers
                     .Setup(x => x.AfterHandlerAsync(context, It.IsAny<IActionHandler<TestAction>>(), token))
                     .Callback(() => operationQueue.Enqueue("AfterHandlerAsync"));
 
-                var sut = CreateReducersManager(services =>
+                var sut = CreateUpdatersManager(services =>
                 {
                     services.AddSingleton(actionHandler1.Object);
                     services.AddSingleton(actionHandler2.Object);

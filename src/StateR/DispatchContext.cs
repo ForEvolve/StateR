@@ -13,7 +13,7 @@ namespace StateR
         public IDispatcher Dispatcher { get; }
         public TAction Action { get; set; }
 
-        public bool StopReduce { get; set; }
+        public bool StopUpdate { get; set; }
         public bool StopInterception { get; set; }
         public bool StopAfterEffect { get; set; }
 
@@ -21,7 +21,7 @@ namespace StateR
         {
             StopAfterEffect = true;
             StopInterception = true;
-            StopReduce = true;
+            StopUpdate = true;
         }
     }
 }

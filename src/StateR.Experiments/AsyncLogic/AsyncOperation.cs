@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using StateR.AfterEffects;
-using StateR.Reducers;
+using StateR.Updater;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace StateR.AsyncLogic
 {
-    public abstract class AsyncOperation<TAction, TState, TSuccessAction> : IAfterEffects<TAction>, IReducer<StatusUpdated<TState>, TState>
+    public abstract class AsyncOperation<TAction, TState, TSuccessAction> : IAfterEffects<TAction>, IUpdater<StatusUpdated<TState>, TState>
         where TAction : IAction
         where TState : AsyncState
         where TSuccessAction : IAction
@@ -22,7 +22,7 @@ namespace StateR.AsyncLogic
 
         protected IStore Store { get; }
 
-        public virtual TState Reduce(StatusUpdated<TState> action, TState state)
+        public virtual TState Update(StatusUpdated<TState> action, TState state)
             => state with { Status = action.status };
 
         public async Task HandleAfterEffectAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken)

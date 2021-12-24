@@ -1,4 +1,4 @@
-﻿using StateR.Reducers;
+﻿using StateR.Updater;
 using System;
 
 namespace StateR.AsyncLogic
@@ -24,9 +24,9 @@ namespace StateR.AsyncLogic
             public State Value => new();
         }
 
-        public class Reducers : IReducer<Occured, State>
+        public class Updaters : IUpdater<Occured, State>
         {
-            public State Reduce(Occured action, State initialState) => initialState with {
+            public State Update(Occured action, State initialState) => initialState with {
                 Action = action.Action,
                 InitialState = action.InitialState,
                 ActualState = action.ActualState,

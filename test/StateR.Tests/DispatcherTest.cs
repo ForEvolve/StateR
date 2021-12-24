@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using StateR.Interceptors;
-using StateR.Reducers;
+using StateR.Updater;
 using StateR.AfterEffects;
 using StateR.ActionHandlers;
 
@@ -13,18 +13,14 @@ namespace StateR
 {
     public class DispatcherTest
     {
-        private readonly Mock<IDispatchContextFactory> _dispatchContextFactory;
-        private readonly Mock<IInterceptorsManager> _interceptorsManager;
-        private readonly Mock<IActionHandlersManager> _actionHandlersManager;
-        private readonly Mock<IAfterEffectsManager> _afterEffectsManager;
+        private readonly Mock<IDispatchContextFactory> _dispatchContextFactory = new();
+        private readonly Mock<IInterceptorsManager> _interceptorsManager = new();
+        private readonly Mock<IActionHandlersManager> _actionHandlersManager = new();
+        private readonly Mock<IAfterEffectsManager> _afterEffectsManager = new();
         private readonly Dispatcher sut;
 
         public DispatcherTest()
         {
-            _dispatchContextFactory = new();
-            _interceptorsManager = new();
-            _actionHandlersManager = new();
-            _afterEffectsManager = new();
             sut = new(_dispatchContextFactory.Object, _interceptorsManager.Object, _actionHandlersManager.Object, _afterEffectsManager.Object);
         }
 
@@ -69,7 +65,7 @@ namespace StateR
                     .Callback(() => operationQueue.Enqueue("Interceptors"));
                 _actionHandlersManager
                     .Setup(x => x.DispatchAsync(It.IsAny<IDispatchContext<TestAction>>(), token))
-                    .Callback(() => operationQueue.Enqueue("Reducers"));
+                    .Callback(() => operationQueue.Enqueue("Updaters"));
                 _afterEffectsManager
                     .Setup(x => x.DispatchAsync(It.IsAny<IDispatchContext<TestAction>>(), token))
                     .Callback(() => operationQueue.Enqueue("AfterEffects"));
@@ -80,7 +76,7 @@ namespace StateR
                 // Assert
                 Assert.Collection(operationQueue,
                     operation => Assert.Equal("Interceptors", operation),
-                    operation => Assert.Equal("Reducers", operation),
+                    operation => Assert.Equal("Updaters", operation),
                     operation => Assert.Equal("AfterEffects", operation)
                 );
             }

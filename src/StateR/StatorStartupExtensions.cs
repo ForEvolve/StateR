@@ -7,8 +7,8 @@ using StateR.AfterEffects.Hooks;
 using StateR.Interceptors;
 using StateR.Interceptors.Hooks;
 using StateR.Internal;
-using StateR.Reducers;
-using StateR.Reducers.Hooks;
+using StateR.Updater;
+using StateR.Updater.Hooks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +33,7 @@ namespace StateR
             services.TryAddSingleton<IAfterEffectHooksCollection, AfterEffectHooksCollection>();
             services.TryAddSingleton<IInterceptorsHooksCollection, InterceptorsHooksCollection>();
             services.TryAddSingleton<IActionHandlerHooksCollection, ActionHandlerHooksCollection>();
-            services.TryAddSingleton<IReducerHooksCollection, ReducerHooksCollection>();
+            services.TryAddSingleton<IUpdateHooksCollection, UpdateHooksCollection>();
 
             return new StatorBuilder(services);
         }
@@ -87,12 +87,12 @@ namespace StateR
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
 
-                // Equivalent to: AddSingleton<IBeforeReducerHook, Implementation>();
-                .AddClasses(classes => classes.AssignableTo(typeof(IBeforeReducerHook)))
+                // Equivalent to: AddSingleton<IBeforeUpdaterHook, Implementation>();
+                .AddClasses(classes => classes.AssignableTo(typeof(IBeforeUpdateHook)))
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
-                // Equivalent to: AddSingleton<IAfterReducerHook, Implementation>();
-                .AddClasses(classes => classes.AssignableTo(typeof(IAfterReducerHook)))
+                // Equivalent to: AddSingleton<IAfterUpdaterHook, Implementation>();
+                .AddClasses(classes => classes.AssignableTo(typeof(IAfterUpdateHook)))
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
 
@@ -118,29 +118,29 @@ namespace StateR
                 builder.Services.AddSingleton(stateServiceType, stateImplementationType);
             }
 
-            // Register Reducers and their respective IActionHandler
-            var iReducerType = typeof(IReducer<,>);
-            var reducerHandler = typeof(ReducerHandler<,>);
+            // Register Updaters and their respective IActionHandler
+            var iUpdaterType = typeof(IUpdater<,>);
+            var updaterHandler = typeof(UpdaterHandler<,>);
             var handlerType = typeof(IActionHandler<>);
-            foreach (var reducer in builder.Reducers)
+            foreach (var updater in builder.Updaters)
             {
-                Console.WriteLine($"reducer: {reducer.FullName}");
-                var interfaces = reducer.GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == iReducerType);
+                Console.WriteLine($"updater: {updater.FullName}");
+                var interfaces = updater.GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == iUpdaterType);
                 foreach (var @interface in interfaces)
                 {
-                    // Equivalent to: AddSingleton<IActionHandler<TAction>, ReducerHandler<TState, TAction>>
+                    // Equivalent to: AddSingleton<IActionHandler<TAction>, UpdaterHandler<TState, TAction>>
                     var actionType = @interface.GenericTypeArguments[0];
                     var stateType = @interface.GenericTypeArguments[1];
                     var iActionHandlerServiceType = handlerType.MakeGenericType(actionType);
-                    var reducerHandlerImplementationType = reducerHandler.MakeGenericType(stateType, actionType);
-                    builder.Services.AddSingleton(iActionHandlerServiceType, reducerHandlerImplementationType);
+                    var updaterHandlerImplementationType = updaterHandler.MakeGenericType(stateType, actionType);
+                    builder.Services.AddSingleton(iActionHandlerServiceType, updaterHandlerImplementationType);
 
-                    // Equivalent to: AddSingleton<IReducer<TState, TAction>, Reducer>();
-                    builder.Services.AddSingleton(@interface, reducer);
+                    // Equivalent to: AddSingleton<IUpdater<TState, TAction>, Updater>();
+                    builder.Services.AddSingleton(@interface, updater);
 
-                    Console.WriteLine($"- AddSingleton<{iActionHandlerServiceType.GetStatorName()}, {reducerHandlerImplementationType.GetStatorName()}>()");
-                    Console.WriteLine($"- AddSingleton<{@interface.GetStatorName()}, {reducer.GetStatorName()}>()");
+                    Console.WriteLine($"- AddSingleton<{iActionHandlerServiceType.GetStatorName()}, {updaterHandlerImplementationType.GetStatorName()}>()");
+                    Console.WriteLine($"- AddSingleton<{@interface.GetStatorName()}, {updater.GetStatorName()}>()");
                 }
             }
             return builder.Services;

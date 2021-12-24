@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
-using StateR.Reducers;
-using StateR.Reducers.Hooks;
+using StateR.Updater;
+using StateR.Updater.Hooks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,8 +27,8 @@ namespace StateR.Blazor.ReduxDevTools
             });
             builder.Services.AddSingleton<ReduxDevToolsInteropInitializer>();
             builder.Services.AddSingleton<ReduxDevToolsInterop>();
-            builder.Services.AddSingleton<IBeforeReducerHook>(sp => sp.GetService<ReduxDevToolsInterop>());
-            builder.Services.AddSingleton<IAfterReducerHook>(sp => sp.GetService<ReduxDevToolsInterop>());
+            builder.Services.AddSingleton<IBeforeUpdateHook>(sp => sp.GetService<ReduxDevToolsInterop>());
+            builder.Services.AddSingleton<IAfterUpdateHook>(sp => sp.GetService<ReduxDevToolsInterop>());
             return builder;
         }
     }

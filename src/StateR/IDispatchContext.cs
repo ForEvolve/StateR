@@ -5,7 +5,7 @@
     {
         IDispatcher Dispatcher { get; }
         TAction Action { get; set; }
-        bool StopReduce { get; set; }
+        bool StopUpdate { get; set; }
         bool StopInterception { get; set; }
         bool StopAfterEffect { get; set; }
 

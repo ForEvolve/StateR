@@ -18,8 +18,8 @@ namespace StateR.Internal
             => AddDistinctTypes(States, types);
         public IStatorBuilder AddActions(IEnumerable<Type> types)
             => AddDistinctTypes(Actions, types);
-        public IStatorBuilder AddReducers(IEnumerable<Type> types)
-            => AddDistinctTypes(Reducers, types);
+        public IStatorBuilder AddUpdaters(IEnumerable<Type> types)
+            => AddDistinctTypes(Updaters, types);
         public IStatorBuilder AddActionHandlers(IEnumerable<Type> types)
             => AddDistinctTypes(ActionHandlers, types);
 
@@ -29,7 +29,7 @@ namespace StateR.Internal
         public List<Type> Interceptors { get; } = new List<Type>();
         public List<Type> ActionHandlers { get; } = new List<Type>();
         public List<Type> AfterEffects { get; } = new List<Type>();
-        public List<Type> Reducers { get; } = new List<Type>();
+        public List<Type> Updaters { get; } = new List<Type>();
         public List<Type> All { get; } = new List<Type>();
 
         private IStatorBuilder AddDistinctTypes(List<Type> list, IEnumerable<Type> types)

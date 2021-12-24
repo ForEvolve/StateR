@@ -13,13 +13,13 @@ namespace StateR
         //List<Type> Interceptors { get; }
         List<Type> ActionHandlers { get; }
         //List<Type> AfterEffects { get; }
-        List<Type> Reducers { get; }
+        List<Type> Updaters { get; }
         List<Type> All { get; }
 
         IStatorBuilder AddTypes(IEnumerable<Type> types);
         IStatorBuilder AddStates(IEnumerable<Type> states);
         IStatorBuilder AddActions(IEnumerable<Type> states);
-        IStatorBuilder AddReducers(IEnumerable<Type> states);
+        IStatorBuilder AddUpdaters(IEnumerable<Type> states);
         IStatorBuilder AddActionHandlers(IEnumerable<Type> types);
     }
 }

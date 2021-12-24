@@ -21,10 +21,10 @@ namespace StateR.ActionHandlers
 
         public async Task DispatchAsync<TAction>(IDispatchContext<TAction> dispatchContext, CancellationToken cancellationToken) where TAction : IAction
         {
-            var reducerHandlers = _serviceProvider.GetServices<IActionHandler<TAction>>().ToList();
-            foreach (var handler in reducerHandlers)
+            var updaterHandlers = _serviceProvider.GetServices<IActionHandler<TAction>>().ToList();
+            foreach (var handler in updaterHandlers)
             {
-                if (dispatchContext.StopReduce)
+                if (dispatchContext.StopUpdate)
                 {
                     break;
                 }
