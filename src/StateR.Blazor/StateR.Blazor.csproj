@@ -1,8 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0</TargetFrameworks>
-    <Description>Blazor components and utilities for use with the StateR library.</Description>
+      <TargetFramework>net6.0</TargetFramework>
+      <Nullable>enable</Nullable>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Description>Blazor components and utilities for use with the StateR library.</Description>
     <PackageTags>stator,stater,redux,blazor,state,dotnet,dotnetcore,net,netcore,aspnetcore,asp.net,core,aspnet,asp,forevolve</PackageTags>
   </PropertyGroup>
 

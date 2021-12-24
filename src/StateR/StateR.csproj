@@ -1,8 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Description>StateR, pronounced stator, is an experimental C# 9.0-based, Redux-inspired, state management library for .NET.</Description>
+      <TargetFramework>net6.0</TargetFramework>
+      <Nullable>enable</Nullable>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Description>StateR, pronounced stator, is an experimental C# 9.0-based, Redux-inspired, state management library for .NET.</Description>
     <PackageTags>stator,stater,redux,blazor,state,dotnet,dotnetcore,net,netcore,aspnetcore,asp.net,core,aspnet,asp,forevolve</PackageTags>
   </PropertyGroup>
 
