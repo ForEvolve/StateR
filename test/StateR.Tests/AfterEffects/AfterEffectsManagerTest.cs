@@ -31,8 +31,8 @@ namespace StateR.AfterEffects
             public async Task Should_handle_all_after_effects()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
-                var token = CancellationToken.None;
+                var cancellationTokenSource = new CancellationTokenSource();
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object, cancellationTokenSource);
 
                 var afterEffect1 = new Mock<IAfterEffects<TestAction>>();
                 var afterEffect2 = new Mock<IAfterEffects<TestAction>>();
@@ -43,23 +43,23 @@ namespace StateR.AfterEffects
                 });
 
                 // Act
-                await sut.DispatchAsync(context, token);
+                await sut.DispatchAsync(context);
 
                 // Assert
-                afterEffect1.Verify(x => x.HandleAfterEffectAsync(context, token), Times.Once);
-                afterEffect2.Verify(x => x.HandleAfterEffectAsync(context, token), Times.Once);
+                afterEffect1.Verify(x => x.HandleAfterEffectAsync(context, cancellationTokenSource.Token), Times.Once);
+                afterEffect2.Verify(x => x.HandleAfterEffectAsync(context, cancellationTokenSource.Token), Times.Once);
             }
 
             [Fact]
-            public async Task Should_break_after_effects_when_StopAfterEffect_is_true()
+            public async Task Should_break_after_effects_when_Cancel()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
-                var token = CancellationToken.None;
+                var cancellationTokenSource = new CancellationTokenSource();
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object, cancellationTokenSource);
 
                 var afterEffect1 = new Mock<IAfterEffects<TestAction>>();
-                afterEffect1.Setup(x => x.HandleAfterEffectAsync(context, token))
-                    .Callback((IDispatchContext<TestAction> context, CancellationToken cancellationToken) => context.StopAfterEffect = true);
+                afterEffect1.Setup(x => x.HandleAfterEffectAsync(context, cancellationTokenSource.Token))
+                    .Callback((IDispatchContext<TestAction> context, CancellationToken cancellationToken) => context.Cancel());
                 var afterEffect2 = new Mock<IAfterEffects<TestAction>>();
                 var sut = CreateAfterEffectsManager(services =>
                 {
@@ -68,32 +68,33 @@ namespace StateR.AfterEffects
                 });
 
                 // Act
-                await sut.DispatchAsync(context, token);
+                await Assert.ThrowsAsync<OperationCanceledException>(()
+                    => sut.DispatchAsync(context));
 
                 // Assert
-                afterEffect1.Verify(x => x.HandleAfterEffectAsync(context, token), Times.Once);
-                afterEffect2.Verify(x => x.HandleAfterEffectAsync(context, token), Times.Never);
+                afterEffect1.Verify(x => x.HandleAfterEffectAsync(context, cancellationTokenSource.Token), Times.Once);
+                afterEffect2.Verify(x => x.HandleAfterEffectAsync(context, cancellationTokenSource.Token), Times.Never);
             }
 
             [Fact]
             public async Task Should_call_hooks_and_after_effects_methods_in_order()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
-                var token = CancellationToken.None;
+                var cancellationTokenSource = new CancellationTokenSource();
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object, cancellationTokenSource);
 
                 var operationQueue = new Queue<string>();
                 var afterEffect1 = new Mock<IAfterEffects<TestAction>>();
-                afterEffect1.Setup(x => x.HandleAfterEffectAsync(context, token))
+                afterEffect1.Setup(x => x.HandleAfterEffectAsync(context, cancellationTokenSource.Token))
                     .Callback(() => operationQueue.Enqueue("afterEffect1.HandleAfterEffectAsync"));
                 var afterEffect2 = new Mock<IAfterEffects<TestAction>>();
-                afterEffect2.Setup(x => x.HandleAfterEffectAsync(context, token))
+                afterEffect2.Setup(x => x.HandleAfterEffectAsync(context, cancellationTokenSource.Token))
                     .Callback(() => operationQueue.Enqueue("afterEffect2.HandleAfterEffectAsync"));
                 _afterEffectHooksCollectionMock
-                    .Setup(x => x.BeforeHandlerAsync(context, It.IsAny<IAfterEffects<TestAction>>(), token))
+                    .Setup(x => x.BeforeHandlerAsync(context, It.IsAny<IAfterEffects<TestAction>>(), cancellationTokenSource.Token))
                     .Callback(() => operationQueue.Enqueue("BeforeHandlerAsync"));
                 _afterEffectHooksCollectionMock
-                    .Setup(x => x.AfterHandlerAsync(context, It.IsAny<IAfterEffects<TestAction>>(), token))
+                    .Setup(x => x.AfterHandlerAsync(context, It.IsAny<IAfterEffects<TestAction>>(), cancellationTokenSource.Token))
                     .Callback(() => operationQueue.Enqueue("AfterHandlerAsync"));
                 var sut = CreateAfterEffectsManager(services =>
                 {
@@ -102,7 +103,7 @@ namespace StateR.AfterEffects
                 });
 
                 // Act
-                await sut.DispatchAsync(context, token);
+                await sut.DispatchAsync(context);
 
                 // Assert
                 Assert.Collection(operationQueue,

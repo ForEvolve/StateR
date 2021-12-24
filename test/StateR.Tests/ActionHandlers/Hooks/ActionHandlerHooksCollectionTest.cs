@@ -17,13 +17,15 @@ namespace StateR.ActionHandlers.Hooks
         private readonly Mock<IAfterActionHook> _after2Mock = new();
 
         private readonly Mock<IActionHandler<TestAction>> _afterEffectMock = new();
-        private readonly IDispatchContext<TestAction> dispatchContext = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
+        private readonly IDispatchContext<TestAction> dispatchContext;
         private readonly CancellationToken _cancellationToken = CancellationToken.None;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         private readonly ActionHandlerHooksCollection sut;
 
         public ActionHandlerHooksCollectionTest()
         {
+            dispatchContext = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object, _cancellationTokenSource);
             sut = new(
                 new[] { _before1Mock.Object, _before2Mock.Object },
                 new[] { _after1Mock.Object, _after2Mock.Object }

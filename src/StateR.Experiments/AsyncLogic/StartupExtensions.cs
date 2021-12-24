@@ -18,7 +18,7 @@ namespace StateR.Experiments.AsyncLogic
             builder.AddTypes(new[] { typeof(StatusUpdated<>) });
 
             // Async Operation's Errors
-            builder.Services.TryAddSingleton<IActionHandler<AsyncError.Occured>, UpdaterHandler<AsyncError.State, AsyncError.Occured>>();
+            builder.Services.TryAddSingleton<IActionHandler<AsyncError.Occured>, UpdaterActionHandler<AsyncError.State, AsyncError.Occured>>();
             builder.Services.TryAddSingleton<IUpdater<AsyncError.Occured, AsyncError.State>, AsyncError.Updaters>();
             builder.Services.TryAddSingleton<IInitialState<AsyncError.State>, AsyncError.InitialState>();
             builder.Services.TryAddSingleton<IState<AsyncError.State>, Internal.State<AsyncError.State>>();

@@ -19,18 +19,16 @@ namespace StateR.AfterEffects
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
-        public async Task DispatchAsync<TAction>(IDispatchContext<TAction> dispatchContext, CancellationToken cancellationToken) where TAction : IAction
+        public async Task DispatchAsync<TAction>(IDispatchContext<TAction> dispatchContext) where TAction : IAction
         {
             var afterEffects = _serviceProvider.GetServices<IAfterEffects<TAction>>().ToList();
             foreach (var afterEffect in afterEffects)
             {
-                if (dispatchContext.StopAfterEffect)
-                {
-                    break;
-                }
-                await _hooks.BeforeHandlerAsync(dispatchContext, afterEffect, cancellationToken);
-                await afterEffect.HandleAfterEffectAsync(dispatchContext, cancellationToken);
-                await _hooks.AfterHandlerAsync(dispatchContext, afterEffect, cancellationToken);
+                dispatchContext.CancellationToken.ThrowIfCancellationRequested();
+
+                await _hooks.BeforeHandlerAsync(dispatchContext, afterEffect, dispatchContext.CancellationToken);
+                await afterEffect.HandleAfterEffectAsync(dispatchContext, dispatchContext.CancellationToken);
+                await _hooks.AfterHandlerAsync(dispatchContext, afterEffect, dispatchContext.CancellationToken);
             }
         }
     }

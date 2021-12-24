@@ -30,6 +30,7 @@ namespace StateR.Interceptors
             public async Task Should_dispatch_to_all_interceptors()
             {
                 // Arrange
+                var cancellationTokenSource = new CancellationTokenSource();
                 var interceptor1 = new Mock<IInterceptor<TestAction>>();
                 var interceptor2 = new Mock<IInterceptor<TestAction>>();
                 var sut = CreateInterceptorsManager(services =>
@@ -37,36 +38,35 @@ namespace StateR.Interceptors
                     services.AddSingleton(interceptor1.Object);
                     services.AddSingleton(interceptor2.Object);
                 });
-                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
-                var token = CancellationToken.None;
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object, cancellationTokenSource);
 
                 // Act
-                await sut.DispatchAsync(context, token);
+                await sut.DispatchAsync(context);
 
                 // Assert
-                interceptor1.Verify(x => x.InterceptAsync(context, token), Times.Once);
-                interceptor2.Verify(x => x.InterceptAsync(context, token), Times.Once);
+                interceptor1.Verify(x => x.InterceptAsync(context, cancellationTokenSource.Token), Times.Once);
+                interceptor2.Verify(x => x.InterceptAsync(context, cancellationTokenSource.Token), Times.Once);
             }
 
             [Fact]
             public async Task Should_call_middleware_and_interceptors_methods_in_order()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
-                var token = CancellationToken.None;
+                var cancellationTokenSource = new CancellationTokenSource();
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object, cancellationTokenSource);
 
                 var operationQueue = new Queue<string>();
                 var interceptor1 = new Mock<IInterceptor<TestAction>>();
-                interceptor1.Setup(x => x.InterceptAsync(context, token))
+                interceptor1.Setup(x => x.InterceptAsync(context, cancellationTokenSource.Token))
                     .Callback(() => operationQueue.Enqueue("interceptor1.InterceptAsync"));
                 var interceptor2 = new Mock<IInterceptor<TestAction>>();
-                interceptor2.Setup(x => x.InterceptAsync(context, token))
+                interceptor2.Setup(x => x.InterceptAsync(context, cancellationTokenSource.Token))
                     .Callback(() => operationQueue.Enqueue("interceptor2.InterceptAsync"));
                 _hooksCollectionMock
-                    .Setup(x => x.BeforeHandlerAsync(context, It.IsAny<IInterceptor<TestAction>>(), token))
+                    .Setup(x => x.BeforeHandlerAsync(context, It.IsAny<IInterceptor<TestAction>>(), cancellationTokenSource.Token))
                     .Callback(() => operationQueue.Enqueue("BeforeHandlerAsync"));
                 _hooksCollectionMock
-                    .Setup(x => x.AfterHandlerAsync(context, It.IsAny<IInterceptor<TestAction>>(), token))
+                    .Setup(x => x.AfterHandlerAsync(context, It.IsAny<IInterceptor<TestAction>>(), cancellationTokenSource.Token))
                     .Callback(() => operationQueue.Enqueue("AfterHandlerAsync"));
                 var sut = CreateInterceptorsManager(services =>
                 {
@@ -75,7 +75,7 @@ namespace StateR.Interceptors
                 });
 
                 // Act
-                await sut.DispatchAsync(context, token);
+                await sut.DispatchAsync(context);
 
                 // Assert
                 Assert.Collection(operationQueue,
@@ -90,15 +90,15 @@ namespace StateR.Interceptors
             }
 
             [Fact]
-            public async Task Should_break_interception_when_StopInterception_is_true()
+            public async Task Should_break_interception_when_Cancel()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
-                var token = CancellationToken.None;
+                var cancellationTokenSource = new CancellationTokenSource();
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object, cancellationTokenSource);
 
                 var interceptor1 = new Mock<IInterceptor<TestAction>>();
-                interceptor1.Setup(x => x.InterceptAsync(context, token))
-                    .Callback((IDispatchContext<TestAction> context, CancellationToken cancellationToken) => context.StopInterception = true);
+                interceptor1.Setup(x => x.InterceptAsync(context, cancellationTokenSource.Token))
+                    .Callback((IDispatchContext<TestAction> context, CancellationToken cancellationToken) => context.Cancel());
                 var interceptor2 = new Mock<IInterceptor<TestAction>>();
                 var sut = CreateInterceptorsManager(services =>
                 {
@@ -107,13 +107,13 @@ namespace StateR.Interceptors
                 });
 
                 // Act
-                await sut.DispatchAsync(context, token);
+                await Assert.ThrowsAsync<OperationCanceledException>(()
+                    => sut.DispatchAsync(context));
 
                 // Assert
-                interceptor1.Verify(x => x.InterceptAsync(context, token), Times.Once);
-                interceptor2.Verify(x => x.InterceptAsync(context, token), Times.Never);
+                interceptor1.Verify(x => x.InterceptAsync(context, cancellationTokenSource.Token), Times.Once);
+                interceptor2.Verify(x => x.InterceptAsync(context, cancellationTokenSource.Token), Times.Never);
             }
-
         }
 
         public record TestAction : IAction;

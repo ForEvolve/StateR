@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace StateR.Updaters
 {
-    public class UpdaterHandler<TState, TAction> : IActionHandler<TAction>
+    public class UpdaterActionHandler<TState, TAction> : IActionHandler<TAction>
         where TState : StateBase
         where TAction : IAction
     {
@@ -15,7 +15,7 @@ namespace StateR.Updaters
         private readonly IEnumerable<IUpdater<TAction, TState>> _updaters;
         private readonly IState<TState> _state;
 
-        public UpdaterHandler(IState<TState> state, IEnumerable<IUpdater<TAction, TState>> updaters, IUpdateHooksCollection hooks)
+        public UpdaterActionHandler(IState<TState> state, IEnumerable<IUpdater<TAction, TState>> updaters, IUpdateHooksCollection hooks)
         {
             _state = state ?? throw new ArgumentNullException(nameof(state));
             _updaters = updaters ?? throw new ArgumentNullException(nameof(updaters));
@@ -26,11 +26,20 @@ namespace StateR.Updaters
         {
             foreach (var updater in _updaters)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
                 await _hooks.BeforeUpdateAsync(context, _state, updater, cancellationToken);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
                 _state.Set(updater.Update(context.Action, _state.Current));
                 await _hooks.AfterUpdateAsync(context, _state, updater, cancellationToken);
             }
             _state.Notify();
+            cancellationToken.ThrowIfCancellationRequested();
         }
     }
 }

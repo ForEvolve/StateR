@@ -19,18 +19,16 @@ namespace StateR.Interceptors
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
-        public async Task DispatchAsync<TAction>(IDispatchContext<TAction> dispatchContext, CancellationToken cancellationToken) where TAction : IAction
+        public async Task DispatchAsync<TAction>(IDispatchContext<TAction> dispatchContext) where TAction : IAction
         {
             var interceptors = _serviceProvider.GetServices<IInterceptor<TAction>>().ToList();
             foreach (var interceptor in interceptors)
             {
-                if (dispatchContext.StopInterception)
-                {
-                    break;
-                }
-                await _hooks.BeforeHandlerAsync(dispatchContext, interceptor, cancellationToken);
-                await interceptor.InterceptAsync(dispatchContext, cancellationToken);
-                await _hooks.AfterHandlerAsync(dispatchContext, interceptor, cancellationToken);
+                dispatchContext.CancellationToken.ThrowIfCancellationRequested();
+                
+                await _hooks.BeforeHandlerAsync(dispatchContext, interceptor, dispatchContext.CancellationToken);
+                await interceptor.InterceptAsync(dispatchContext, dispatchContext.CancellationToken);
+                await _hooks.AfterHandlerAsync(dispatchContext, interceptor, dispatchContext.CancellationToken);
             }
         }
     }

@@ -25,10 +25,14 @@ namespace StateR
 
         public async Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken) where TAction : IAction
         {
-            var dispatchContext = _dispatchContextFactory.Create(action, this);
-            await _interceptorsManager.DispatchAsync(dispatchContext, cancellationToken);
-            await _actionHandlersManager.DispatchAsync(dispatchContext, cancellationToken);
-            await _afterEffectsManager.DispatchAsync(dispatchContext, cancellationToken);
+            using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var dispatchContext = _dispatchContextFactory.Create(action, this, cancellationTokenSource);
+            //
+            // TODO: design how to handle OperationCanceledException
+            //
+            await _interceptorsManager.DispatchAsync(dispatchContext);
+            await _actionHandlersManager.DispatchAsync(dispatchContext);
+            await _afterEffectsManager.DispatchAsync(dispatchContext);
         }
     }
 }

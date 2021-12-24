@@ -29,8 +29,8 @@ namespace StateR.ActionHandlers
             public async Task Should_call_all_action_handlers()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
-                var token = CancellationToken.None;
+                var cancellationTokenSource = new CancellationTokenSource();
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object, cancellationTokenSource);
 
                 var handler1 = new Mock<IActionHandler<TestAction>>();
                 var handler2 = new Mock<IActionHandler<TestAction>>();
@@ -41,23 +41,24 @@ namespace StateR.ActionHandlers
                 });
 
                 // Act
-                await sut.DispatchAsync(context, token);
+                await sut.DispatchAsync(context);
 
                 // Assert
-                handler1.Verify(x => x.HandleAsync(context, token), Times.Once);
-                handler2.Verify(x => x.HandleAsync(context, token), Times.Once);
+                handler1.Verify(x => x.HandleAsync(context, cancellationTokenSource.Token), Times.Once);
+                handler2.Verify(x => x.HandleAsync(context, cancellationTokenSource.Token), Times.Once);
             }
 
             [Fact]
-            public async Task Should_break_handlers_when_StopUpdate_is_true()
+            public async Task Should_break_handlers_when_Cancel()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
-                var token = CancellationToken.None;
+                var cancellationTokenSource = new CancellationTokenSource();
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object, cancellationTokenSource);
 
                 var afterEffect1 = new Mock<IActionHandler<TestAction>>();
-                afterEffect1.Setup(x => x.HandleAsync(context, token))
-                    .Callback((IDispatchContext<TestAction> context, CancellationToken cancellationToken) => context.StopUpdate = true);
+                afterEffect1.Setup(x => x.HandleAsync(context, cancellationTokenSource.Token))
+                    .Callback((IDispatchContext<TestAction> context, CancellationToken cancellationToken)
+                        => context.Cancel());
                 var afterEffect2 = new Mock<IActionHandler<TestAction>>();
                 var sut = CreateUpdatersManager(services =>
                 {
@@ -66,32 +67,33 @@ namespace StateR.ActionHandlers
                 });
 
                 // Act
-                await sut.DispatchAsync(context, token);
+                await Assert.ThrowsAsync<OperationCanceledException>(()
+                    => sut.DispatchAsync(context));
 
                 // Assert
-                afterEffect1.Verify(x => x.HandleAsync(context, token), Times.Once);
-                afterEffect2.Verify(x => x.HandleAsync(context, token), Times.Never);
+                afterEffect1.Verify(x => x.HandleAsync(context, cancellationTokenSource.Token), Times.Once);
+                afterEffect2.Verify(x => x.HandleAsync(context, cancellationTokenSource.Token), Times.Never);
             }
 
             [Fact]
             public async Task Should_call_middleware_and_handlers_in_order()
             {
                 // Arrange
-                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
-                var token = CancellationToken.None;
+                var cancellationTokenSource = new CancellationTokenSource();
+                var context = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object, cancellationTokenSource);
 
                 var operationQueue = new Queue<string>();
                 var actionHandler1 = new Mock<IActionHandler<TestAction>>();
-                actionHandler1.Setup(x => x.HandleAsync(context, token))
+                actionHandler1.Setup(x => x.HandleAsync(context, cancellationTokenSource.Token))
                     .Callback(() => operationQueue.Enqueue("actionHandler1.HandleAsync"));
                 var actionHandler2 = new Mock<IActionHandler<TestAction>>();
-                actionHandler2.Setup(x => x.HandleAsync(context, token))
+                actionHandler2.Setup(x => x.HandleAsync(context, cancellationTokenSource.Token))
                     .Callback(() => operationQueue.Enqueue("actionHandler2.HandleAsync"));
                 _hooksCollectionMock
-                    .Setup(x => x.BeforeHandlerAsync(context, It.IsAny<IActionHandler<TestAction>>(), token))
+                    .Setup(x => x.BeforeHandlerAsync(context, It.IsAny<IActionHandler<TestAction>>(), cancellationTokenSource.Token))
                     .Callback(() => operationQueue.Enqueue("BeforeHandlerAsync"));
                 _hooksCollectionMock
-                    .Setup(x => x.AfterHandlerAsync(context, It.IsAny<IActionHandler<TestAction>>(), token))
+                    .Setup(x => x.AfterHandlerAsync(context, It.IsAny<IActionHandler<TestAction>>(), cancellationTokenSource.Token))
                     .Callback(() => operationQueue.Enqueue("AfterHandlerAsync"));
 
                 var sut = CreateUpdatersManager(services =>
@@ -101,7 +103,7 @@ namespace StateR.ActionHandlers
                 });
 
                 // Act
-                await sut.DispatchAsync(context, token);
+                await sut.DispatchAsync(context);
 
                 // Assert
                 Assert.Collection(operationQueue,

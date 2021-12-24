@@ -19,13 +19,15 @@ namespace StateR.Updaters.Hooks
         private readonly Mock<IState<TestState>> _stateMock = new();
         private readonly Mock<IUpdater<TestAction, TestState>> _updater = new();
 
-        private readonly IDispatchContext<TestAction> _dispatchContext = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object);
+        private readonly IDispatchContext<TestAction> _dispatchContext;
         private readonly CancellationToken _cancellationToken = CancellationToken.None;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         private readonly UpdateHooksCollection sut;
 
         public UpdateHooksCollectionTest()
         {
+            _dispatchContext = new DispatchContext<TestAction>(new TestAction(), new Mock<IDispatcher>().Object, _cancellationTokenSource);
             sut = new UpdateHooksCollection(
                 new[] { _before1Mock.Object, _before2Mock.Object },
                 new[] { _after1Mock.Object, _after2Mock.Object }

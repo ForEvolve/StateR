@@ -19,18 +19,16 @@ namespace StateR.ActionHandlers
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
-        public async Task DispatchAsync<TAction>(IDispatchContext<TAction> dispatchContext, CancellationToken cancellationToken) where TAction : IAction
+        public async Task DispatchAsync<TAction>(IDispatchContext<TAction> dispatchContext) where TAction : IAction
         {
             var updaterHandlers = _serviceProvider.GetServices<IActionHandler<TAction>>().ToList();
             foreach (var handler in updaterHandlers)
             {
-                if (dispatchContext.StopUpdate)
-                {
-                    break;
-                }
-                await _hooksCollection.BeforeHandlerAsync(dispatchContext, handler, cancellationToken);
-                await handler.HandleAsync(dispatchContext, cancellationToken);
-                await _hooksCollection.AfterHandlerAsync(dispatchContext, handler, cancellationToken);
+                dispatchContext.CancellationToken.ThrowIfCancellationRequested();
+
+                await _hooksCollection.BeforeHandlerAsync(dispatchContext, handler, dispatchContext.CancellationToken);
+                await handler.HandleAsync(dispatchContext, dispatchContext.CancellationToken);
+                await _hooksCollection.AfterHandlerAsync(dispatchContext, handler, dispatchContext.CancellationToken);
             }
         }
     }

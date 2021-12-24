@@ -31,7 +31,8 @@ namespace StateR
             {
                 var action = new TestAction();
                 await sut.DispatchAsync(action, CancellationToken.None);
-                _dispatchContextFactory.Verify(x => x.Create(action, sut), Times.Once);
+                _dispatchContextFactory
+                    .Verify(x => x.Create(action, sut, It.IsAny<CancellationTokenSource>()), Times.Once);
             }
 
             [Fact]
@@ -39,39 +40,37 @@ namespace StateR
             {
                 // Arrange
                 var action = new TestAction();
-                var context = new DispatchContext<TestAction>(action, new Mock<IDispatcher>().Object);
-                var token = CancellationToken.None;
+                var context = new DispatchContext<TestAction>(action, new Mock<IDispatcher>().Object, new CancellationTokenSource());
                 _dispatchContextFactory
-                    .Setup(x => x.Create(action, sut))
+                    .Setup(x => x.Create(action, sut, It.IsAny<CancellationTokenSource>()))
                     .Returns(context);
 
                 // Act
-                await sut.DispatchAsync(action, token);
+                await sut.DispatchAsync(action, CancellationToken.None);
 
                 // Assert
-                _interceptorsManager.Verify(x => x.DispatchAsync(context, token), Times.Once);
-                _actionHandlersManager.Verify(x => x.DispatchAsync(context, token), Times.Once);
-                _afterEffectsManager.Verify(x => x.DispatchAsync(context, token), Times.Once);
+                _interceptorsManager.Verify(x => x.DispatchAsync(context), Times.Once);
+                _actionHandlersManager.Verify(x => x.DispatchAsync(context), Times.Once);
+                _afterEffectsManager.Verify(x => x.DispatchAsync(context), Times.Once);
             }
             [Fact]
             public async Task Should_call_managers_in_the_expected_order()
             {
                 // Arrange
                 var action = new TestAction();
-                var token = CancellationToken.None;
                 var operationQueue = new Queue<string>();
                 _interceptorsManager
-                    .Setup(x => x.DispatchAsync(It.IsAny< IDispatchContext<TestAction>>(), token))
+                    .Setup(x => x.DispatchAsync(It.IsAny< IDispatchContext<TestAction>>()))
                     .Callback(() => operationQueue.Enqueue("Interceptors"));
                 _actionHandlersManager
-                    .Setup(x => x.DispatchAsync(It.IsAny<IDispatchContext<TestAction>>(), token))
+                    .Setup(x => x.DispatchAsync(It.IsAny<IDispatchContext<TestAction>>()))
                     .Callback(() => operationQueue.Enqueue("Updaters"));
                 _afterEffectsManager
-                    .Setup(x => x.DispatchAsync(It.IsAny<IDispatchContext<TestAction>>(), token))
+                    .Setup(x => x.DispatchAsync(It.IsAny<IDispatchContext<TestAction>>()))
                     .Callback(() => operationQueue.Enqueue("AfterEffects"));
 
                 // Act
-                await sut.DispatchAsync(action, token);
+                await sut.DispatchAsync(action, CancellationToken.None);
 
                 // Assert
                 Assert.Collection(operationQueue,

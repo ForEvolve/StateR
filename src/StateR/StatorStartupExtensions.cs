@@ -120,7 +120,7 @@ namespace StateR
 
             // Register Updaters and their respective IActionHandler
             var iUpdaterType = typeof(IUpdater<,>);
-            var updaterHandler = typeof(UpdaterHandler<,>);
+            var updaterHandler = typeof(UpdaterActionHandler<,>);
             var handlerType = typeof(IActionHandler<>);
             foreach (var updater in builder.Updaters)
             {
