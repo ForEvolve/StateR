@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace StateR.Updaters
+namespace StateR.Updaters;
+
+public interface IUpdater<TAction, TState>
+    where TAction : IAction
+    where TState : StateBase
 {
-    public interface IUpdater<TAction, TState>
-        where TAction : IAction
-        where TState : StateBase
-    {
-        TState Update(TAction action, TState state);
-    }
+    TState Update(TAction action, TState state);
 }

@@ -3,10 +3,9 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR
+namespace StateR;
+
+public interface IDispatcher
 {
-    public interface IDispatcher
-    {
-        Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken) where TAction : IAction;
-    }
+    Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken) where TAction : IAction;
 }

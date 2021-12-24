@@ -1,11 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR.Interceptors
+namespace StateR.Interceptors;
+
+public interface IInterceptor<TAction>
+    where TAction : IAction
 {
-    public interface IInterceptor<TAction>
-        where TAction : IAction
-    {
-        Task InterceptAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken);
-    }
+    Task InterceptAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken);
 }

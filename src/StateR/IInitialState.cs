@@ -1,8 +1,7 @@
-﻿namespace StateR
+﻿namespace StateR;
+
+public interface IInitialState<TState>
+    where TState : StateBase
 {
-    public interface IInitialState<TState>
-        where TState : StateBase
-    {
-        TState Value { get; }
-    }
+    TState Value { get; }
 }

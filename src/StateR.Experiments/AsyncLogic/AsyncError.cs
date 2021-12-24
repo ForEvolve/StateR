@@ -1,37 +1,37 @@
 ﻿using StateR.Updaters;
 using System;
 
-namespace StateR.AsyncLogic
+namespace StateR.AsyncLogic;
+
+public class AsyncError
 {
-    public class AsyncError
+    public record Occured(IAction Action, AsyncState InitialState, AsyncState ActualState, Exception Exception) : IAction;
+    public record State : StateBase
     {
-        public record Occured(IAction Action, AsyncState InitialState, AsyncState ActualState, Exception Exception) : IAction;
-        public record State : StateBase
-        {
-            public IAction Action { get; init; }
-            public AsyncState InitialState { get; init; }
-            public AsyncState ActualState { get; init; }
-            public Exception Exception { get; init; }
+        public IAction Action { get; init; }
+        public AsyncState InitialState { get; init; }
+        public AsyncState ActualState { get; init; }
+        public Exception Exception { get; init; }
 
-            public bool HasException() => Exception != null;
-            public bool HasActualState() => ActualState != null;
-            public bool HasInitialState() => InitialState != null;
-            public bool HasAction() => Action != null;
-        }
+        public bool HasException() => Exception != null;
+        public bool HasActualState() => ActualState != null;
+        public bool HasInitialState() => InitialState != null;
+        public bool HasAction() => Action != null;
+    }
 
-        public class InitialState : IInitialState<State>
-        {
-            public State Value => new();
-        }
+    public class InitialState : IInitialState<State>
+    {
+        public State Value => new();
+    }
 
-        public class Updaters : IUpdater<Occured, State>
+    public class Updaters : IUpdater<Occured, State>
+    {
+        public State Update(Occured action, State initialState) => initialState with
         {
-            public State Update(Occured action, State initialState) => initialState with {
-                Action = action.Action,
-                InitialState = action.InitialState,
-                ActualState = action.ActualState,
-                Exception = action.Exception
-            };
-        }
+            Action = action.Action,
+            InitialState = action.InitialState,
+            ActualState = action.ActualState,
+            Exception = action.Exception
+        };
     }
 }

@@ -3,39 +3,38 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR.Blazor
+namespace StateR.Blazor;
+
+public abstract class StatorComponentBase : ComponentBase, IDisposable
 {
-    public abstract class StatorComponentBase : ComponentBase, IDisposable
+    private bool disposedValue;
+
+    [Inject]
+    public IDispatcher Dispatcher { get; set; }
+
+    protected virtual async Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken = default)
+        where TAction : IAction
+        => await Dispatcher.DispatchAsync(action, cancellationToken);
+
+    protected virtual void Dispose(bool disposing)
     {
-        private bool disposedValue;
-
-        [Inject]
-        public IDispatcher Dispatcher { get; set; }
-
-        protected virtual async Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken = default)
-            where TAction : IAction
-            => await Dispatcher.DispatchAsync(action, cancellationToken);
-
-        protected virtual void Dispose(bool disposing)
+        if (!disposedValue)
         {
-            if (!disposedValue)
+            if (disposing)
             {
-                if (disposing)
-                {
-                    FreeManagedResources();
-                }
-                FreeUnmanagedResources();
-                disposedValue = true;
+                FreeManagedResources();
             }
+            FreeUnmanagedResources();
+            disposedValue = true;
         }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void FreeManagedResources() { }
-        protected virtual void FreeUnmanagedResources() { }
     }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void FreeManagedResources() { }
+    protected virtual void FreeUnmanagedResources() { }
 }

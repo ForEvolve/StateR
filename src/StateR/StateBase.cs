@@ -1,4 +1,3 @@
-﻿namespace StateR
-{
-    public abstract record StateBase { }
-}
+﻿namespace StateR;
+
+public abstract record StateBase { }

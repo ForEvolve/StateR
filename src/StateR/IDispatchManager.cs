@@ -1,11 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR
+namespace StateR;
+
+public interface IDispatchManager
 {
-    public interface IDispatchManager
-    {
-        Task DispatchAsync<TAction>(IDispatchContext<TAction> dispatchContext)
-            where TAction : IAction;
-    }
+    Task DispatchAsync<TAction>(IDispatchContext<TAction> dispatchContext)
+        where TAction : IAction;
 }

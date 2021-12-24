@@ -1,7 +1,6 @@
-﻿namespace StateR.AsyncLogic
+﻿namespace StateR.AsyncLogic;
+
+public abstract record AsyncState : StateBase
 {
-    public abstract record AsyncState : StateBase
-    {
-        public AsyncOperationStatus Status { get; init; }
-    }
+    public AsyncOperationStatus Status { get; init; }
 }

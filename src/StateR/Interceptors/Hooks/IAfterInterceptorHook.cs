@@ -1,10 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR.Interceptors.Hooks
+namespace StateR.Interceptors.Hooks;
+
+public interface IAfterInterceptorHook
 {
-    public interface IAfterInterceptorHook
-    {
-        Task AfterHandlerAsync<TAction>(IDispatchContext<TAction> context, IInterceptor<TAction> interceptor, CancellationToken cancellationToken) where TAction : IAction;
-    }
+    Task AfterHandlerAsync<TAction>(IDispatchContext<TAction> context, IInterceptor<TAction> interceptor, CancellationToken cancellationToken) where TAction : IAction;
 }

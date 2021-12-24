@@ -1,4 +1,3 @@
-﻿namespace StateR
-{
-    public interface IAction { }
-}
+﻿namespace StateR;
+
+public interface IAction { }

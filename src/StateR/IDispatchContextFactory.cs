@@ -1,9 +1,8 @@
 ﻿using System.Threading;
 
-namespace StateR
+namespace StateR;
+
+public interface IDispatchContextFactory
 {
-    public interface IDispatchContextFactory
-    {
-        IDispatchContext<TAction> Create<TAction>(TAction action, IDispatcher dispatcher, CancellationTokenSource cancellationTokenSource) where TAction : IAction;
-    }
+    IDispatchContext<TAction> Create<TAction>(TAction action, IDispatcher dispatcher, CancellationTokenSource cancellationTokenSource) where TAction : IAction;
 }

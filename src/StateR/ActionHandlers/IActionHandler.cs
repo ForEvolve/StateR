@@ -1,11 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR.ActionHandlers
+namespace StateR.ActionHandlers;
+
+public interface IActionHandler<TAction>
+    where TAction : IAction
 {
-    public interface IActionHandler<TAction>
-        where TAction : IAction
-    {
-        Task HandleAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken);
-    }
+    Task HandleAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken);
 }

@@ -1,4 +1,3 @@
-﻿namespace StateR.ActionHandlers
-{
-    public interface IActionHandlersManager : IDispatchManager { }
-}
+﻿namespace StateR.ActionHandlers;
+
+public interface IActionHandlersManager : IDispatchManager { }

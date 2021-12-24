@@ -1,4 +1,3 @@
-﻿namespace StateR.Interceptors
-{
-    public interface IInterceptorsManager : IDispatchManager { }
-}
+﻿namespace StateR.Interceptors;
+
+public interface IInterceptorsManager : IDispatchManager { }

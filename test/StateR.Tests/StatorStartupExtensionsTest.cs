@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StateR
-{
-    public class StatorStartupExtensionsTest
-    {
-        public class AddStateR : StatorStartupExtensionsTest
-        {
+namespace StateR;
 
-        }
+public class StatorStartupExtensionsTest
+{
+    public class AddStateR : StatorStartupExtensionsTest
+    {
+
     }
 }
