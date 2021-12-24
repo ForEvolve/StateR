@@ -1,9 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+	  <Nullable>disable</Nullable>
+	  <ImplicitUsings>enable</ImplicitUsings>
 
-    <IsPackable>false</IsPackable>
+	  <IsPackable>false</IsPackable>
 
     <RootNamespace>StateR</RootNamespace>
   </PropertyGroup>
