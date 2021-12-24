@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace StateR.AfterEffects;
+﻿namespace StateR.AfterEffects;
 
 public interface IAfterEffects<TAction>
     where TAction : IAction

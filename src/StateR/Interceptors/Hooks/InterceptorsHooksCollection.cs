@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace StateR.Interceptors.Hooks;
+﻿namespace StateR.Interceptors.Hooks;
 
 public class InterceptorsHooksCollection : IInterceptorsHooksCollection
 {

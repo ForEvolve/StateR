@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace StateR.Interceptors.Hooks;
+﻿namespace StateR.Interceptors.Hooks;
 
 public interface IInterceptorsHooksCollection
 {

@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace StateR.ActionHandlers.Hooks;
+﻿namespace StateR.ActionHandlers.Hooks;
 
 public interface IAfterActionHook
 {

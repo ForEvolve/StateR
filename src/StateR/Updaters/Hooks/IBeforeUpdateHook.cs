@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace StateR.Updaters.Hooks;
+﻿namespace StateR.Updaters.Hooks;
 
 public interface IBeforeUpdateHook
 {

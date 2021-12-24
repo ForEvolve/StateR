@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StateR.Internal;
+﻿namespace StateR.Internal;
 
 public class InitialState<TState> : IInitialState<TState>
         where TState : StateBase

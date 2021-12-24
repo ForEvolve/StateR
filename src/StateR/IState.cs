@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StateR;
+﻿namespace StateR;
 
 public interface IState<TState> : ISubscribable
     where TState : StateBase

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StateR.Updaters;
+﻿namespace StateR.Updaters;
 
 public interface IUpdater<TAction, TState>
     where TAction : IAction

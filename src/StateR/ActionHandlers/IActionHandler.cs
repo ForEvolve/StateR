@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace StateR.ActionHandlers;
+﻿namespace StateR.ActionHandlers;
 
 public interface IActionHandler<TAction>
     where TAction : IAction

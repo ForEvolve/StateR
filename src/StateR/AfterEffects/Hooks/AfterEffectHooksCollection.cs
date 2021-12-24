@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace StateR.AfterEffects.Hooks;
+﻿namespace StateR.AfterEffects.Hooks;
 
 public class AfterEffectHooksCollection : IAfterEffectHooksCollection
 {

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StateR.Internal;
+﻿namespace StateR.Internal;
 
 public static class TypeExtensions
 {

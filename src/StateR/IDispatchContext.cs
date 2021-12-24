@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace StateR;
+﻿namespace StateR;
 
 public interface IDispatchContext<TAction>
     where TAction : IAction

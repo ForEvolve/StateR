@@ -1,12 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using StateR.AfterEffects;
+﻿using StateR.AfterEffects;
 using StateR.Updaters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace StateR.AsyncLogic;
 

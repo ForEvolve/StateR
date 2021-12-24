@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace StateR.Internal;
+﻿namespace StateR.Internal;
 
 public class State<TState> : IState<TState>
     where TState : StateBase
