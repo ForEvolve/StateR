@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StateR.Blazor;
 
@@ -8,10 +9,11 @@ public abstract class StoreBasedStatorComponent : StatorComponentBase
     private readonly List<Action> _unsubscribeDelegates = new List<Action>();
 
     [Inject]
-    public IStore Store { get; set; }
+    public IStore? Store { get; set; }
 
     protected virtual TState GetState<TState>() where TState : StateBase
     {
+        GuardAgainstNullStore();
         Subscribe<TState>();
         return Store.GetState<TState>();
     }
@@ -20,6 +22,7 @@ public abstract class StoreBasedStatorComponent : StatorComponentBase
     {
         if (!_subscribed)
         {
+            GuardAgainstNullStore();
             _subscribed = true;
             Store.Subscribe<TState>(StateHasChanged);
             _unsubscribeDelegates.Add(() => Store.Unsubscribe<TState>(StateHasChanged));
@@ -31,6 +34,15 @@ public abstract class StoreBasedStatorComponent : StatorComponentBase
         foreach (var unsubscribe in _unsubscribeDelegates)
         {
             unsubscribe();
+        }
+    }
+
+    [MemberNotNull(nameof(Store))]
+    protected void GuardAgainstNullStore()
+    {
+        if (Store == null)
+        {
+            throw new ArgumentNullException(nameof(Store));
         }
     }
 }

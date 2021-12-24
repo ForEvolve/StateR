@@ -1,4 +1,6 @@
-﻿namespace StateR.Internal;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace StateR.Internal;
 
 public class State<TState> : IState<TState>
     where TState : StateBase
@@ -11,6 +13,7 @@ public class State<TState> : IState<TState>
 
     public TState Current { get; private set; }
 
+    [MemberNotNull(nameof(Current))]
     public void Set(TState state)
     {
         if (Current == state)

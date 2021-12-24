@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
+using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StateR.Blazor;
 
@@ -7,11 +9,14 @@ public abstract class StatorComponentBase : ComponentBase, IDisposable
     private bool disposedValue;
 
     [Inject]
-    public IDispatcher Dispatcher { get; set; }
+    public IDispatcher? Dispatcher { get; set; }
 
     protected virtual async Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken = default)
         where TAction : IAction
-        => await Dispatcher.DispatchAsync(action, cancellationToken);
+    {
+        GuardAgainstNullDispatcher();
+        await Dispatcher.DispatchAsync(action, cancellationToken);
+    }
 
     protected virtual void Dispose(bool disposing)
     {
@@ -34,4 +39,10 @@ public abstract class StatorComponentBase : ComponentBase, IDisposable
 
     protected virtual void FreeManagedResources() { }
     protected virtual void FreeUnmanagedResources() { }
+
+    [MemberNotNull(nameof(Dispatcher))]
+    protected void GuardAgainstNullDispatcher()
+    {
+        ArgumentNullException.ThrowIfNull(Dispatcher, nameof(Dispatcher));
+    }
 }

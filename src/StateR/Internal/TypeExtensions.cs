@@ -4,10 +4,10 @@ public static class TypeExtensions
 {
     public static string GetStatorName(this Type type)
     {
-        //if (type == null) { throw new ArgumentNullException(nameof(type)); }
         //Console.WriteLine($"[GetStatorName] {type.FullName}");
         if (type.IsGenericType)
         {
+            ArgumentNullException.ThrowIfNull(type.FullName, nameof(type.FullName));
             //Console.WriteLine($"[GetStatorName](type) {type}");
             //Console.WriteLine($"[GetStatorName](Name) {type.Name}");
             //Console.WriteLine($"[GetStatorName](type.FullName) {type.FullName}");
