@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection.Extensions;
 using StateR.ActionHandlers;
 using StateR.AsyncLogic;
-using StateR.Updater;
+using StateR.Updaters;
 using System;
 using System.Collections.Generic;
 using System.Linq;

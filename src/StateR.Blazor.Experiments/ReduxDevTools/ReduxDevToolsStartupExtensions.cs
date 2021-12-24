@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
-using StateR.Updater;
-using StateR.Updater.Hooks;
+using StateR.Updaters;
+using StateR.Updaters.Hooks;
 using System;
 using System.Collections.Generic;
 using System.Linq;

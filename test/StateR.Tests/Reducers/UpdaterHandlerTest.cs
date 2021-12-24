@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using StateR.Updater.Hooks;
+using StateR.Updaters.Hooks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace StateR.Updater
+namespace StateR.Updaters
 {
     public class UpdaterHandlerTest
     {

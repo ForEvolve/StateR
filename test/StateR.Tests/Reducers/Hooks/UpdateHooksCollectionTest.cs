@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace StateR.Updater.Hooks
+namespace StateR.Updaters.Hooks
 {
     public class UpdateHooksCollectionTest
     {

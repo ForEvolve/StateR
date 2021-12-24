@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR.Updater.Hooks
+namespace StateR.Updaters.Hooks
 {
     public class UpdateHooksCollection : IUpdateHooksCollection
     {

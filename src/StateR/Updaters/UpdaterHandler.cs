@@ -1,11 +1,11 @@
 ﻿using StateR.ActionHandlers;
-using StateR.Updater.Hooks;
+using StateR.Updaters.Hooks;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR.Updater
+namespace StateR.Updaters
 {
     public class UpdaterHandler<TState, TAction> : IActionHandler<TAction>
         where TState : StateBase

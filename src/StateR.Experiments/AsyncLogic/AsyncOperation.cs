@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using StateR.AfterEffects;
-using StateR.Updater;
+using StateR.Updaters;
 using System;
 using System.Collections.Generic;
 using System.Linq;

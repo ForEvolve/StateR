@@ -1,7 +1,7 @@
 ﻿using StateR.ActionHandlers;
 using StateR.AfterEffects;
 using StateR.Interceptors;
-using StateR.Updater;
+using StateR.Updaters;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using StateR.Interceptors;
-using StateR.Updater;
+using StateR.Updaters;
 using StateR.AfterEffects;
 using StateR.ActionHandlers;
 

@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace StateR.Updater.Hooks
+namespace StateR.Updaters.Hooks
 {
     public interface IBeforeUpdateHook
     {

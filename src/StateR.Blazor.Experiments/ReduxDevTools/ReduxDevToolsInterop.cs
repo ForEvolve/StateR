@@ -7,11 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using StateR.Updater;
+using StateR.Updaters;
 using System.Threading;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using StateR.Updater.Hooks;
+using StateR.Updaters.Hooks;
 
 namespace StateR.Blazor.ReduxDevTools
 {
