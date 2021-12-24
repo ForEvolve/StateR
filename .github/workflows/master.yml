@@ -12,9 +12,6 @@ on:
       - master
 
 env:
-  DOTNET_2_VERSION: '2.1.x'
-  DOTNET_3_VERSION: '3.1.x'
-  DOTNET_5_VERSION: '5.0.x'
   BUILD_CONFIGURATION: Release
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
@@ -24,10 +21,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dotnet: ['5.0.x']
+        dotnet: ['6.0.x']
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
@@ -46,17 +45,19 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        dotnet: ['5.0.x']
+        dotnet: ['6.0.x']
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ matrix.dotnet }}
 
-      - uses: aarnott/nbgv@v0.3
+      - uses: dotnet/nbgv@master
         with:
           setAllVars: true
 
