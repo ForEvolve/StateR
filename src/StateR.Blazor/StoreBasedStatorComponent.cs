@@ -6,7 +6,7 @@ namespace StateR.Blazor;
 public abstract class StoreBasedStatorComponent : StatorComponentBase
 {
     private bool _subscribed = false;
-    private readonly List<Action> _unsubscribeDelegates = new List<Action>();
+    private readonly List<Action> _unsubscribeDelegates = new();
 
     [Inject]
     public IStore? Store { get; set; }

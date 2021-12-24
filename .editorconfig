@@ -239,7 +239,7 @@ dotnet_diagnostic.IDE1006.severity = suggestion
 
 # private fields and Async methods naming are optional for tests.
 # this allows to declare `private sut` and name async test without the `Async` suffix.
-[**/*.{Tests,IntegrationTests,FunctionalTests}/**.cs]
-dotnet_naming_rule.private_fields_should_be_camel_case.severity = suggestion
-dotnet_naming_rule.async_methods_should_end_in_async.severity = suggestion
+[**/*.*Tests/**.cs]
+dotnet_naming_rule.private_fields_should_be_camel_case.severity = none
+dotnet_naming_rule.async_methods_should_end_in_async.severity = none
 

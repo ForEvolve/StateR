@@ -6,7 +6,7 @@ namespace StateR.Blazor;
 
 public abstract class StatorComponentBase : ComponentBase, IDisposable
 {
-    private bool disposedValue;
+    private bool _disposedValue;
 
     [Inject]
     public IDispatcher? Dispatcher { get; set; }
@@ -20,14 +20,14 @@ public abstract class StatorComponentBase : ComponentBase, IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_disposedValue)
         {
             if (disposing)
             {
                 FreeManagedResources();
             }
             FreeUnmanagedResources();
-            disposedValue = true;
+            _disposedValue = true;
         }
     }
 
