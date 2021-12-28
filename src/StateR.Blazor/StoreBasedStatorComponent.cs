@@ -20,6 +20,7 @@ public abstract class StoreBasedStatorComponent : StatorComponentBase
 
     protected virtual void Subscribe<TState>() where TState : StateBase
     {
+        // TODO: update this so it does not limit to on TState
         if (!_subscribed)
         {
             GuardAgainstNullStore();
