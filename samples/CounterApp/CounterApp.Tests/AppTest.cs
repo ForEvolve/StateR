@@ -1,6 +1,4 @@
 using Bunit;
-using Microsoft.AspNetCore.Mvc.Testing;
-using System;
 using Xunit;
 
 namespace CounterApp;

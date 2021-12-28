@@ -1,7 +1,8 @@
-# Stator
+# StateR
 
-Stator is a simple, DI-oriented, Redux-inspired or Model-View-Update (MVU) **experiment** using C# 9.0.
-It works well with Blazor and [MobileBlazorBindings](https://github.com/xamarin/MobileBlazorBindings),
+StateR (sta·tor) is a simple DI-oriented Model-View-Update (MVU) **experiment** using C# 9+.
+
+It works with Blazor and [MobileBlazorBindings](https://github.com/xamarin/MobileBlazorBindings),
 including sharing states between the Xamarin part and the Blazor part of a hybrid mobile app.
 It should also work with any other .NET stateful client model.
 
@@ -9,7 +10,7 @@ It should also work with any other .NET stateful client model.
 
 This project uses:
 
--   C# 9 record classes to ensure immutability and to simplify reducers.
+-   C# 9 record classes to ensure immutability and to simplify updaters.
 -   Dependency Injection to manage states (and everything else)
 
 # How to install?
@@ -23,15 +24,16 @@ This project uses:
 
 # Counter sample
 
-The following snippet represent a feature, surrounding a counter, where you can `Increment`, `Decrement`,
-and `Set` the value of the `Count` property of that `Counter.State`. The snippet also include the
+The following snippet represents a feature surrounding a counter, where you can `Increment`, `Decrement`,
+and `Set` the value of the `Count` property of that `Counter.State`. The snippet also includes the
 `InitialState` of that counter.
 
 ```csharp
-services
+var appAssembly = typeof(App).Assembly;
+builder.Services
     .AddStateR(appAssembly)
-    .AddAsyncOperations() // Add support for Redux thunk-like helpers
-    .AddReduxDevTools() // Add support for Redux DevTools
+    .AddAsyncOperations() // [optional] Add support for Redux thunk-like helpers
+    .AddReduxDevTools() // [optional] Add support for Redux DevTools
     .Apply()
 ;
 ```
@@ -39,30 +41,29 @@ services
 ```csharp
 using StateR;
 
-namespace BlazorMobileHybridExperiments.Features
+namespace BlazorMobileHybridExperiments.Features;
+
+public class Counter
 {
-    public class Counter
+    public record State(int Count) : StateBase;
+
+    public class InitialState : IInitialState<State>
     {
-        public record State(int Count) : StateBase;
+        public State Value => new State(0);
+    }
 
-        public class InitialState : IInitialState<State>
-        {
-            public State Value => new State(0);
-        }
+    public record Increment : IAction;
+    public record Decrement : IAction;
 
-        public record Increment : IAction;
-        public record Decrement : IAction;
-
-        public class Reducers : IReducer<State, Increment>, IReducer<State, Decrement>
-        {
-            public State Reduce(State state, Increment action) => state with { Count = state.Count + 1 };
-            public State Reduce(State state, Decrement action) => state with { Count = state.Count - 1 };
-        }
+    public class Updaters : IUpdater<Increment, State>, IUpdater<Decrement, State>
+    {
+        public State Update(Increment action, State state) => state with { Count = state.Count + 1 };
+        public State Update(Decrement action, State state) => state with { Count = state.Count - 1 };
     }
 }
 ```
 
-Then from a Blazor component that inherits from `StatorComponent`, we can dispatch those actions.
+Then, from a Blazor component that inherits from `StatorComponent`, we can dispatch those actions.
 
 ```csharp
 @page "/counter"
@@ -77,12 +78,19 @@ Then from a Blazor component that inherits from `StatorComponent`, we can dispat
 
 > It is not needed to inherit from `StatorComponent`, a component (or any class) can manually subscribe to any `IState<T>`.
 
+To make your life easier you can also add one or all of the follosing lines to the `_Imports.razor` file:
+
+```
+// Omitted using statements
+@using StateR
+@using StateR.Blazor
+```
+
 # The origin
 
-I played around with a few other libraries and I was not 100% satisfied with how they did stuff.
-So while playing around with MobileBlazorBindings and the new hybrid apps, I found that C# 9 records
-were a great fit for this. I started experimenting with transforming immutable types (records) and
-ended up creating this project.
+I played around with a few other libraries, and I was not 100% satisfied with how they worked.
+So while playing around with MobileBlazorBindings and the new hybrid apps, I found that C# 9 records classes were a great fit for this.
+I started experimenting with transforming immutable types (records) and created this project.
 
 ## Origin of the name
 
@@ -104,14 +112,12 @@ After hearing about it for years, I read about it and found the concept brillian
 This library is based on the concepts introduced by Redux, but .NET is not JavaScript and
 .NET Core is built around Dependency Injection (DI), so I decided to take advantage of that.
 
-There is no type and no real DI in JavaScript, so it make sense that the folks there did not take
-that into account when they built Redux.
+There is no type and no real DI in JavaScript, so it makes sense that the folks there did not take that into account when they built Redux.
 
 # Redux DevTools
 
-I based the Redux DevTools implementation on [Fluxor](https://github.com/mrpmorris/Fluxor/blob/master/Source/Fluxor.Blazor.Web.ReduxDevTools/ReduxDevToolsInterop.cs),
-which is a similar project, that I used once.
-That helped me lower the implementation time to connect Stator with Redux DevTools; thanks.
+I based the Redux DevTools implementation on [Fluxor](https://github.com/mrpmorris/Fluxor/blob/master/Source/Fluxor.Blazor.Web.ReduxDevTools/ReduxDevToolsInterop.cs), which is a similar project that I used once.
+That helped me lower the implementation time to connect StateR with Redux DevTools; thanks.
 
 # To be continued
 

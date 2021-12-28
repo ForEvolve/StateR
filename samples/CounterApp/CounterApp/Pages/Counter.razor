@@ -1,18 +1,12 @@
 ﻿@page "/counter"
+@inherits StatorComponent
+@inject IState<Features.Counter.State> CounterState
 
 <PageTitle>Counter</PageTitle>
 
 <h1>Counter</h1>
 
-<p role="status">Current count: @currentCount</p>
+<p role="status">Current count: @CounterState.Current.Count</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
-
-@code {
-    private int currentCount = 0;
-
-    private void IncrementCount()
-    {
-        currentCount++;
-    }
-}
+<button class="btn btn-primary" @onclick="@(async () => await DispatchAsync(new Features.Counter.Increment()))">+</button>
+<button class="btn btn-primary" @onclick="@(async () => await DispatchAsync(new Features.Counter.Decrement()))">-</button>
