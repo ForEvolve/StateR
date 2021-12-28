@@ -2,6 +2,7 @@
 using StateR.AfterEffects;
 using StateR.AsyncLogic;
 using StateR.Interceptors;
+using StateR.Internal;
 using StateR.Updaters;
 using System.Collections.Immutable;
 using System.Net.Http.Json;
@@ -64,7 +65,7 @@ public class WeatherForecast
     {
         public async Task InterceptAsync(IDispatchContext<StatusUpdated<State>> context, CancellationToken cancellationToken)
         {
-            Console.WriteLine("InterceptAsync StatusUpdated<State>");
+            Console.WriteLine($"{context.Action.GetType().GetStatorName()}: {context.Action.status}");
             await Task.Delay(2000, cancellationToken);
         }
     }
