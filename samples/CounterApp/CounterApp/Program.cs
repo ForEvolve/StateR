@@ -2,6 +2,7 @@ using CounterApp;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using StateR;
+using StateR.Blazor.ReduxDevTools;
 using StateR.Experiments.AsyncLogic;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -22,6 +23,7 @@ public static class ProgramExtensions
         services
             .AddStateR(appAssembly)
             .AddAsyncOperations()
+            .AddReduxDevTools()
             .Apply()
         ;
         services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(sp.GetRequiredService<IWebAssemblyHostEnvironment>().BaseAddress) });
