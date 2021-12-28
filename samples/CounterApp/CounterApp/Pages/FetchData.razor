@@ -10,6 +10,13 @@
 <p>This component demonstrates fetching data from the server.</p>
 <p><strong>Async Status:</strong> @WeatherState.Current.Status</p>
 
+<Dispatch TAction="Features.WeatherForecast.Fetch" />
+@*<DispatchAction
+    TAction="Features.WeatherForecast.Fetch"
+    Action="new Features.WeatherForecast.Fetch()" />*@
+@*<DispatchActionFactory 
+    TAction="Features.WeatherForecast.Fetch"
+    ActionFactory="() => ValueTask.FromResult(new Features.WeatherForecast.Fetch())" />*@
 <AsyncOperationSwitch Status="WeatherState.Current.Status">
     <Idle>
         <div class="spinner-border text-primary" role="status">
@@ -47,12 +54,9 @@
             </tbody>
         </table>
     </Succeeded>
+    <Failed>
+        <div class="alert alert-danger" role="alert">
+            An error occured!
+        </div>
+    </Failed>
 </AsyncOperationSwitch>
-
-@code{
-    protected async override Task OnInitializedAsync()
-    {
-        await DispatchAsync(new Features.WeatherForecast.Fetch());
-        await base.OnInitializedAsync();
-    }
-}
