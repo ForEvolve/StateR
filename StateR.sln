@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30509.190
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.31911.260
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F0F6A2CA-0972-43BD-B777-B5656DFE20C3}"
 EndProject
@@ -13,9 +13,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{372F8647-9
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateR.Tests", "test\StateR.Tests\StateR.Tests.csproj", "{3276327A-63D9-4BEA-BBB8-D3AFF841CC67}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StateR.Experiments", "src\StateR.Experiments\StateR.Experiments.csproj", "{0EB20F7F-8AA1-48E2-9489-6975566469AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateR.Experiments", "src\StateR.Experiments\StateR.Experiments.csproj", "{0EB20F7F-8AA1-48E2-9489-6975566469AF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StateR.Blazor.Experiments", "src\StateR.Blazor.Experiments\StateR.Blazor.Experiments.csproj", "{5B16AF66-5F00-4E5F-AAEF-DE2CF549E21D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{22B777AC-AFAE-422A-B4CD-48C907251D9E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CounterApp", "CounterApp", "{E72B8B55-3F7B-4EE2-955B-B5FAB222EBD9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CounterApp", "samples\CounterApp\CounterApp\CounterApp.csproj", "{99926EB0-84F9-4906-8F7E-4E1873A403EB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CounterApp.Tests", "samples\CounterApp\CounterApp.Tests\CounterApp.Tests.csproj", "{FBDEBA94-7F63-4CB5-AC13-4D0874730316}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,6 +95,30 @@ Global
 		{5B16AF66-5F00-4E5F-AAEF-DE2CF549E21D}.Release|x64.Build.0 = Release|Any CPU
 		{5B16AF66-5F00-4E5F-AAEF-DE2CF549E21D}.Release|x86.ActiveCfg = Release|Any CPU
 		{5B16AF66-5F00-4E5F-AAEF-DE2CF549E21D}.Release|x86.Build.0 = Release|Any CPU
+		{99926EB0-84F9-4906-8F7E-4E1873A403EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99926EB0-84F9-4906-8F7E-4E1873A403EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99926EB0-84F9-4906-8F7E-4E1873A403EB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{99926EB0-84F9-4906-8F7E-4E1873A403EB}.Debug|x64.Build.0 = Debug|Any CPU
+		{99926EB0-84F9-4906-8F7E-4E1873A403EB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{99926EB0-84F9-4906-8F7E-4E1873A403EB}.Debug|x86.Build.0 = Debug|Any CPU
+		{99926EB0-84F9-4906-8F7E-4E1873A403EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99926EB0-84F9-4906-8F7E-4E1873A403EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99926EB0-84F9-4906-8F7E-4E1873A403EB}.Release|x64.ActiveCfg = Release|Any CPU
+		{99926EB0-84F9-4906-8F7E-4E1873A403EB}.Release|x64.Build.0 = Release|Any CPU
+		{99926EB0-84F9-4906-8F7E-4E1873A403EB}.Release|x86.ActiveCfg = Release|Any CPU
+		{99926EB0-84F9-4906-8F7E-4E1873A403EB}.Release|x86.Build.0 = Release|Any CPU
+		{FBDEBA94-7F63-4CB5-AC13-4D0874730316}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBDEBA94-7F63-4CB5-AC13-4D0874730316}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBDEBA94-7F63-4CB5-AC13-4D0874730316}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FBDEBA94-7F63-4CB5-AC13-4D0874730316}.Debug|x64.Build.0 = Debug|Any CPU
+		{FBDEBA94-7F63-4CB5-AC13-4D0874730316}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FBDEBA94-7F63-4CB5-AC13-4D0874730316}.Debug|x86.Build.0 = Debug|Any CPU
+		{FBDEBA94-7F63-4CB5-AC13-4D0874730316}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBDEBA94-7F63-4CB5-AC13-4D0874730316}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBDEBA94-7F63-4CB5-AC13-4D0874730316}.Release|x64.ActiveCfg = Release|Any CPU
+		{FBDEBA94-7F63-4CB5-AC13-4D0874730316}.Release|x64.Build.0 = Release|Any CPU
+		{FBDEBA94-7F63-4CB5-AC13-4D0874730316}.Release|x86.ActiveCfg = Release|Any CPU
+		{FBDEBA94-7F63-4CB5-AC13-4D0874730316}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,6 +129,9 @@ Global
 		{3276327A-63D9-4BEA-BBB8-D3AFF841CC67} = {372F8647-9F67-4176-B0C1-B0E5CAD87C9E}
 		{0EB20F7F-8AA1-48E2-9489-6975566469AF} = {F0F6A2CA-0972-43BD-B777-B5656DFE20C3}
 		{5B16AF66-5F00-4E5F-AAEF-DE2CF549E21D} = {F0F6A2CA-0972-43BD-B777-B5656DFE20C3}
+		{E72B8B55-3F7B-4EE2-955B-B5FAB222EBD9} = {22B777AC-AFAE-422A-B4CD-48C907251D9E}
+		{99926EB0-84F9-4906-8F7E-4E1873A403EB} = {E72B8B55-3F7B-4EE2-955B-B5FAB222EBD9}
+		{FBDEBA94-7F63-4CB5-AC13-4D0874730316} = {E72B8B55-3F7B-4EE2-955B-B5FAB222EBD9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6ADD1933-C449-475E-9409-AD333C1C48A0}
