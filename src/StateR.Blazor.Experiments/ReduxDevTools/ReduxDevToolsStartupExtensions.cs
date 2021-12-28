@@ -1,12 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.JSInterop;
-using StateR.Updaters;
 using StateR.Updaters.Hooks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StateR.Blazor.ReduxDevTools;
 

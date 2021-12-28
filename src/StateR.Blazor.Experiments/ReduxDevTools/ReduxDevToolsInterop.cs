@@ -1,17 +1,10 @@
-﻿using StateR.Internal;
-using Microsoft.JSInterop;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using Microsoft.JSInterop;
+using StateR.Internal;
 using StateR.Updaters;
-using System.Threading;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using StateR.Updaters.Hooks;
+using System.Collections;
+using System.Reflection;
+using System.Text.Json;
 
 namespace StateR.Blazor.ReduxDevTools;
 

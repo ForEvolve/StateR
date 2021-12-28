@@ -1,5 +1,4 @@
 ﻿using Bunit;
-using System;
 using Xunit;
 
 namespace CounterApp.Pages;
