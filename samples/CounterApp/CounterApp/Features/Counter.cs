@@ -14,7 +14,7 @@ public class Counter
 
     public class InitialState : IInitialState<State>
     {
-        public State Value => new State(0);
+        public State Value => new(0);
     }
 
     public record Increment : IAction;
