@@ -17,7 +17,7 @@ public abstract class StatorComponentBase : ComponentBase, IDisposable
         await Dispatcher.DispatchAsync(action, cancellationToken);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (!_disposedValue)
         {
