@@ -2,6 +2,7 @@ using CounterApp;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using StateR;
+using StateR.Experiments.AsyncLogic;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -20,9 +21,9 @@ public static class ProgramExtensions
         var appAssembly = typeof(App).Assembly;
         services
             .AddStateR(appAssembly)
+            .AddAsyncOperations()
             .Apply()
         ;
-
-        services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(sp.GetRequiredService<IWebAssemblyHostEnvironment>().BaseAddress) });
+        services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(sp.GetRequiredService<IWebAssemblyHostEnvironment>().BaseAddress) });
     }
 }
