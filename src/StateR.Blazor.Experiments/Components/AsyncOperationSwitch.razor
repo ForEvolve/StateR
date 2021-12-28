@@ -1,0 +1,34 @@
+﻿@using StateR.AsyncLogic
+
+@switch(Status)
+{
+    case AsyncOperationStatus.Idle:
+        @Idle
+        break;
+    case AsyncOperationStatus.Loading:
+        @Loading
+        break;
+    case AsyncOperationStatus.Succeeded:
+        @Succeeded
+        break;
+    case AsyncOperationStatus.Failed:
+        @Failed
+        break;
+}
+
+@code{
+    [Parameter]
+    public AsyncOperationStatus Status { get; set; }
+
+    [Parameter]
+    public RenderFragment? Idle { get; set; }
+
+    [Parameter]
+    public RenderFragment? Loading { get; set; }
+
+    [Parameter]
+    public RenderFragment? Succeeded { get; set; }
+
+    [Parameter]
+    public RenderFragment? Failed { get; set; }
+}

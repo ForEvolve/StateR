@@ -1,4 +1,5 @@
 ﻿@using StateR.AsyncLogic
+@using StateR.Blazor.Components
 @page "/fetchdata"
 @inherits StatorComponent
 @inject IState<Features.WeatherForecast.State> WeatherState
@@ -9,37 +10,45 @@
 <p>This component demonstrates fetching data from the server.</p>
 <p><strong>Async Status:</strong> @WeatherState.Current.Status</p>
 
-@if (WeatherState.Current.Status == AsyncOperationStatus.Loading)
-{
-    <p><em>Loading...</em></p>
-}
-else if (WeatherState.Current.Status == AsyncOperationStatus.Succeeded)
-{
-    <button class="btn btn-outline-dark" 
-        @onclick="@(async () => await DispatchAsync(new Features.WeatherForecast.Reload()))">Reload</button>
+<AsyncOperationSwitch Status="WeatherState.Current.Status">
+    <Idle>
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+    </Idle>
+    <Loading>
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+    </Loading>
+    <Succeeded>
+        <button class="btn btn-outline-dark" 
+            @onclick="@(async () => await DispatchAsync(new Features.WeatherForecast.Reload()))">Reload</button>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in WeatherState.Current.Forecasts)
-            {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
+                    <th>Date</th>
+                    <th>Temp. (C)</th>
+                    <th>Temp. (F)</th>
+                    <th>Summary</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var forecast in WeatherState.Current.Forecasts)
+                {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Succeeded>
+</AsyncOperationSwitch>
+
 @code{
     protected async override Task OnInitializedAsync()
     {
