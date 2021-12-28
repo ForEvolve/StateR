@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using StateR.Blazor.Components;
+@inherits LayoutComponentBase
+
 
 <div class="page">
     <div class="sidebar">
@@ -14,4 +16,5 @@
             @Body
         </article>
     </main>
+    <ErrorToastStack />
 </div>

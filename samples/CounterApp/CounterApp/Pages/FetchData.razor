@@ -13,7 +13,7 @@
 {
     <p><em>Loading...</em></p>
 }
-else
+else if (WeatherState.Current.Status == AsyncOperationStatus.Succeeded)
 {
     <button class="btn btn-outline-dark" 
         @onclick="@(async () => await DispatchAsync(new Features.WeatherForecast.Reload()))">Reload</button>

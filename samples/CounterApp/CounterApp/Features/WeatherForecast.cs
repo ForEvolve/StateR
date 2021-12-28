@@ -34,7 +34,7 @@ public class WeatherForecast
             => state with { Forecasts = ImmutableList.Create(action.Forecasts) };
 
         public State Update(Reload action, State state)
-            => state with { Status = AsyncOperationStatus.Idle };
+            => state with { Status = AsyncOperationStatus.Idle, Forecasts = ImmutableList.Create<Forecast>() };
     }
 
     public class ReloadEffect : IAfterEffects<Reload>
