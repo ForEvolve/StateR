@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using StateR;
 using StateR.Blazor.ReduxDevTools;
 using StateR.Experiments.AsyncLogic;
+using StateR.Validations.FluentValidation;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -24,6 +25,7 @@ public static class ProgramExtensions
             .AddStateR(appAssembly)
             .AddAsyncOperations()
             .AddReduxDevTools()
+            .AddFluentValidation(appAssembly)
             .Apply()
         ;
         services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(sp.GetRequiredService<IWebAssemblyHostEnvironment>().BaseAddress) });

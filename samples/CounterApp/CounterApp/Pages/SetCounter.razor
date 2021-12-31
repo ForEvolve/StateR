@@ -1,0 +1,27 @@
+﻿@page "/set-counter"
+@inherits StatorComponent
+@inject IState<Features.Counter.State> CounterState
+
+<PageTitle>Set Counter</PageTitle>
+
+<h1>Set Counter</h1>
+
+<p role="status">Current count: @CounterState.Current.Count</p>
+
+<input @bind="count" />
+<button class="btn btn-primary" @onclick="SetPositive">Set</button>
+
+@code{
+    int count;
+
+    protected override void OnInitialized()
+    {
+        count = CounterState.Current.Count;
+        base.OnInitialized();
+    }
+
+    public async Task SetPositive()
+    {
+        await DispatchAsync(new Features.Counter.SetPositive(count));
+    }
+}

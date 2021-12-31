@@ -16,5 +16,12 @@ public class DispatchContext<TAction> : IDispatchContext<TAction>
     public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
     public void Cancel()
-        => _cancellationTokenSource.Cancel(true);
+        => throw new DispatchCancelledException(Action);
+        //=> _cancellationTokenSource.Cancel(true);
+}
+
+public class DispatchCancelledException : Exception
+{
+    public DispatchCancelledException(IAction action)
+        : base($"The dispatch operation '{action.GetType().FullName}' has been cancelled.") { }
 }
