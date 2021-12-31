@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Moq;
 using StateR.ActionHandlers;
 using StateR.AfterEffects;
@@ -12,11 +13,12 @@ public class DispatcherTest
     private readonly Mock<IInterceptorsManager> _interceptorsManager = new();
     private readonly Mock<IActionHandlersManager> _actionHandlersManager = new();
     private readonly Mock<IAfterEffectsManager> _afterEffectsManager = new();
+    private readonly Mock<ILogger<Dispatcher>> _loggerMock = new();
     private readonly Dispatcher sut;
 
     public DispatcherTest()
     {
-        sut = new(_dispatchContextFactory.Object, _interceptorsManager.Object, _actionHandlersManager.Object, _afterEffectsManager.Object);
+        sut = new(_dispatchContextFactory.Object, _interceptorsManager.Object, _actionHandlersManager.Object, _afterEffectsManager.Object, _loggerMock.Object);
     }
 
     public class DispatchAsync : DispatcherTest

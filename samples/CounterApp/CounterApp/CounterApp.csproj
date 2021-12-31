@@ -5,11 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!--<PackageReference Include="Blazored.SessionStorage" Version="2.2.0" />-->
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.1" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\SessionStorage\src\Blazored.SessionStorage\Blazored.SessionStorage.csproj" />
     <ProjectReference Include="..\..\..\src\StateR.Blazor.Experiments\StateR.Blazor.Experiments.csproj" />
     <ProjectReference Include="..\..\..\src\StateR.Blazor\StateR.Blazor.csproj" />
     <ProjectReference Include="..\..\..\src\StateR.Experiments\StateR.Experiments.csproj" />
