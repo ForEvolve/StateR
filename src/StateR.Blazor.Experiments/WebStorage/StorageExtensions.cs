@@ -1,16 +1,17 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace StateR.Blazor.WebStorage;
 
 public static class StorageExtensions
 {
-    private static readonly JsonSerializerOptions _options = new(JsonSerializerDefaults.Web);
+    [NotNull]
+    internal static WebStorageOptions? WebStorageOptions { get; set; }
 
     public static void SetItem<T>(this IStorage storage, string keyName, T keyValue)
         where T : notnull
     {
         ArgumentNullException.ThrowIfNull(storage, nameof(storage));
-        var value = JsonSerializer.Serialize(keyValue, _options);
+        var value = WebStorageOptions.Serializer.Serialize(keyValue);
         storage.SetItem(keyName, value);
     }
 
@@ -22,14 +23,14 @@ public static class StorageExtensions
         {
             return default;
         }
-        var value = JsonSerializer.Deserialize<T>(rawValue, _options);
+        var value = WebStorageOptions.Serializer.Deserialize<T>(rawValue);
         return value;
     }
 
     public static async ValueTask SetItemAsync<T>(this IStorage storage, string keyName, T keyValue, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(storage, nameof(storage));
-        var value = JsonSerializer.Serialize(keyValue, _options);
+        var value = await WebStorageOptions.Serializer.SerializeAsync(keyValue, cancellationToken);
         await storage.SetItemAsync(keyName, value, cancellationToken);
     }
 
@@ -41,7 +42,7 @@ public static class StorageExtensions
         {
             return default;
         }
-        var value = JsonSerializer.Deserialize<T>(rawValue, _options);
+        var value = await WebStorageOptions.Serializer.DeserializeAsync<T>(rawValue, cancellationToken);
         return value;
     }
 }
