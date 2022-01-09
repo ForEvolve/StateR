@@ -9,6 +9,6 @@
 <p role="status">Current count: @CounterState.Current.Count</p>
 
 <button class="btn btn-primary" 
-    @onclick="@(async () => await DispatchAsync(new Features.Counter.Increment()))">+</button>
+    @onclick="() => DispatchAsync(new Features.Counter.Increment())">+</button>
 <button class="btn btn-primary" 
-    @onclick="@(async () => await DispatchAsync(new Features.Counter.Decrement()))">-</button>
+    @onclick="() => DispatchAsync(new Features.Counter.Decrement())">-</button>
