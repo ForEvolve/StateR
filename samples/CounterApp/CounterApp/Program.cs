@@ -47,8 +47,8 @@ public static class ProgramExtensions
             .AddReduxDevTools()
             .AddFluentValidation(appAssembly)
             .Apply(buidler => buidler
-                .AddPersistence(appAssembly)
-                .AddStateValidation(appAssembly)
+                .AddPersistence()
+                .AddStateValidation()
             )
         ;
         services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(sp.GetRequiredService<IWebAssemblyHostEnvironment>().BaseAddress) });

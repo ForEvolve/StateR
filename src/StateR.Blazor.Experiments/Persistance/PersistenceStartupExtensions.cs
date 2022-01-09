@@ -7,16 +7,9 @@ namespace StateR.Blazor.Persistance;
 
 public static class PersistenceStartupExtensions
 {
-    public static IStatorBuilder AddPersistence(this IStatorBuilder builder, params Assembly[] assembliesToScan)
+    public static IStatorBuilder AddPersistence(this IStatorBuilder builder)
     {
-        ArgumentNullException.ThrowIfNull(assembliesToScan, nameof(assembliesToScan));
-        if (assembliesToScan.Length == 0) { throw new ArgumentOutOfRangeException(nameof(assembliesToScan)); }
-
-        var states = assembliesToScan
-            .SelectMany(a => a.GetTypes())
-            .Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(StateBase)));
-        ;
-        foreach (var state in states)
+        foreach (var state in builder.States)
         {
             var persistAttribute = state.GetCustomAttribute<PersistAttribute>();
             if (persistAttribute == null)
