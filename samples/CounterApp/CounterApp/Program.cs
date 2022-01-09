@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using StateR;
 using StateR.AfterEffects;
+using StateR.Blazor.Persistance;
 using StateR.Blazor.ReduxDevTools;
 using StateR.Blazor.WebStorage;
 using StateR.Experiments.AsyncLogic;
@@ -45,9 +46,10 @@ public static class ProgramExtensions
             .AddAsyncOperations()
             .AddReduxDevTools()
             .AddFluentValidation(appAssembly)
-            .Apply()
-            .AddPersistence(appAssembly)
-            .AddStateValidation(appAssembly)
+            .Apply(buidler => buidler
+                .AddPersistence(appAssembly)
+                .AddStateValidation(appAssembly)
+            )
         ;
         services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(sp.GetRequiredService<IWebAssemblyHostEnvironment>().BaseAddress) });
     }

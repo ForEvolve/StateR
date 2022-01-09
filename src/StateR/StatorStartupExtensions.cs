@@ -41,7 +41,7 @@ public static class StatorStartupExtensions
         return builder.AddTypes(allTypes);
     }
 
-    public static IServiceCollection Apply(this IStatorBuilder builder)
+    public static IServiceCollection Apply(this IStatorBuilder builder, Action<IStatorBuilder>? postConfiguration = null)
     {
         // Extract types
         builder.ScanTypes();
@@ -138,6 +138,10 @@ public static class StatorStartupExtensions
                 Console.WriteLine($"- AddSingleton<{@interface.GetStatorName()}, {updater.GetStatorName()}>()");
             }
         }
+
+        // Run post-configuration
+        postConfiguration?.Invoke(builder);
+
         return builder.Services;
     }
 }

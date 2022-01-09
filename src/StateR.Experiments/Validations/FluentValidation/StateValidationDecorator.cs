@@ -51,7 +51,7 @@ public class StateValidationDecorator<TState> : IState<TState>
 
 public static class StateValidatorStartupExtensions
 {
-    public static IServiceCollection AddStateValidation(this IServiceCollection services, params Assembly[] assembliesToScan)
+    public static IStatorBuilder AddStateValidation(this IStatorBuilder builder, params Assembly[] assembliesToScan)
     {
         ArgumentNullException.ThrowIfNull(assembliesToScan, nameof(assembliesToScan));
         if (assembliesToScan.Length == 0) { throw new ArgumentOutOfRangeException(nameof(assembliesToScan)); }
@@ -59,9 +59,9 @@ public static class StateValidatorStartupExtensions
         var allTypes = assembliesToScan
             .SelectMany(a => a.GetTypes());
 
-        RegisterStateDecorator(services, allTypes);
-        ActionHandlerDecorator(services);
-        return services;
+        RegisterStateDecorator(builder.Services, allTypes);
+        ActionHandlerDecorator(builder.Services);
+        return builder;
     }
     private static void ActionHandlerDecorator(IServiceCollection services)
     {
