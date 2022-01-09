@@ -1,28 +1,30 @@
-﻿@using StateR.Validations.FluentValidation;
+﻿@using FluentValidation.Results
+@using StateR.Validations.FluentValidation;
 @inherits StatorComponent
 @inject IState<ValidationState> ValidationState
 
 @if (ValidationState.Current.HasErrors())
 {
-    <div class="alert alert-danger alert-dismissible" role="alert">
-        @if (ValidationState.Current.Errors.Count == 1)
-        {
-            @ValidationState.Current.Errors.First().ErrorMessage
-        }
-        else
-        {
-            <ul>
-                @foreach (var error in ValidationState.Current.Errors)
-                {
-                    <li>@error.ErrorMessage</li>
-                }
-            </ul>
-        }
-        <button type="button" class="btn-close" aria-label="Close" @onclick="Dismiss"></button>
-    </div>
+    if (ValidationState.Current.Errors.Count > 1)
+    {
+        <div class="d-grid justify-content-md-end">
+            <button type="button" class="btn btn-sm" aria-label="Close All" @onclick="DismissAll">Close All</button>
+        </div>
+    }
+    foreach (var error in ValidationState.Current.Errors)
+    {
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            @error.ErrorMessage
+            <button type="button" class="btn-close" aria-label="Close" @onclick="() => Dismiss(error)"></button>
+        </div>
+    }
 }
 @code{
-    private async Task Dismiss()
+    private async Task Dismiss(ValidationFailure validationFailure)
+    {
+        await DispatchAsync(new RemoveValidationError(validationFailure));
+    }
+    private async Task DismissAll()
     {
         await DispatchAsync(new CleanValidationError());
     }

@@ -15,7 +15,8 @@ public static class StartupExtensions
 
         // Validation action
         builder.AddTypes(new[] {
-            typeof(ReplaceValidationError),
+            typeof(AddValidationErrors),
+            typeof(ReplaceValidationErrors),
             typeof(ValidationUpdaters),
             typeof(ValidationInitialState),
             typeof(ValidationState),

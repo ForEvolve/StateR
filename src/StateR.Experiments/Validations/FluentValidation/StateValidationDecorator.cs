@@ -85,28 +85,6 @@ public static class StateValidatorStartupExtensions
     }
 }
 
-//public class ValidationExceptionActionHandlerDecorator<TAction> : IActionHandler<TAction>
-//    where TAction : IAction
-//{
-//    private readonly IActionHandler<TAction> _next;
-//    public ValidationExceptionActionHandlerDecorator(IActionHandler<TAction> next)
-//    {
-//        _next = next ?? throw new ArgumentNullException(nameof(next));
-//    }
-
-//    public async Task HandleAsync(IDispatchContext<TAction> context, CancellationToken cancellationToken)
-//    {
-//        try
-//        {
-//            await _next.HandleAsync(context, cancellationToken);
-//        }
-//        catch (ValidationException ex)
-//        {
-//            await context.Dispatcher.DispatchAsync(new ReplaceValidationError(ex.Errors), cancellationToken);
-//        }
-//    }
-//}
-
 public class ValidationExceptionActionHandlersManagerDecorator : IActionHandlersManager
 {
     private readonly IActionHandlersManager _next;
@@ -125,7 +103,7 @@ public class ValidationExceptionActionHandlersManagerDecorator : IActionHandlers
         catch (ValidationException ex)
         {
             await dispatchContext.Dispatcher.DispatchAsync(
-                new ReplaceValidationError(ex.Errors),
+                new AddValidationErrors(ex.Errors),
                 dispatchContext.CancellationToken
             );
         }

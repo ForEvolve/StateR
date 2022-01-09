@@ -24,7 +24,7 @@ public class ValidationInterceptor<TAction> : IInterceptor<TAction>
             var errors = result
                 .Where(validator => !validator.IsValid)
                 .SelectMany(validator => validator.Errors);
-            await context.Dispatcher.DispatchAsync(new ReplaceValidationError(errors), cancellationToken);
+            await context.Dispatcher.DispatchAsync(new AddValidationErrors(errors), cancellationToken);
             context.Cancel();
         }
     }
@@ -38,14 +38,24 @@ public class ValidationInitialState : IInitialState<ValidationState>
 {
     public ValidationState Value => new(ImmutableList.Create<ValidationFailure>());
 }
-public record class ReplaceValidationError(IEnumerable<ValidationFailure> Errors) : IAction;
+
+public record class AddValidationErrors(IEnumerable<ValidationFailure> Errors) : IAction;
+public record class ReplaceValidationErrors(IEnumerable<ValidationFailure> Errors) : IAction;
 public record class CleanValidationError() : IAction;
+public record class RemoveValidationError(ValidationFailure Error) : IAction;
 
-public class ValidationUpdaters : IUpdater<ReplaceValidationError, ValidationState>, IUpdater<CleanValidationError, ValidationState>
+public class ValidationUpdaters :
+    IUpdater<ReplaceValidationErrors, ValidationState>,
+    IUpdater<CleanValidationError, ValidationState>,
+    IUpdater<AddValidationErrors, ValidationState>,
+    IUpdater<RemoveValidationError, ValidationState>
 {
-    public ValidationState Update(ReplaceValidationError action, ValidationState state)
+    public ValidationState Update(ReplaceValidationErrors action, ValidationState state)
          => state with { Errors = ImmutableList.Create(action.Errors.ToArray()) };
-
     public ValidationState Update(CleanValidationError action, ValidationState state)
         => state with { Errors = ImmutableList.Create<ValidationFailure>() };
+    public ValidationState Update(AddValidationErrors action, ValidationState state)
+        => state with { Errors = state.Errors.AddRange(action.Errors) };
+    public ValidationState Update(RemoveValidationError action, ValidationState state)
+        => state with { Errors = state.Errors.Remove(action.Error) };
 }
