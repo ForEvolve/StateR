@@ -1,4 +1,3 @@
-using Blazored.SessionStorage;
 using CounterApp;
 using CounterApp.Features;
 using Microsoft.AspNetCore.Components.Web;
@@ -6,6 +5,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using StateR;
 using StateR.AfterEffects;
 using StateR.Blazor.ReduxDevTools;
+using StateR.Blazor.WebStorage;
 using StateR.Experiments.AsyncLogic;
 using StateR.Interceptors;
 using StateR.Validations.FluentValidation;
@@ -25,7 +25,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 //builder.Services.AddSingleton<IAfterEffects<Counter.SetPositive>, PersistenceMiddleware<Counter.State, Counter.SetPositive>>();
 
 builder.Services.RegisterServices();
-builder.Services.AddBlazoredSessionStorage(null, ServiceLifetime.Singleton);
+builder.Services.AddWebStorage();
 
 //builder.Services.Decorate<IInitialState<Counter.State>, InitialSessionStateDecorator<Counter.State>>();
 //IInitialState<Counter.State>

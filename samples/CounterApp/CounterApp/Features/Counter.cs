@@ -1,7 +1,7 @@
-﻿using Blazored.SessionStorage;
-using FluentValidation;
+﻿using FluentValidation;
 using StateR;
 using StateR.AfterEffects;
+using StateR.Blazor.WebStorage;
 using StateR.Interceptors;
 using StateR.Internal;
 using StateR.Updaters;
@@ -81,13 +81,14 @@ public enum PersistenceType
 public class SessionStateDecorator<TState> : IState<TState>
     where TState : StateBase
 {
-    private readonly ISyncSessionStorageService _sessionStorage;
+    private readonly IStorage _storage;
     private readonly IState<TState> _next;
     private readonly string _key;
 
-    public SessionStateDecorator(ISyncSessionStorageService sessionStorage, IState<TState> next)
+    public SessionStateDecorator(IWebStorage webStorage, IState<TState> next)
     {
-        _sessionStorage = sessionStorage ?? throw new ArgumentNullException(nameof(sessionStorage));
+        ArgumentNullException.ThrowIfNull(webStorage, nameof(webStorage));
+        _storage = webStorage.LocalStorage;
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _key = typeof(TState).GetStatorName();
     }
@@ -96,7 +97,7 @@ public class SessionStateDecorator<TState> : IState<TState>
     {
         _next.Set(state);
         Console.WriteLine($"[SessionStateDecorator][{_key}] Set: {state}.");
-        _sessionStorage.SetItem(_key, state);
+        _storage.SetItem(_key, state);
     }
 
     public TState Current => _next.Current;
@@ -110,13 +111,14 @@ public class SessionStateDecorator<TState> : IState<TState>
 public class InitialSessionStateDecorator<TState> : IInitialState<TState>
     where TState : StateBase
 {
-    private readonly ISyncSessionStorageService _sessionStorage;
+    private readonly IStorage _storage;
     private readonly IInitialState<TState> _next;
     private readonly string _key;
 
-    public InitialSessionStateDecorator(ISyncSessionStorageService sessionStorage, IInitialState<TState> next)
+    public InitialSessionStateDecorator(IWebStorage webStorage, IInitialState<TState> next)
     {
-        _sessionStorage = sessionStorage ?? throw new ArgumentNullException(nameof(sessionStorage));
+        ArgumentNullException.ThrowIfNull(webStorage, nameof(webStorage));
+        _storage = webStorage.LocalStorage;
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _key = typeof(TState).GetStatorName();
     }
@@ -125,7 +127,7 @@ public class InitialSessionStateDecorator<TState> : IInitialState<TState>
     {
         get
         {
-            var item = _sessionStorage.GetItem<TState>(_key);
+            var item = _storage.GetItem<TState>(_key);
             if (item == null)
             {
                 Console.WriteLine($"[InitialSessionStateDecorator][{_key}] Not item found in storage.");
