@@ -85,10 +85,9 @@ public class SessionStateDecorator<TState> : IState<TState>
     private readonly IState<TState> _next;
     private readonly string _key;
 
-    public SessionStateDecorator(IWebStorage webStorage, IState<TState> next)
+    public SessionStateDecorator(IStorage storage, IState<TState> next)
     {
-        ArgumentNullException.ThrowIfNull(webStorage, nameof(webStorage));
-        _storage = webStorage.LocalStorage;
+        _storage = storage ?? throw new ArgumentNullException(nameof(storage));
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _key = typeof(TState).GetStatorName();
     }
@@ -115,10 +114,9 @@ public class InitialSessionStateDecorator<TState> : IInitialState<TState>
     private readonly IInitialState<TState> _next;
     private readonly string _key;
 
-    public InitialSessionStateDecorator(IWebStorage webStorage, IInitialState<TState> next)
+    public InitialSessionStateDecorator(IStorage storage, IInitialState<TState> next)
     {
-        ArgumentNullException.ThrowIfNull(webStorage, nameof(webStorage));
-        _storage = webStorage.LocalStorage;
+        _storage = storage ?? throw new ArgumentNullException(nameof(storage));
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _key = typeof(TState).GetStatorName();
     }
