@@ -6,7 +6,7 @@ using StateR;
 using StateR.AfterEffects;
 using StateR.Blazor.Persistance;
 using StateR.Blazor.ReduxDevTools;
-using StateR.Blazor.WebStorage;
+using ForEvolve.Blazor.WebStorage;
 using StateR.Experiments.AsyncLogic;
 using StateR.Interceptors;
 using StateR.Validations.FluentValidation;
