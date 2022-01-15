@@ -13,7 +13,14 @@ public class Store : IStore
         _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
     }
 
-    public Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken = default) where TAction : IAction
+    public Task DispatchAsync<TAction, TState>(TAction action, CancellationToken cancellationToken = default)
+        where TAction : IAction<TState>
+        where TState : StateBase
+    {
+        return _dispatcher.DispatchAsync<TAction, TState>(action, cancellationToken);
+    }
+
+    public Task DispatchAsync(object action, CancellationToken cancellationToken)
     {
         return _dispatcher.DispatchAsync(action, cancellationToken);
     }

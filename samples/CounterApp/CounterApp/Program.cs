@@ -1,15 +1,12 @@
 using CounterApp;
-using CounterApp.Features;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using StateR;
-using StateR.AfterEffects;
-using StateR.Blazor.Persistance;
-using StateR.Blazor.ReduxDevTools;
+//using StateR.Blazor.Persistance;
+//using StateR.Blazor.ReduxDevTools;
 using ForEvolve.Blazor.WebStorage;
-using StateR.Experiments.AsyncLogic;
-using StateR.Interceptors;
-using StateR.Validations.FluentValidation;
+//using StateR.Experiments.AsyncLogic;
+//using StateR.Validations.FluentValidation;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -43,13 +40,13 @@ public static class ProgramExtensions
         var appAssembly = typeof(App).Assembly;
         services
             .AddStateR(appAssembly)
-            .AddAsyncOperations()
-            .AddReduxDevTools()
-            .AddFluentValidation(appAssembly)
-            .Apply(buidler => buidler
+            //.AddAsyncOperations()
+            //.AddReduxDevTools()
+            //.AddFluentValidation(appAssembly)
+            .Apply(/*buidler => buidler
                 .AddPersistence()
                 .AddStateValidation()
-            )
+            */)
         ;
         services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(sp.GetRequiredService<IWebAssemblyHostEnvironment>().BaseAddress) });
     }

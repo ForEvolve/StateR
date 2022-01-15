@@ -2,6 +2,7 @@
 
 public interface IDispatchManager
 {
-    Task DispatchAsync<TAction>(IDispatchContext<TAction> dispatchContext)
-        where TAction : IAction;
+    Task DispatchAsync<TAction, TState>(IDispatchContext<TAction, TState> dispatchContext)
+        where TAction : IAction<TState>
+        where TState : StateBase;
 }

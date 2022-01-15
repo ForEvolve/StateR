@@ -10,7 +10,7 @@ public class UpdaterActionHandlerTest
     private readonly Mock<IState<TestState>> _stateMock = new();
     private readonly List<IUpdater<TestAction, TestState>> _updaters = new();
     private readonly Mock<IUpdateHooksCollection> _hooksMock = new();
-    private readonly UpdaterActionHandler<TestState, TestAction> sut;
+    private readonly UpdaterMiddleware<TestState, TestAction> sut;
     private readonly Queue<string> _operationQueue = new();
     private readonly TestAction _action = new();
     private readonly DispatchContext<TestAction> _context;

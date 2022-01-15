@@ -2,5 +2,7 @@
 
 public interface IDispatchContextFactory
 {
-    IDispatchContext<TAction> Create<TAction>(TAction action, IDispatcher dispatcher, CancellationTokenSource cancellationTokenSource) where TAction : IAction;
+    IDispatchContext<TAction, TState> Create<TAction, TState>(TAction action, IDispatcher dispatcher, CancellationTokenSource cancellationTokenSource)
+        where TAction : IAction<TState>
+        where TState : StateBase;
 }

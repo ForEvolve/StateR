@@ -18,4 +18,8 @@ public interface IStatorBuilder
     IStatorBuilder AddActions(IEnumerable<Type> states);
     IStatorBuilder AddUpdaters(IEnumerable<Type> states);
     IStatorBuilder AddActionHandlers(IEnumerable<Type> types);
+
+    IStatorBuilder AddMiddlewares(IEnumerable<Type> types);
+    List<Type> Middlewares { get; }
+
 }

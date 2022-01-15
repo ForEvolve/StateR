@@ -1,3 +1,3 @@
 ﻿namespace StateR;
 
-public interface IAction { }
+public interface IAction<TState> where TState : StateBase { }

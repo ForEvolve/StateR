@@ -1,44 +1,58 @@
 ﻿using Microsoft.Extensions.Logging;
-using StateR.ActionHandlers;
-using StateR.AfterEffects;
-using StateR.Interceptors;
+using StateR.Pipeline;
 using System;
 
 namespace StateR;
 
 public class Dispatcher : IDispatcher
 {
-    private readonly IInterceptorsManager _interceptorsManager;
-    private readonly IActionHandlersManager _actionHandlersManager;
-    private readonly IAfterEffectsManager _afterEffectsManager;
     private readonly IDispatchContextFactory _dispatchContextFactory;
+    private readonly IActionFilterFactory _actionFilterFactory;
     private readonly ILogger _logger;
 
-    public Dispatcher(IDispatchContextFactory dispatchContextFactory, IInterceptorsManager interceptorsManager, IActionHandlersManager actionHandlersManager, IAfterEffectsManager afterEffectsManager, ILogger<Dispatcher> logger)
+    public Dispatcher(IDispatchContextFactory dispatchContextFactory, IActionFilterFactory actionFilterFactory, ILogger<Dispatcher> logger)
     {
         _dispatchContextFactory = dispatchContextFactory ?? throw new ArgumentNullException(nameof(dispatchContextFactory));
-        _interceptorsManager = interceptorsManager ?? throw new ArgumentNullException(nameof(interceptorsManager));
-        _actionHandlersManager = actionHandlersManager ?? throw new ArgumentNullException(nameof(actionHandlersManager));
-        _afterEffectsManager = afterEffectsManager ?? throw new ArgumentNullException(nameof(afterEffectsManager));
+        _actionFilterFactory = actionFilterFactory ?? throw new ArgumentNullException(nameof(actionFilterFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken) where TAction : IAction
+    public async Task DispatchAsync<TAction, TState>(TAction action, CancellationToken cancellationToken)
+        where TAction : IAction<TState>
+        where TState : StateBase
     {
         using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        var dispatchContext = _dispatchContextFactory.Create(action, this, cancellationTokenSource);
-        //
-        // TODO: design how to handle OperationCanceledException
-        //
+        var dispatchContext = _dispatchContextFactory.Create<TAction, TState>(action, this, cancellationTokenSource);
+        var actionFilter = _actionFilterFactory.Create(dispatchContext);
         try
         {
-            await _interceptorsManager.DispatchAsync(dispatchContext);
-            await _actionHandlersManager.DispatchAsync(dispatchContext);
-            await _afterEffectsManager.DispatchAsync(dispatchContext);
+            await actionFilter.InvokeAsync(dispatchContext, null, cancellationToken);
         }
         catch (DispatchCancelledException ex)
         {
             _logger.LogWarning(ex, ex.Message);
         }
+    }
+
+    public Task DispatchAsync(object action, CancellationToken cancellationToken)
+    {
+        var actionType = action
+            .GetType();
+        var actionInterface = actionType.GetInterfaces()
+            .FirstOrDefault(@interface => @interface.IsGenericType && @interface.GetGenericTypeDefinition() == typeof(IAction<>));
+        if (actionInterface == null)
+        {
+            // TODO: Find a better exception
+            throw new InvalidOperationException($"The action must implement the {typeof(IAction<>).Name} interface.");
+        }
+        var stateType = actionInterface.GetGenericArguments()[0];
+        var method = GetType().GetMethods().FirstOrDefault(m => m.IsGenericMethod && m.Name == nameof(DispatchAsync));
+        if(method == null)
+        {
+            throw new MissingMethodException(nameof(Dispatcher), nameof(DispatchAsync));
+        }
+        var genericMethod = method.MakeGenericMethod(actionType, stateType);
+        var task = genericMethod.Invoke(this, new[] { action, cancellationToken });
+        return (Task)task!;
     }
 }

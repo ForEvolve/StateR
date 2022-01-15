@@ -29,6 +29,10 @@ public class StatorBuilder : IStatorBuilder
     public List<Type> Updaters { get; } = new List<Type>();
     public List<Type> All { get; } = new List<Type>();
 
+    public IStatorBuilder AddMiddlewares(IEnumerable<Type> types)
+        => AddDistinctTypes(Middlewares, types);
+    public List<Type> Middlewares { get; } = new List<Type>();
+
     private IStatorBuilder AddDistinctTypes(List<Type> list, IEnumerable<Type> types)
     {
         var distinctTypes = types.Except(list).Distinct();

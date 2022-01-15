@@ -1,4 +1,4 @@
-﻿using StateR.ActionHandlers;
+﻿using StateR.Pipeline;
 using StateR.Updaters;
 using System.Reflection;
 
@@ -17,7 +17,7 @@ public static class TypeScannerBuilderExtensions
         var updaters = TypeScanner.FindUpdaters(builder.All);
         builder.AddUpdaters(updaters);
 
-        var actionHandlers = TypeScanner.FindActionHandlers(builder.All);
+        var actionHandlers = TypeScanner.FindMiddlewares(builder.All);
         builder.AddUpdaters(actionHandlers);
 
         return builder;
@@ -38,7 +38,7 @@ public static class TypeScanner
             .Where(type => !type.IsAbstract && type
             .GetTypeInfo()
             .GetInterfaces()
-            .Any(i => i == typeof(IAction))
+            .Any(i => i == typeof(IAction<>))
         );
         return actions;
     }
@@ -53,34 +53,14 @@ public static class TypeScanner
         );
         return updaters;
     }
-    public static IEnumerable<Type> FindActionHandlers(IEnumerable<Type> types)
+    public static IEnumerable<Type> FindMiddlewares(IEnumerable<Type> types)
     {
         var handlers = types
             .Where(type => !type.IsAbstract && type
             .GetTypeInfo()
             .GetInterfaces()
-            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IActionHandler<>))
+            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IActionFilter<,>))
         );
         return handlers;
     }
-
-    //public IStatorBuilder FindInterceptors(this IStatorBuilder builder)
-    //{
-    //    var iActionInterceptor = typeof(IInterceptor<>);
-    //    return types.Where(type => !type.IsAbstract && type
-    //        .GetTypeInfo()
-    //        .GetInterfaces()
-    //        .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == iActionInterceptor)
-    //    );
-    //}
-
-    //public IStatorBuilder FindAfterEffects(this IStatorBuilder builder)
-    //{
-    //    var iAfterEffects = typeof(IAfterEffects<>);
-    //    return types.Where(type => !type.IsAbstract && type
-    //        .GetTypeInfo()
-    //        .GetInterfaces()
-    //        .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == iAfterEffects)
-    //    );
-    //}
 }
