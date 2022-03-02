@@ -1,10 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using StateR.ActionHandlers;
 using StateR.Internal;
-using System;
-using System.Reflection;
 
 namespace StateR.Validations.FluentValidation;
 
@@ -54,15 +51,16 @@ public static class StateValidatorStartupExtensions
     public static IStatorBuilder AddStateValidation(this IStatorBuilder builder)
     {
         RegisterStateDecorator(builder.Services, builder.All);
-        ActionHandlerDecorator(builder.Services);
+        //ActionHandlerDecorator(builder.Services);
         return builder;
     }
-    private static void ActionHandlerDecorator(IServiceCollection services)
-    {
-        Console.WriteLine("- Decorate<IActionHandlersManager>, ValidationExceptionActionHandlersManagerDecorator>()");
-        services.Decorate<IActionHandlersManager, ValidationExceptionActionHandlersManagerDecorator>();
 
-    }
+    //private static void ActionHandlerDecorator(IServiceCollection services)
+    //{
+    //    Console.WriteLine("- Decorate<IActionHandlersManager>, ValidationExceptionActionHandlersManagerDecorator>()");
+    //    services.Decorate<IActionHandlersManager, ValidationExceptionActionHandlersManagerDecorator>();
+    //}
+
     private static void RegisterStateDecorator(IServiceCollection services, IEnumerable<Type> types)
     {
         var states = TypeScanner.FindStates(types);
@@ -79,27 +77,27 @@ public static class StateValidatorStartupExtensions
     }
 }
 
-public class ValidationExceptionActionHandlersManagerDecorator : IActionHandlersManager
-{
-    private readonly IActionHandlersManager _next;
-    public ValidationExceptionActionHandlersManagerDecorator(IActionHandlersManager next)
-    {
-        _next = next ?? throw new ArgumentNullException(nameof(next));
-    }
+//public class ValidationExceptionActionHandlersManagerDecorator : IActionFilter
+//{
+//    private readonly IActionHandlersManager _next;
+//    public ValidationExceptionActionHandlersManagerDecorator(IActionHandlersManager next)
+//    {
+//        _next = next ?? throw new ArgumentNullException(nameof(next));
+//    }
 
-    public async Task DispatchAsync<TAction>(IDispatchContext<TAction> dispatchContext)
-        where TAction : IAction
-    {
-        try
-        {
-            await _next.DispatchAsync(dispatchContext);
-        }
-        catch (ValidationException ex)
-        {
-            await dispatchContext.Dispatcher.DispatchAsync(
-                new AddValidationErrors(ex.Errors),
-                dispatchContext.CancellationToken
-            );
-        }
-    }
-}
+//    public async Task DispatchAsync<TAction>(IDispatchContext<TAction> dispatchContext)
+//        where TAction : IAction
+//    {
+//        try
+//        {
+//            await _next.DispatchAsync(dispatchContext);
+//        }
+//        catch (ValidationException ex)
+//        {
+//            await dispatchContext.Dispatcher.DispatchAsync(
+//                new AddValidationErrors(ex.Errors),
+//                dispatchContext.CancellationToken
+//            );
+//        }
+//    }
+//}

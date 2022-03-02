@@ -1,4 +1,4 @@
-﻿//using FluentValidation;
+﻿using FluentValidation;
 using StateR;
 //using StateR.Blazor.Persistance;
 using StateR.Updaters;
@@ -32,28 +32,28 @@ public class Counter
             => state with { Count = action.Count };
     }
 
-    //public class SetPositiveValidator : AbstractValidator<SetPositive>
-    //{
-    //    public SetPositiveValidator()
-    //    {
-    //        RuleFor(x => x.Count).GreaterThan(0);
-    //    }
-    //}
+    public class SetPositiveValidator : AbstractValidator<SetPositive>
+    {
+        public SetPositiveValidator()
+        {
+            RuleFor(x => x.Count).GreaterThan(0);
+        }
+    }
 
-    //public class SetNegativeValidator : AbstractValidator<SetNegative>
-    //{
-    //    public SetNegativeValidator()
-    //    {
-    //        RuleFor(x => x.Count).LessThan(0);
-    //    }
-    //}
+    public class SetNegativeValidator : AbstractValidator<SetNegative>
+    {
+        public SetNegativeValidator()
+        {
+            RuleFor(x => x.Count).LessThan(0);
+        }
+    }
 
-    //public class StateValidator : AbstractValidator<State>
-    //{
-    //    public StateValidator()
-    //    {
-    //        RuleFor(x => x.Count).GreaterThan(-100);
-    //        RuleFor(x => x.Count).LessThan(100);
-    //    }
-    //}
+    public class StateValidator : AbstractValidator<State>
+    {
+        public StateValidator()
+        {
+            RuleFor(x => x.Count).GreaterThan(-100);
+            RuleFor(x => x.Count).LessThan(100);
+        }
+    }
 }

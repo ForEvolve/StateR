@@ -28,12 +28,17 @@ public static class StatorStartupExtensions
         return new StatorBuilder(services);
     }
 
-    public static IStatorBuilder AddStateR(this IServiceCollection services, params Assembly[] assembliesToScan)
+    public static IStatorBuilder AddStateR(this IServiceCollection services, params Assembly[] assembliesToScanForStates)
     {
         var builder = services.AddStateR();
-        var allTypes = assembliesToScan
+        var allTypes = assembliesToScanForStates
             .SelectMany(a => a.GetTypes());
-        return builder.AddTypes(allTypes);
+        //builder.AddTypes(allTypes);
+
+        var states = TypeScanner.FindStates(allTypes);
+        builder.AddStates(states);
+
+        return builder;
     }
 
     //public static IStatorBuilder AddMiddleware(this IStatorBuilder builder)
@@ -43,6 +48,8 @@ public static class StatorStartupExtensions
 
     public static IServiceCollection Apply(this IStatorBuilder builder, Action<IStatorBuilder>? postConfiguration = null)
     {
+        return builder.Services;
+
         // Extract types
         builder.ScanTypes();
 

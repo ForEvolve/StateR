@@ -22,4 +22,11 @@ public interface IStatorBuilder
     IStatorBuilder AddMiddlewares(IEnumerable<Type> types);
     List<Type> Middlewares { get; }
 
+
+    IStatorBuilder AddState<TState>()
+        where TState : StateBase;
+
+    //IStatorBuilder AddAction<TAction, TState>()
+    //    where TState : StateBase
+    //    where TAction : IAction<TState>;
 }

@@ -6,7 +6,7 @@ using StateR;
 //using StateR.Blazor.ReduxDevTools;
 using ForEvolve.Blazor.WebStorage;
 //using StateR.Experiments.AsyncLogic;
-//using StateR.Validations.FluentValidation;
+using StateR.Validations.FluentValidation;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -42,11 +42,11 @@ public static class ProgramExtensions
             .AddStateR(appAssembly)
             //.AddAsyncOperations()
             //.AddReduxDevTools()
-            //.AddFluentValidation(appAssembly)
-            .Apply(/*buidler => buidler
-                .AddPersistence()
+            .AddFluentValidation(appAssembly)
+            .Apply(buidler => buidler
+                //.AddPersistence()
                 .AddStateValidation()
-            */)
+            )
         ;
         services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(sp.GetRequiredService<IWebAssemblyHostEnvironment>().BaseAddress) });
     }

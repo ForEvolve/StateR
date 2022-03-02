@@ -6,7 +6,7 @@ public class AsyncError
 {
     public record State : StateBase
     {
-        public IAction? Action { get; init; }
+        public IAction<State>? Action { get; init; }
         public AsyncState? InitialState { get; init; }
         public AsyncState? ActualState { get; init; }
         public Exception? Exception { get; init; }
@@ -21,7 +21,7 @@ public class AsyncError
         public State Value => new();
     }
 
-    public record Occured(IAction Action, AsyncState InitialState, AsyncState ActualState, Exception Exception) : IAction;
+    public record Occured(IAction<State> Action, AsyncState InitialState, AsyncState ActualState, Exception Exception) : IAction<State>;
 
     public class Updaters : IUpdater<Occured, State>
     {

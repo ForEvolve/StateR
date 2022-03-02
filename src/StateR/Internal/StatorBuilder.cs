@@ -39,4 +39,10 @@ public class StatorBuilder : IStatorBuilder
         list.AddRange(distinctTypes);
         return this;
     }
+
+    public IStatorBuilder AddState<TState>() where TState : StateBase
+    {
+        States.Add(typeof(TState));
+        return this;
+    }
 }

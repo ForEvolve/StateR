@@ -20,10 +20,12 @@ public static class StartupExtensions
             typeof(ValidationUpdaters),
             typeof(ValidationInitialState),
             typeof(ValidationState),
+            typeof(ValidationFilter<,>),
         });
+        builder.AddMiddlewares(new[] { typeof(ValidationFilter<,>) });
 
         // Validation interceptor and state
-        builder.Services.TryAddSingleton(typeof(IActionFilter<,>), typeof(ValidationInterceptor<>));
+        builder.Services.TryAddSingleton(typeof(IActionFilter<,>), typeof(ValidationFilter<,>));
 
         // Scan for validators
         builder.Services.AddValidatorsFromAssemblies(assembliesToScan, ServiceLifetime.Singleton);
