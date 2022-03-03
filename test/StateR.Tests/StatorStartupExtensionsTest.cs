@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using StateR.Internal;
+using StateR.Pipeline;
+using StateR.Updaters;
 using System;
 using Xunit;
 namespace StateR;
@@ -43,6 +45,26 @@ public class StatorStartupExtensionsTest
             sp.GetRequiredService<IState<TestState1>>();
             sp.GetRequiredService<IState<TestState2>>();
             sp.GetRequiredService<IState<TestState3>>();
+        }
+
+        [Fact]
+        public void Should_add_IUpdater_and_IActionFilter_to_the_ServiceCollection()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            var sut = new StatorBuilder(services)
+                .AddState<TestState1, InitialTestState1>()
+                .AddAction<TestAction1, TestState1>()
+                .AddUpdater<TestUpdaters, TestAction1, TestState1>()
+            ;
+
+            // Act
+            sut.Apply();
+
+            // Assert
+            var sp = services.BuildServiceProvider();
+            sp.GetRequiredService<IUpdater<TestAction1, TestState1>>();
+            sp.GetRequiredService<IActionFilter<TestAction1, TestState1>>();
         }
     }
 }

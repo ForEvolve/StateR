@@ -1,4 +1,6 @@
-﻿namespace StateR;
+﻿using StateR.Updaters;
+
+namespace StateR;
 
 public record class TestState1 : StateBase;
 public record class TestState2 : StateBase;
@@ -19,7 +21,14 @@ public record class InitialTestState3 : IInitialState<TestState3>
 
 public class NotAState { }
 public class NotAnAction { }
+public class NotAnUpdater { }
 
 public record TestAction1 : IAction<TestState1>;
 public record TestAction2 : IAction<TestState2>;
 public record TestAction3 : IAction<TestState3>;
+
+public class TestUpdaters : IUpdater<TestAction1, TestState1>
+{
+    public TestState1 Update(TestAction1 action, TestState1 state)
+        => new();
+}

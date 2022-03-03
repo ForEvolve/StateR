@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using StateR.Updaters;
 using System.Collections.ObjectModel;
 
 namespace StateR.Internal;
@@ -8,6 +9,7 @@ public class StatorBuilder : IStatorBuilder
     private readonly List<Type> _states = new();
     private readonly List<Type> _initialStates = new();
     private readonly List<Type> _actions = new();
+    private readonly List<Type> _updaters = new();
 
     public StatorBuilder(IServiceCollection services)
     {
@@ -24,7 +26,7 @@ public class StatorBuilder : IStatorBuilder
     public IStatorBuilder AddActions(IEnumerable<Type> types)
         => AddDistinctTypes(_actions, types);
     public IStatorBuilder AddUpdaters(IEnumerable<Type> types)
-        => AddDistinctTypes(Updaters, types);
+        => AddDistinctTypes(_updaters, types);
     public IStatorBuilder AddActionHandlers(IEnumerable<Type> types)
         => AddDistinctTypes(ActionHandlers, types);
 
@@ -32,7 +34,6 @@ public class StatorBuilder : IStatorBuilder
     public List<Type> Interceptors { get; } = new List<Type>();
     public List<Type> ActionHandlers { get; } = new List<Type>();
     public List<Type> AfterEffects { get; } = new List<Type>();
-    public List<Type> Updaters { get; } = new List<Type>();
     public List<Type> All { get; } = new List<Type>();
 
     public IStatorBuilder AddMiddlewares(IEnumerable<Type> types)
@@ -51,6 +52,7 @@ public class StatorBuilder : IStatorBuilder
     public ReadOnlyCollection<Type> States => new(_states);
     public ReadOnlyCollection<Type> InitialStates => new(_initialStates);
     public ReadOnlyCollection<Type> Actions => new(_actions);
+    public ReadOnlyCollection<Type> Updaters => new(_updaters);
 
     public IStatorBuilder AddState<TState, TInitialState>()
         where TState : StateBase
@@ -93,6 +95,25 @@ public class StatorBuilder : IStatorBuilder
         return this;
     }
 
+    public IStatorBuilder AddUpdater<TUpdater, TAction, TState>()
+        where TUpdater : IUpdater<TAction, TState>
+        where TAction : IAction<TState>
+        where TState : StateBase
+    {
+        _updaters.Add(typeof(TUpdater));
+        return this;
+    }
+
+    public IStatorBuilder AddUpdater(Type updaterType)
+    {
+        if(!IsUpdater(updaterType))
+        {
+            throw new InvalidUpdaterException(updaterType);
+        }
+        _updaters.Add(updaterType);
+        return this;
+    }
+
     private static readonly Type _iActionType = typeof(IAction<>);
     private static bool IsAction(Type actionType)
     {
@@ -100,6 +121,15 @@ public class StatorBuilder : IStatorBuilder
             .Count(i => i.IsGenericType && i.GetGenericTypeDefinition() == _iActionType);
         return interfaces > 0;
     }
+
+    private static readonly Type _iUpdaterType = typeof(IUpdater<,>);
+    private static bool IsUpdater(Type updaterType)
+    {
+        var interfaces = updaterType.GetInterfaces()
+            .Count(i => i.IsGenericType && i.GetGenericTypeDefinition() == _iUpdaterType);
+        return interfaces > 0;
+    }
+
 }
 
 public class InvalidStateException : Exception
@@ -128,10 +158,21 @@ public class InvalidInitialStateException : Exception
 public class InvalidActionException : Exception
 {
     public InvalidActionException(Type actionType)
-        : base($"The type {actionType.Name} is not a valid IAction<T>.")
+        : base($"The type {actionType.Name} is not a valid IAction<TState>.")
     {
         ActionType = actionType;
     }
 
     public Type ActionType { get; }
+}
+
+public class InvalidUpdaterException : Exception
+{
+    public InvalidUpdaterException(Type updaterType)
+        : base($"The type {updaterType.Name} is not a valid IUpdater<TAction, TState>.")
+    {
+        UpdaterType = updaterType;
+    }
+
+    public Type UpdaterType { get; }
 }

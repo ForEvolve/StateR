@@ -126,6 +126,62 @@ public class StatorBuilderTest
         }
     }
 
+    public class AddUpdater_TUpdater_TAction_TState
+    {
+        [Fact]
+        public void Should_add_TUpdater_to_Updaters()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            var sut = new StatorBuilder(services);
+
+            // Act
+            sut.AddUpdater<TestUpdaters, TestAction1, TestState1>();
+
+            // Assert
+            Assert.Collection(sut.Updaters,
+                type => Assert.Equal(typeof(TestUpdaters), type)
+            );
+        }
+    }
+
+    public class AddUpdater_Type
+    {
+        [Fact]
+        public void Should_add_updaterType_to_Updaters()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            var sut = new StatorBuilder(services);
+            var updaterType = typeof(TestUpdaters);
+
+            // Act
+            sut.AddUpdater(updaterType);
+
+            // Assert
+            Assert.Collection(sut.Updaters,
+                type => Assert.Same(updaterType, type)
+            );
+        }
+
+        [Theory]
+        [InlineData(typeof(NotAnUpdater))]
+        public void Should_throw_an_InvalidUpdaterException_when_updaterType_is_invalid(Type updaterType)
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            var sut = new StatorBuilder(services);
+
+            // Act & Assert
+            var ex = Assert.Throws<InvalidUpdaterException>(() => sut.AddUpdater(updaterType));
+            Assert.Same(updaterType, ex.UpdaterType);
+        }
+
+        //where TUpdater : IUpdater<TAction, TState>
+        //where TAction : IAction<TState>
+        //where TState : StateBase
+
+    }
 
     public class AddTypes : StatorBuilderTest
     {

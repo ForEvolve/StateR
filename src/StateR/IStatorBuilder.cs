@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using StateR.Updaters;
 using System.Collections.ObjectModel;
 
 namespace StateR;
@@ -9,6 +10,7 @@ public interface IStatorBuilder : IOldStatorBuilder
     ReadOnlyCollection<Type> States { get; }
     ReadOnlyCollection<Type> InitialStates { get; }
     ReadOnlyCollection<Type> Actions { get; }
+    ReadOnlyCollection<Type> Updaters { get; }
 
     IStatorBuilder AddState<TState, TInitialState>()
         where TState : StateBase
@@ -19,6 +21,12 @@ public interface IStatorBuilder : IOldStatorBuilder
         where TAction : IAction<TState>
         where TState : StateBase;
     IStatorBuilder AddAction(Type actionType);
+
+    IStatorBuilder AddUpdater<TUpdater, TAction, TState>()
+        where TUpdater : IUpdater<TAction, TState>
+        where TAction : IAction<TState>
+        where TState : StateBase;
+    IStatorBuilder AddUpdater(Type updaterType);
 }
 
 public interface IOldStatorBuilder
@@ -26,7 +34,6 @@ public interface IOldStatorBuilder
     //List<Type> Interceptors { get; }
     List<Type> ActionHandlers { get; }
     //List<Type> AfterEffects { get; }
-    List<Type> Updaters { get; }
     List<Type> All { get; }
 
     IStatorBuilder AddTypes(IEnumerable<Type> types);

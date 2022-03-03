@@ -69,6 +69,32 @@ public static class StatorStartupExtensions
             .WithSingletonLifetime()
         );
 
+        // Register Updaters and their respective IActionFilter
+        var iUpdaterType = typeof(IUpdater<,>);
+        var updaterHandler = typeof(UpdaterMiddleware<,>);
+        var handlerType = typeof(IActionFilter<,>);
+        foreach (var updater in builder.Updaters)
+        {
+            Console.WriteLine($"updater: {updater.FullName}");
+            var interfaces = updater.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == iUpdaterType);
+            foreach (var @interface in interfaces)
+            {
+                // Equivalent to: AddSingleton<IActionFilter<TAction>, UpdaterMiddleware<TState, TAction>>
+                var actionType = @interface.GenericTypeArguments[0];
+                var stateType = @interface.GenericTypeArguments[1];
+                var iMiddlewareServiceType = handlerType.MakeGenericType(actionType, stateType);
+                var updaterMiddlewareImplementationType = updaterHandler.MakeGenericType(stateType, actionType);
+                builder.Services.AddSingleton(iMiddlewareServiceType, updaterMiddlewareImplementationType);
+
+                // Equivalent to: AddSingleton<IUpdater<TState, TAction>, Updater>();
+                builder.Services.AddSingleton(@interface, updater);
+
+                Console.WriteLine($"- AddSingleton<{iMiddlewareServiceType.GetStatorName()}, {updaterMiddlewareImplementationType.GetStatorName()}>()");
+                Console.WriteLine($"- AddSingleton<{@interface.GetStatorName()}, {updater.GetStatorName()}>()");
+            }
+        }
+
 
         return builder.Services;
 
@@ -142,31 +168,31 @@ public static class StatorStartupExtensions
             builder.Services.AddSingleton(stateServiceType, stateImplementationType);
         }
 
-        // Register Updaters and their respective IMiddleware
-        var iUpdaterType = typeof(IUpdater<,>);
-        var updaterHandler = typeof(UpdaterMiddleware<,>);
-        var handlerType = typeof(IActionFilter<,>);
-        foreach (var updater in builder.Updaters)
-        {
-            Console.WriteLine($"updater: {updater.FullName}");
-            var interfaces = updater.GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == iUpdaterType);
-            foreach (var @interface in interfaces)
-            {
-                // Equivalent to: AddSingleton<IActionFilter<TAction>, UpdaterMiddleware<TState, TAction>>
-                var actionType = @interface.GenericTypeArguments[0];
-                var stateType = @interface.GenericTypeArguments[1];
-                var iMiddlewareServiceType = handlerType.MakeGenericType(actionType, stateType);
-                var updaterMiddlewareImplementationType = updaterHandler.MakeGenericType(stateType, actionType);
-                builder.Services.AddSingleton(iMiddlewareServiceType, updaterMiddlewareImplementationType);
+        //// Register Updaters and their respective IMiddleware
+        //var iUpdaterType = typeof(IUpdater<,>);
+        //var updaterHandler = typeof(UpdaterMiddleware<,>);
+        //var handlerType = typeof(IActionFilter<,>);
+        //foreach (var updater in builder.Updaters)
+        //{
+        //    Console.WriteLine($"updater: {updater.FullName}");
+        //    var interfaces = updater.GetInterfaces()
+        //        .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == iUpdaterType);
+        //    foreach (var @interface in interfaces)
+        //    {
+        //        // Equivalent to: AddSingleton<IActionFilter<TAction>, UpdaterMiddleware<TState, TAction>>
+        //        var actionType = @interface.GenericTypeArguments[0];
+        //        var stateType = @interface.GenericTypeArguments[1];
+        //        var iMiddlewareServiceType = handlerType.MakeGenericType(actionType, stateType);
+        //        var updaterMiddlewareImplementationType = updaterHandler.MakeGenericType(stateType, actionType);
+        //        builder.Services.AddSingleton(iMiddlewareServiceType, updaterMiddlewareImplementationType);
 
-                // Equivalent to: AddSingleton<IUpdater<TState, TAction>, Updater>();
-                builder.Services.AddSingleton(@interface, updater);
+        //        // Equivalent to: AddSingleton<IUpdater<TState, TAction>, Updater>();
+        //        builder.Services.AddSingleton(@interface, updater);
 
-                Console.WriteLine($"- AddSingleton<{iMiddlewareServiceType.GetStatorName()}, {updaterMiddlewareImplementationType.GetStatorName()}>()");
-                Console.WriteLine($"- AddSingleton<{@interface.GetStatorName()}, {updater.GetStatorName()}>()");
-            }
-        }
+        //        Console.WriteLine($"- AddSingleton<{iMiddlewareServiceType.GetStatorName()}, {updaterMiddlewareImplementationType.GetStatorName()}>()");
+        //        Console.WriteLine($"- AddSingleton<{@interface.GetStatorName()}, {updater.GetStatorName()}>()");
+        //    }
+        //}
 
         // Register Middleware
         foreach (var middleware in builder.Middlewares.AsEnumerable().Reverse())
