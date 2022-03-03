@@ -77,14 +77,6 @@ public class StatorBuilder : IStatorBuilder
         return this;
     }
 
-    //public IStatorBuilder AddAction<TAction, TState>()
-    //    where TAction : IAction<TState>
-    //    where TState : StateBase
-    //{
-    //    _actions.Add(typeof(TAction));
-    //    return this;
-    //}
-
     public IStatorBuilder AddAction(Type actionType)
     {
         if(!IsAction(actionType))
@@ -94,15 +86,6 @@ public class StatorBuilder : IStatorBuilder
         _actions.Add(actionType);
         return this;
     }
-
-    //public IStatorBuilder AddUpdater<TUpdater, TAction, TState>()
-    //    where TUpdater : IUpdater<TAction, TState>
-    //    where TAction : IAction<TState>
-    //    where TState : StateBase
-    //{
-    //    _updaters.Add(typeof(TUpdater));
-    //    return this;
-    //}
 
     public IStatorBuilder AddUpdaters(Type updaterType)
     {

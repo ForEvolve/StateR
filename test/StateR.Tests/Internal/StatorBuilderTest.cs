@@ -74,25 +74,6 @@ public class StatorBuilderTest
         }
     }
 
-    //public class AddAction_TAction_TState
-    //{
-    //    [Fact]
-    //    public void Should_add_TAction_to_Actions()
-    //    {
-    //        // Arrange
-    //        var services = new ServiceCollection();
-    //        var sut = new StatorBuilder(services);
-
-    //        // Act
-    //        sut.AddAction<TestAction1, TestState1>();
-
-    //        // Assert
-    //        Assert.Collection(sut.Actions,
-    //            type => Assert.Equal(typeof(TestAction1), type)
-    //        );
-    //    }
-    //}
-
     public class AddAction_Type
     {
         [Fact]
@@ -126,25 +107,6 @@ public class StatorBuilderTest
         }
     }
 
-    //public class AddUpdater_TUpdater_TAction_TState
-    //{
-    //    [Fact]
-    //    public void Should_add_TUpdater_to_Updaters()
-    //    {
-    //        // Arrange
-    //        var services = new ServiceCollection();
-    //        var sut = new StatorBuilder(services);
-
-    //        // Act
-    //        sut.AddUpdater<TestUpdaters, TestAction1, TestState1>();
-
-    //        // Assert
-    //        Assert.Collection(sut.Updaters,
-    //            type => Assert.Equal(typeof(TestUpdaters), type)
-    //        );
-    //    }
-    //}
-
     public class AddUpdaters_Type
     {
         [Fact]
@@ -176,11 +138,6 @@ public class StatorBuilderTest
             var ex = Assert.Throws<InvalidUpdaterException>(() => sut.AddUpdaters(updaterType));
             Assert.Same(updaterType, ex.UpdaterType);
         }
-
-        //where TUpdater : IUpdater<TAction, TState>
-        //where TAction : IAction<TState>
-        //where TState : StateBase
-
     }
 
     public class AddTypes : StatorBuilderTest
