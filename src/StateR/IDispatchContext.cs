@@ -1,7 +1,8 @@
 ﻿namespace StateR;
 
-public interface IDispatchContext<TAction>
-    where TAction : IAction
+public interface IDispatchContext<TAction, TState>
+    where TAction : IAction<TState>
+    where TState : StateBase
 {
     IDispatcher Dispatcher { get; }
     TAction Action { get; }

@@ -1,4 +1,4 @@
-﻿@using FluentValidation.Results
+﻿@*@using FluentValidation.Results
 @using StateR.Validations.FluentValidation;
 @inherits StatorComponent
 @inject IState<ValidationState> ValidationState
@@ -29,3 +29,4 @@
         await DispatchAsync(new CleanValidationError());
     }
 }
+*@

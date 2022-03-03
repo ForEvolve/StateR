@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using StateR.Interceptors;
+using StateR.Pipeline;
 using System.Reflection;
 
 namespace StateR.Validations.FluentValidation;
@@ -13,17 +13,16 @@ public static class StartupExtensions
         ArgumentNullException.ThrowIfNull(builder, nameof(builder));
         ArgumentNullException.ThrowIfNull(assembliesToScan, nameof(assembliesToScan));
 
-        // Validation action
-        builder.AddTypes(new[] {
-            typeof(AddValidationErrors),
-            typeof(ReplaceValidationErrors),
-            typeof(ValidationUpdaters),
-            typeof(ValidationInitialState),
-            typeof(ValidationState),
-        });
+        // Add state, actions, and updaters
+        builder
+            .AddState<ValidationState, ValidationInitialState>()
+            .AddAction(typeof(AddValidationErrors))
+            .AddAction(typeof(ReplaceValidationErrors))
+            .AddUpdaters(typeof(ValidationUpdaters))
+        ;
 
-        // Validation interceptor and state
-        builder.Services.TryAddSingleton(typeof(IInterceptor<>), typeof(ValidationInterceptor<>));
+        // Validation interceptor
+        builder.Services.TryAddSingleton(typeof(IActionFilter<,>), typeof(ValidationFilter<,>));
 
         // Scan for validators
         builder.Services.AddValidatorsFromAssemblies(assembliesToScan, ServiceLifetime.Singleton);

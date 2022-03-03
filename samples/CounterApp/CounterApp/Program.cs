@@ -1,14 +1,11 @@
 using CounterApp;
-using CounterApp.Features;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using StateR;
-using StateR.AfterEffects;
-using StateR.Blazor.Persistance;
-using StateR.Blazor.ReduxDevTools;
+//using StateR.Blazor.Persistance;
+//using StateR.Blazor.ReduxDevTools;
 using ForEvolve.Blazor.WebStorage;
-using StateR.Experiments.AsyncLogic;
-using StateR.Interceptors;
+//using StateR.Experiments.AsyncLogic;
 using StateR.Validations.FluentValidation;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -42,12 +39,21 @@ public static class ProgramExtensions
     {
         var appAssembly = typeof(App).Assembly;
         services
-            .AddStateR(appAssembly)
-            .AddAsyncOperations()
-            .AddReduxDevTools()
+            .AddStateR()
+
+            // TODO: scan for types instead
+            .AddState<CounterApp.Features.Counter.State, CounterApp.Features.Counter.InitialState>()
+            .AddAction(typeof(CounterApp.Features.Counter.Increment))
+            .AddAction(typeof(CounterApp.Features.Counter.Decrement))
+            .AddAction(typeof(CounterApp.Features.Counter.SetPositive))
+            .AddAction(typeof(CounterApp.Features.Counter.SetNegative))
+            .AddUpdaters(typeof(CounterApp.Features.Counter.Updaters))
+
+            //.AddAsyncOperations()
+            //.AddReduxDevTools()
             .AddFluentValidation(appAssembly)
             .Apply(buidler => buidler
-                .AddPersistence()
+                //.AddPersistence()
                 .AddStateValidation()
             )
         ;

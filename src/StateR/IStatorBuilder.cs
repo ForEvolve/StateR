@@ -1,21 +1,23 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Collections.ObjectModel;
 
 namespace StateR;
 
 public interface IStatorBuilder
 {
     IServiceCollection Services { get; }
-    List<Type> Actions { get; }
-    List<Type> States { get; }
-    //List<Type> Interceptors { get; }
-    List<Type> ActionHandlers { get; }
-    //List<Type> AfterEffects { get; }
-    List<Type> Updaters { get; }
-    List<Type> All { get; }
+    ReadOnlyCollection<Type> States { get; }
+    ReadOnlyCollection<Type> InitialStates { get; }
+    ReadOnlyCollection<Type> Actions { get; }
+    ReadOnlyCollection<Type> Updaters { get; }
+    ReadOnlyCollection<Type> ActionFilters { get; }
 
-    IStatorBuilder AddTypes(IEnumerable<Type> types);
-    IStatorBuilder AddStates(IEnumerable<Type> states);
-    IStatorBuilder AddActions(IEnumerable<Type> states);
-    IStatorBuilder AddUpdaters(IEnumerable<Type> states);
-    IStatorBuilder AddActionHandlers(IEnumerable<Type> types);
+    IStatorBuilder AddState<TState, TInitialState>()
+        where TState : StateBase
+        where TInitialState : IInitialState<TState>;
+    IStatorBuilder AddState(Type state, Type initialState);
+
+    IStatorBuilder AddAction(Type actionType);
+    IStatorBuilder AddUpdaters(Type updaterType);
+    IStatorBuilder AddActionFilter(Type actionFilterType);
 }

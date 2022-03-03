@@ -5,14 +5,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\WeatherForecast.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Features\WeatherForecast.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ForEvolve.Blazor.WebStorage" Version="0.2.5-gc839ff00f3" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.1" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\StateR.Blazor.Experiments\StateR.Blazor.Experiments.csproj" />
     <ProjectReference Include="..\..\..\src\StateR.Blazor\StateR.Blazor.csproj" />
     <ProjectReference Include="..\..\..\src\StateR.Experiments\StateR.Experiments.csproj" />
+    <ProjectReference Include="..\..\..\src\StateR.Microsoft.Extensions.DependencyInjection\StateR.Microsoft.Extensions.DependencyInjection.csproj" />
   </ItemGroup>
 
 </Project>

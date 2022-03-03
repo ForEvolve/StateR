@@ -1,7 +1,5 @@
 ﻿using StateR;
-using StateR.AfterEffects;
 using StateR.AsyncLogic;
-using StateR.Interceptors;
 using StateR.Internal;
 using StateR.Updaters;
 using System.Collections.Immutable;
@@ -37,13 +35,13 @@ public class WeatherForecast
             => state with { Status = AsyncOperationStatus.Idle, Forecasts = ImmutableList.Create<Forecast>() };
     }
 
-    public class ReloadEffect : IAfterEffects<Reload>
-    {
-        public async Task HandleAfterEffectAsync(IDispatchContext<Reload> context, CancellationToken cancellationToken)
-        {
-            await context.Dispatcher.DispatchAsync(new Fetch(), cancellationToken);
-        }
-    }
+    //public class ReloadEffect : IAfterEffects<Reload>
+    //{
+    //    public async Task HandleAfterEffectAsync(IDispatchContext<Reload> context, CancellationToken cancellationToken)
+    //    {
+    //        await context.Dispatcher.DispatchAsync(new Fetch(), cancellationToken);
+    //    }
+    //}
 
     public class FetchOperation : AsyncOperation<Fetch, State, Fetched>
     {
@@ -61,12 +59,12 @@ public class WeatherForecast
         }
     }
 
-    public class Delays : IInterceptor<StatusUpdated<State>>
-    {
-        public async Task InterceptAsync(IDispatchContext<StatusUpdated<State>> context, CancellationToken cancellationToken)
-        {
-            Console.WriteLine($"{context.Action.GetType().GetStatorName()}: {context.Action.status}");
-            await Task.Delay(2000, cancellationToken);
-        }
-    }
+    //public class Delays : IInterceptor<StatusUpdated<State>>
+    //{
+    //    public async Task InterceptAsync(IDispatchContext<StatusUpdated<State>> context, CancellationToken cancellationToken)
+    //    {
+    //        Console.WriteLine($"{context.Action.GetType().GetStatorName()}: {context.Action.status}");
+    //        await Task.Delay(2000, cancellationToken);
+    //    }
+    //}
 }

@@ -1,7 +1,8 @@
 ﻿namespace StateR;
 
-public class DispatchContext<TAction> : IDispatchContext<TAction>
-    where TAction : IAction
+public class DispatchContext<TAction, TState> : IDispatchContext<TAction, TState>
+    where TAction : IAction<TState>
+    where TState : StateBase
 {
     private readonly CancellationTokenSource _cancellationTokenSource;
     public DispatchContext(TAction action, IDispatcher dispatcher, CancellationTokenSource cancellationTokenSource)
@@ -16,12 +17,11 @@ public class DispatchContext<TAction> : IDispatchContext<TAction>
     public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
     public void Cancel()
-        => throw new DispatchCancelledException(Action);
-        //=> _cancellationTokenSource.Cancel(true);
+        => throw new DispatchCancelledException(Action.GetType());
 }
 
 public class DispatchCancelledException : Exception
 {
-    public DispatchCancelledException(IAction action)
-        : base($"The dispatch operation '{action.GetType().FullName}' has been cancelled.") { }
+    public DispatchCancelledException(Type actionType)
+        : base($"The dispatch operation '{actionType.FullName}' has been cancelled.") { }
 }

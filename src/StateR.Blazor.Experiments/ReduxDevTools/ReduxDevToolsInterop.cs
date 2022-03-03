@@ -1,7 +1,6 @@
 ﻿using Microsoft.JSInterop;
 using StateR.Internal;
 using StateR.Updaters;
-using StateR.Updaters.Hooks;
 using System.Collections;
 using System.Reflection;
 using System.Text.Json;

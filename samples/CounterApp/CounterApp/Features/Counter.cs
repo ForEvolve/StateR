@@ -1,19 +1,13 @@
 ﻿using FluentValidation;
 using StateR;
-using StateR.AfterEffects;
-using StateR.Blazor.Persistance;
-using ForEvolve.Blazor.WebStorage;
-using StateR.Interceptors;
-using StateR.Internal;
+//using StateR.Blazor.Persistance;
 using StateR.Updaters;
-using System;
-using System.Reflection;
 
 namespace CounterApp.Features;
 
 public class Counter
 {
-    [Persist]
+    //[Persist]
     public record class State(int Count) : StateBase;
 
     public class InitialState : IInitialState<State>
@@ -21,10 +15,10 @@ public class Counter
         public State Value => new(0);
     }
 
-    public record class Increment : IAction;
-    public record class Decrement : IAction;
-    public record class SetPositive(int Count) : IAction;
-    public record class SetNegative(int Count) : IAction;
+    public record class Increment : IAction<State>;
+    public record class Decrement : IAction<State>;
+    public record class SetPositive(int Count) : IAction<State>;
+    public record class SetNegative(int Count) : IAction<State>;
     
     public class Updaters : IUpdater<Increment, State>, IUpdater<Decrement, State>, IUpdater<SetPositive, State>, IUpdater<SetNegative, State>
     {

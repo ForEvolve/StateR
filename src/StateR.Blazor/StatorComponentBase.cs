@@ -10,11 +10,19 @@ public abstract class StatorComponentBase : ComponentBase, IDisposable
     [Inject]
     public IDispatcher? Dispatcher { get; set; }
 
-    protected virtual async Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken = default)
-        where TAction : IAction
+    protected virtual async Task DispatchAsync(object action, CancellationToken cancellationToken = default)
     {
         GuardAgainstNullDispatcher();
         await Dispatcher.DispatchAsync(action, cancellationToken);
+    }
+
+
+    protected virtual async Task DispatchAsync<TAction, TState>(TAction action, CancellationToken cancellationToken = default)
+        where TAction : IAction<TState>
+        where TState : StateBase
+    {
+        GuardAgainstNullDispatcher();
+        await Dispatcher.DispatchAsync<TAction, TState>(action, cancellationToken);
     }
 
     private void Dispose(bool disposing)
