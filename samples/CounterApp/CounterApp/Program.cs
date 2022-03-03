@@ -40,6 +40,15 @@ public static class ProgramExtensions
         var appAssembly = typeof(App).Assembly;
         services
             .AddStateR()
+
+            // TODO: scan for types instead
+            .AddState<CounterApp.Features.Counter.State, CounterApp.Features.Counter.InitialState>()
+            .AddAction(typeof(CounterApp.Features.Counter.Increment))
+            .AddAction(typeof(CounterApp.Features.Counter.Decrement))
+            .AddAction(typeof(CounterApp.Features.Counter.SetPositive))
+            .AddAction(typeof(CounterApp.Features.Counter.SetNegative))
+            .AddUpdaters(typeof(CounterApp.Features.Counter.Updaters))
+
             //.AddAsyncOperations()
             //.AddReduxDevTools()
             .AddFluentValidation(appAssembly)

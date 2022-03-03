@@ -18,7 +18,7 @@ public class ValidationFilter<TAction, TState> : IActionFilter<TAction, TState>
 
     public async Task InvokeAsync(IDispatchContext<TAction, TState> context, ActionDelegate<TAction, TState>? next, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(next, nameof(next));
+        ArgumentNullException.ThrowIfNull(next);
 
         var result = _validators
             .Select(validator => validator.Validate(context.Action));
@@ -36,6 +36,7 @@ public class ValidationFilter<TAction, TState> : IActionFilter<TAction, TState>
         }
         catch (ValidationException ex)
         {
+            Console.WriteLine(ex.Message);
             await context.Dispatcher.DispatchAsync(
                 new AddValidationErrors(ex.Errors),
                 context.CancellationToken

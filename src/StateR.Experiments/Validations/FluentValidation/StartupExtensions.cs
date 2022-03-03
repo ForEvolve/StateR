@@ -13,18 +13,15 @@ public static class StartupExtensions
         ArgumentNullException.ThrowIfNull(builder, nameof(builder));
         ArgumentNullException.ThrowIfNull(assembliesToScan, nameof(assembliesToScan));
 
-        // Validation action
-        builder.AddTypes(new[] {
-            typeof(AddValidationErrors),
-            typeof(ReplaceValidationErrors),
-            typeof(ValidationUpdaters),
-            typeof(ValidationInitialState),
-            typeof(ValidationState),
-            typeof(ValidationFilter<,>),
-        });
-        builder.AddMiddlewares(new[] { typeof(ValidationFilter<,>) });
+        // Add state, actions, and updaters
+        builder
+            .AddState<ValidationState, ValidationInitialState>()
+            .AddAction(typeof(AddValidationErrors))
+            .AddAction(typeof(ReplaceValidationErrors))
+            .AddUpdaters(typeof(ValidationUpdaters))
+        ;
 
-        // Validation interceptor and state
+        // Validation interceptor
         builder.Services.TryAddSingleton(typeof(IActionFilter<,>), typeof(ValidationFilter<,>));
 
         // Scan for validators

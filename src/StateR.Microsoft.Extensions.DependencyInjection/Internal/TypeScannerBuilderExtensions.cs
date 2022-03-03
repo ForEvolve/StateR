@@ -4,25 +4,25 @@ using System.Reflection;
 
 namespace StateR.Internal;
 
-public static class TypeScannerBuilderExtensions
-{
-    public static IStatorBuilder ScanTypes(this IStatorBuilder builder)
-    {
-        var states = TypeScanner.FindStates(builder.All);
-        builder.AddStates(states);
+//public static class TypeScannerBuilderExtensions
+//{
+//    public static IStatorBuilder ScanTypes(this IStatorBuilder builder)
+//    {
+//        var states = TypeScanner.FindStates(builder.All);
+//        builder.AddStates(states);
 
-        var actions = TypeScanner.FindActions(builder.All);
-        builder.AddActions(actions);
+//        var actions = TypeScanner.FindActions(builder.All);
+//        builder.AddActions(actions);
 
-        var updaters = TypeScanner.FindUpdaters(builder.All);
-        builder.AddUpdaters(updaters);
+//        var updaters = TypeScanner.FindUpdaters(builder.All);
+//        builder.AddUpdaters(updaters);
 
-        var actionHandlers = TypeScanner.FindMiddlewares(builder.All);
-        builder.AddUpdaters(actionHandlers);
+//        var actionHandlers = TypeScanner.FindMiddlewares(builder.All);
+//        builder.AddUpdaters(actionHandlers);
 
-        return builder;
-    }
-}
+//        return builder;
+//    }
+//}
 public static class TypeScanner
 {
     public static IEnumerable<Type> FindStates(IEnumerable<Type> types)

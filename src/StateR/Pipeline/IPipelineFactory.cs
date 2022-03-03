@@ -1,5 +1,7 @@
 ﻿
 using Microsoft.Extensions.DependencyInjection;
+using StateR.Internal;
+
 namespace StateR.Pipeline;
 
 public interface IPipelineFactory
@@ -29,6 +31,7 @@ public class PipelineFactory : IPipelineFactory
         ActionDelegate<TAction, TState> MakeDelegate(IActionFilter<TAction, TState> filter)
         {
             var hasNext = enumerator.MoveNext();
+            Console.WriteLine($"ActionDelegate: {filter.GetType().GetStatorName()}");
             return new((a, s) => filter.InvokeAsync(a, hasNext ? MakeDelegate(enumerator.Current) : null, s));
         }
     }
