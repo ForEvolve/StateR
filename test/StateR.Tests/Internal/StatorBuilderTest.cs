@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using Xunit;
 
 namespace StateR.Internal;
@@ -58,34 +59,73 @@ public class StatorBuilderTest
             Assert.Same(stateType, ex.StateType);
         }
 
-        [Fact]
-        public void Should_throw_an_InvalidInitialStateException_when_the_initialState_does_not_implement_IInitialState()
+        [Theory]
+        [InlineData(typeof(TestState1), typeof(InitialTestState2))]
+        [InlineData(typeof(TestState1), typeof(NotAState))]
+        public void Should_throw_an_InvalidInitialStateException_when_the_initialState_is_invalid(Type stateType, Type initialStateType)
         {
             // Arrange
             var services = new ServiceCollection();
             var sut = new StatorBuilder(services);
-            var stateType = typeof(TestState1);
-            var initialStateType = typeof(NotAState);
-
-            // Act & Assert
-            var ex = Assert.Throws<InvalidInitialStateException>(() => sut.AddState(stateType, initialStateType));
-            Assert.Same(initialStateType, ex.InitialStateType);
-        }
-
-        [Fact]
-        public void Should_throw_an_InvalidInitialStateException_when_the_initialState_does_not_initialize_state()
-        {
-            // Arrange
-            var services = new ServiceCollection();
-            var sut = new StatorBuilder(services);
-            var stateType = typeof(TestState1);
-            var initialStateType = typeof(InitialTestState2);
 
             // Act & Assert
             var ex = Assert.Throws<InvalidInitialStateException>(() => sut.AddState(stateType, initialStateType));
             Assert.Same(initialStateType, ex.InitialStateType);
         }
     }
+
+    public class AddAction_TAction_TState
+    {
+        [Fact]
+        public void Should_add_TAction_to_Actions()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            var sut = new StatorBuilder(services);
+
+            // Act
+            sut.AddAction<TestAction1, TestState1>();
+
+            // Assert
+            Assert.Collection(sut.Actions,
+                type => Assert.Equal(typeof(TestAction1), type)
+            );
+        }
+    }
+
+    public class AddAction_Type
+    {
+        [Fact]
+        public void Should_add_TAction_to_Actions()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            var sut = new StatorBuilder(services);
+            var actionType = typeof(TestAction1);
+
+            // Act
+            sut.AddAction(actionType);
+
+            // Assert
+            Assert.Collection(sut.Actions,
+                type => Assert.Same(actionType, type)
+            );
+        }
+
+        [Theory]
+        [InlineData(typeof(NotAnAction))]
+        public void Should_throw_an_InvalidActionException_when_actionType_is_invalid(Type actionType)
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            var sut = new StatorBuilder(services);
+
+            // Act & Assert
+            var ex = Assert.Throws<InvalidActionException>(() => sut.AddAction(actionType));
+            Assert.Same(actionType, ex.ActionType);
+        }
+    }
+
 
     public class AddTypes : StatorBuilderTest
     {

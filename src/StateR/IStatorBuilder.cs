@@ -8,16 +8,21 @@ public interface IStatorBuilder : IOldStatorBuilder
     IServiceCollection Services { get; }
     ReadOnlyCollection<Type> States { get; }
     ReadOnlyCollection<Type> InitialStates { get; }
+    ReadOnlyCollection<Type> Actions { get; }
 
     IStatorBuilder AddState<TState, TInitialState>()
         where TState : StateBase
         where TInitialState : IInitialState<TState>;
     IStatorBuilder AddState(Type state, Type initialState);
+
+    IStatorBuilder AddAction<TAction, TState>()
+        where TAction : IAction<TState>
+        where TState : StateBase;
+    IStatorBuilder AddAction(Type actionType);
 }
 
 public interface IOldStatorBuilder
 {
-    List<Type> Actions { get; }
     //List<Type> Interceptors { get; }
     List<Type> ActionHandlers { get; }
     //List<Type> AfterEffects { get; }

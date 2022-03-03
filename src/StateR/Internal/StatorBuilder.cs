@@ -7,6 +7,7 @@ public class StatorBuilder : IStatorBuilder
 {
     private readonly List<Type> _states = new();
     private readonly List<Type> _initialStates = new();
+    private readonly List<Type> _actions = new();
 
     public StatorBuilder(IServiceCollection services)
     {
@@ -21,14 +22,13 @@ public class StatorBuilder : IStatorBuilder
     public IStatorBuilder AddStates(IEnumerable<Type> types)
         => AddDistinctTypes(_states, types);
     public IStatorBuilder AddActions(IEnumerable<Type> types)
-        => AddDistinctTypes(Actions, types);
+        => AddDistinctTypes(_actions, types);
     public IStatorBuilder AddUpdaters(IEnumerable<Type> types)
         => AddDistinctTypes(Updaters, types);
     public IStatorBuilder AddActionHandlers(IEnumerable<Type> types)
         => AddDistinctTypes(ActionHandlers, types);
 
     public IServiceCollection Services { get; }
-    public List<Type> Actions { get; } = new List<Type>();
     public List<Type> Interceptors { get; } = new List<Type>();
     public List<Type> ActionHandlers { get; } = new List<Type>();
     public List<Type> AfterEffects { get; } = new List<Type>();
@@ -50,6 +50,7 @@ public class StatorBuilder : IStatorBuilder
 
     public ReadOnlyCollection<Type> States => new(_states);
     public ReadOnlyCollection<Type> InitialStates => new(_initialStates);
+    public ReadOnlyCollection<Type> Actions => new(_actions);
 
     public IStatorBuilder AddState<TState, TInitialState>()
         where TState : StateBase
@@ -72,6 +73,32 @@ public class StatorBuilder : IStatorBuilder
         }
         _states.Add(state);
         return this;
+    }
+
+    public IStatorBuilder AddAction<TAction, TState>()
+        where TAction : IAction<TState>
+        where TState : StateBase
+    {
+        _actions.Add(typeof(TAction));
+        return this;
+    }
+
+    public IStatorBuilder AddAction(Type actionType)
+    {
+        if(!IsAction(actionType))
+        {
+            throw new InvalidActionException(actionType);
+        }
+        _actions.Add(actionType);
+        return this;
+    }
+
+    private static readonly Type _iActionType = typeof(IAction<>);
+    private static bool IsAction(Type actionType)
+    {
+        var interfaces = actionType.GetInterfaces()
+            .Count(i => i.IsGenericType && i.GetGenericTypeDefinition() == _iActionType);
+        return interfaces > 0;
     }
 }
 
@@ -96,4 +123,15 @@ public class InvalidInitialStateException : Exception
 
     public Type StateType { get; }
     public Type InitialStateType { get; }
+}
+
+public class InvalidActionException : Exception
+{
+    public InvalidActionException(Type actionType)
+        : base($"The type {actionType.Name} is not a valid IAction<T>.")
+    {
+        ActionType = actionType;
+    }
+
+    public Type ActionType { get; }
 }

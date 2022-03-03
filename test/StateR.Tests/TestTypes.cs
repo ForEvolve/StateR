@@ -18,3 +18,8 @@ public record class InitialTestState3 : IInitialState<TestState3>
 }
 
 public class NotAState { }
+public class NotAnAction { }
+
+public record TestAction1 : IAction<TestState1>;
+public record TestAction2 : IAction<TestState2>;
+public record TestAction3 : IAction<TestState3>;
