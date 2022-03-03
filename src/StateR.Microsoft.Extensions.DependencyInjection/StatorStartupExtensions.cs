@@ -28,18 +28,18 @@ public static class StatorStartupExtensions
         return new StatorBuilder(services);
     }
 
-    public static IStatorBuilder AddStateR(this IServiceCollection services, params Assembly[] assembliesToScanForStates)
-    {
-        var builder = services.AddStateR();
-        var allTypes = assembliesToScanForStates
-            .SelectMany(a => a.GetTypes());
-        //builder.AddTypes(allTypes);
+    //public static IStatorBuilder AddStateR(this IServiceCollection services, params Assembly[] assembliesToScanForStates)
+    //{
+    //    var builder = services.AddStateR();
+    //    var allTypes = assembliesToScanForStates
+    //        .SelectMany(a => a.GetTypes());
+    //    //builder.AddTypes(allTypes);
 
-        var states = TypeScanner.FindStates(allTypes);
-        builder.AddStates(states);
+    //    var states = TypeScanner.FindStates(allTypes);
+    //    builder.AddStates(states);
 
-        return builder;
-    }
+    //    return builder;
+    //}
 
     //public static IStatorBuilder AddMiddleware(this IStatorBuilder builder)
     //{

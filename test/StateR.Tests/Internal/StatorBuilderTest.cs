@@ -77,7 +77,7 @@ public class StatorBuilderTest
         }
     }
 
-    public class AddAction_Type
+    public class AddAction : StatorBuilderTest
     {
         [Fact]
         public void Should_add_TAction_to_Actions()
@@ -110,7 +110,7 @@ public class StatorBuilderTest
         }
     }
 
-    public class AddUpdaters_Type
+    public class AddUpdaters : StatorBuilderTest
     {
         [Fact]
         public void Should_add_updaterType_to_Updaters()
@@ -140,6 +140,39 @@ public class StatorBuilderTest
             // Act & Assert
             var ex = Assert.Throws<InvalidUpdaterException>(() => sut.AddUpdaters(updaterType));
             Assert.Same(updaterType, ex.UpdaterType);
+        }
+    }
+
+    public class AddActionFilter : StatorBuilderTest
+    {
+        [Fact]
+        public void Should_add_actionFilterType_to_ActionFilters()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            var sut = new StatorBuilder(services);
+            var actionFilterType = typeof(TestActionFilter);
+
+            // Act
+            sut.AddActionFilter(actionFilterType);
+
+            // Assert
+            Assert.Collection(sut.ActionFilters,
+                type => Assert.Same(actionFilterType, type)
+            );
+        }
+
+        [Theory]
+        [InlineData(typeof(NotAnActionFilter))]
+        public void Should_throw_an_InvalidActionFilterException_when_actionFilterType_is_invalid(Type actionFilterType)
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            var sut = new StatorBuilder(services);
+
+            // Act & Assert
+            var ex = Assert.Throws<InvalidActionFilterException>(() => sut.AddActionFilter(actionFilterType));
+            Assert.Same(actionFilterType, ex.ActionFilterType);
         }
     }
 

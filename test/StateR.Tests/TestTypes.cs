@@ -1,4 +1,5 @@
-﻿using StateR.Updaters;
+﻿using StateR.Pipeline;
+using StateR.Updaters;
 
 namespace StateR;
 
@@ -22,11 +23,24 @@ public record class InitialTestState3 : IInitialState<TestState3>
 public class NotAState { }
 public class NotAnAction { }
 public class NotAnUpdater { }
+public class NotAnActionFilter { }
 
 public record TestAction1 : IAction<TestState1>;
+public record TestAction2 : IAction<TestState2>;
 
 public class TestUpdaters : IUpdater<TestAction1, TestState1>
 {
     public TestState1 Update(TestAction1 action, TestState1 state)
         => new();
+}
+
+public class TestActionFilter : IActionFilter<TestAction2, TestState2>
+{
+    public Task InvokeAsync(
+        IDispatchContext<TestAction2, TestState2> context,
+        ActionDelegate<TestAction2, TestState2> next,
+        CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
 }

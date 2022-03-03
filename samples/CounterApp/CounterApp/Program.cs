@@ -39,7 +39,7 @@ public static class ProgramExtensions
     {
         var appAssembly = typeof(App).Assembly;
         services
-            .AddStateR(appAssembly)
+            .AddStateR()
             //.AddAsyncOperations()
             //.AddReduxDevTools()
             .AddFluentValidation(appAssembly)

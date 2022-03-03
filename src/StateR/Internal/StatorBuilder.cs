@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using StateR.Pipeline;
 using StateR.Updaters;
 using System.Collections.ObjectModel;
 
@@ -10,6 +11,7 @@ public class StatorBuilder : IStatorBuilder
     private readonly List<Type> _initialStates = new();
     private readonly List<Type> _actions = new();
     private readonly List<Type> _updaters = new();
+    private readonly List<Type> _actionFilters = new();
 
     public StatorBuilder(IServiceCollection services)
     {
@@ -53,6 +55,7 @@ public class StatorBuilder : IStatorBuilder
     public ReadOnlyCollection<Type> InitialStates => new(_initialStates);
     public ReadOnlyCollection<Type> Actions => new(_actions);
     public ReadOnlyCollection<Type> Updaters => new(_updaters);
+    public ReadOnlyCollection<Type> ActionFilters => new(_actionFilters);
 
     public IStatorBuilder AddState<TState, TInitialState>()
         where TState : StateBase
@@ -80,7 +83,7 @@ public class StatorBuilder : IStatorBuilder
 
     public IStatorBuilder AddAction(Type actionType)
     {
-        if(!IsAction(actionType))
+        if (!IsAction(actionType))
         {
             throw new InvalidActionException(actionType);
         }
@@ -90,7 +93,7 @@ public class StatorBuilder : IStatorBuilder
 
     public IStatorBuilder AddUpdaters(Type updaterType)
     {
-        if(!IsUpdater(updaterType))
+        if (!IsUpdater(updaterType))
         {
             throw new InvalidUpdaterException(updaterType);
         }
@@ -98,22 +101,29 @@ public class StatorBuilder : IStatorBuilder
         return this;
     }
 
-    private static readonly Type _iActionType = typeof(IAction<>);
+    public IStatorBuilder AddActionFilter(Type actionFilterType)
+    {
+        if (!IsActionFilter(actionFilterType))
+        {
+            throw new InvalidActionFilterException(actionFilterType);
+        }
+        _actionFilters.Add(actionFilterType);
+        return this;
+    }
+
     private static bool IsAction(Type actionType)
-    {
-        var interfaces = actionType.GetInterfaces()
-            .Count(i => i.IsGenericType && i.GetGenericTypeDefinition() == _iActionType);
-        return interfaces > 0;
-    }
-
-    private static readonly Type _iUpdaterType = typeof(IUpdater<,>);
+        => HasGenericInterface(actionType, typeof(IAction<>));
     private static bool IsUpdater(Type updaterType)
+        => HasGenericInterface(updaterType, typeof(IUpdater<,>));
+    private static bool IsActionFilter(Type actionFilterType)
+        => HasGenericInterface(actionFilterType, typeof(IActionFilter<,>));
+
+    private static bool HasGenericInterface(Type type, Type interfaceType)
     {
-        var interfaces = updaterType.GetInterfaces()
-            .Count(i => i.IsGenericType && i.GetGenericTypeDefinition() == _iUpdaterType);
+        var interfaces = type.GetInterfaces()
+            .Count(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType);
         return interfaces > 0;
     }
-
 }
 
 public class InvalidStateException : Exception
@@ -159,4 +169,15 @@ public class InvalidUpdaterException : Exception
     }
 
     public Type UpdaterType { get; }
+}
+
+public class InvalidActionFilterException : Exception
+{
+    public InvalidActionFilterException(Type actionFilterType)
+        : base($"The type {actionFilterType.Name} is not a valid IActionFilter<TAction, TState>.")
+    {
+        ActionFilterType = actionFilterType;
+    }
+
+    public Type ActionFilterType { get; }
 }
