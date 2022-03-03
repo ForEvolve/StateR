@@ -32,6 +32,17 @@ public static class TypeScanner
         return states;
     }
 
+    public static IEnumerable<Type> FindInitialStates(IEnumerable<Type> types)
+    {
+        var initialStates = types
+            .Where(type => !type.IsAbstract && type
+            .GetTypeInfo()
+            .GetInterfaces()
+            .Any(i => i == typeof(IInitialState<>))
+        );
+        return initialStates;
+    }
+
     public static IEnumerable<Type> FindActions(IEnumerable<Type> types)
     {
         var actions = types

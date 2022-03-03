@@ -118,7 +118,7 @@ public class StatorBuilderTest
             // Arrange
             var services = new ServiceCollection();
             var sut = new StatorBuilder(services);
-            var updaterType = typeof(TestUpdaters);
+            var updaterType = typeof(TestUpdater1);
 
             // Act
             sut.AddUpdaters(updaterType);
@@ -151,7 +151,7 @@ public class StatorBuilderTest
             // Arrange
             var services = new ServiceCollection();
             var sut = new StatorBuilder(services);
-            var actionFilterType = typeof(TestActionFilter);
+            var actionFilterType = typeof(TestActionFilter1);
 
             // Act
             sut.AddActionFilter(actionFilterType);

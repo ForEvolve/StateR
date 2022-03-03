@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using StateR.Internal;
+using StateR.Pipeline;
 using StateR.Updaters;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace StateR;
@@ -23,6 +25,21 @@ public class IntegrationTest
         public CounterState Update(Decrement action, CounterState state)
             => state with { Count = state.Count - action.Amount };
     }
+    public class ValidateIncrementFilter : IActionFilter<Increment, CounterState>
+    {
+        public Task InvokeAsync(
+            IDispatchContext<Increment, CounterState> context,
+            ActionDelegate<Increment, CounterState> next,
+            CancellationToken cancellationToken)
+        {
+            if (context.Action.Amount <= 0)
+            {
+                throw new ValidationException();
+            }
+            return next?.Invoke(context, cancellationToken);
+        }
+    }
+    public class ValidationException : Exception { }
 
     public class IncrementTest : IntegrationTest
     {
@@ -68,6 +85,24 @@ public class IntegrationTest
         }
     }
 
+    public class ValidateIncrementFilterTest : IntegrationTest
+    {
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public async Task Should_throw_a_ValidationException_when_Increment_is_smaller_or_equal_to_zero(int amount)
+        {
+            // Arrange
+            var services = Initialize();
+            var cancellationToken = CancellationToken.None;
+            var dispatcher = services.GetRequiredService<IDispatcher>();
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ValidationException>(() => dispatcher
+                .DispatchAsync(new Increment(amount), cancellationToken));
+        }
+    }
+
     private IServiceProvider Initialize()
     {
         var services = new ServiceCollection();
@@ -77,6 +112,7 @@ public class IntegrationTest
             .AddAction(typeof(Increment))
             .AddAction(typeof(Decrement))
             .AddUpdaters(typeof(CounterUpdaters))
+            .AddActionFilter(typeof(ValidateIncrementFilter))
             .Apply()
             .BuildServiceProvider()
         ;

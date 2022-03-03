@@ -14,18 +14,24 @@ public static class StatorStartupExtensions
         services.TryAddSingleton<IStore, Store>();
         services.TryAddSingleton<IDispatcher, Dispatcher>();
         services.TryAddSingleton<IDispatchContextFactory, DispatchContextFactory>();
-        services.TryAddSingleton<IActionFilterFactory, ActionFilterFactory>();
-
-        //services.TryAddSingleton<IInterceptorsManager, InterceptorsManager>();
-        //services.TryAddSingleton<IActionHandlersManager, ActionHandlersManager>();
-        //services.TryAddSingleton<IAfterEffectsManager, AfterEffectsManager>();
-
-        //services.TryAddSingleton<IAfterEffectHooksCollection, AfterEffectHooksCollection>();
-        //services.TryAddSingleton<IInterceptorsHooksCollection, InterceptorsHooksCollection>();
-        //services.TryAddSingleton<IActionHandlerHooksCollection, ActionHandlerHooksCollection>();
-        //services.TryAddSingleton<IUpdateHooksCollection, UpdateHooksCollection>();
+        services.TryAddSingleton<IPipelineFactory, PipelineFactory>();
 
         return new StatorBuilder(services);
+    }
+
+    public static IStatorBuilder ScanAndAddStates(this IStatorBuilder builder, params Assembly[] assembliesToScan)
+    {
+        var allTypes = assembliesToScan
+            .SelectMany(a => a.GetTypes());
+        var initialStates = TypeScanner.FindInitialStates(allTypes);
+
+        foreach (var initialState in initialStates)
+        {
+            var state = initialState.GenericTypeArguments[0];
+            builder.AddState(state, initialState);
+        }
+
+        return builder;
     }
 
     //public static IStatorBuilder AddStateR(this IServiceCollection services, params Assembly[] assembliesToScanForStates)
@@ -95,6 +101,28 @@ public static class StatorStartupExtensions
             }
         }
 
+        var iActionFilterType = typeof(IActionFilter<,>);
+        foreach (var filter in builder.ActionFilters)
+        {
+            var interfaces = filter.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == iActionFilterType);
+            foreach (var @interface in interfaces)
+            {
+                var actionType = @interface.GenericTypeArguments[0];
+                var stateType = @interface.GenericTypeArguments[1];
+                var filterType = iActionFilterType.MakeGenericType(actionType, stateType);
+
+                builder.Services.AddSingleton(@interface, filter);
+            }
+        }
+
+        /*
+
+    public ActionDelegate<TAction, TState> Create<TAction, TState>(IDispatchContext<TAction, TState> context, CancellationToken cancellationToken)
+    {
+
+    }
+         */
 
         return builder.Services;
 

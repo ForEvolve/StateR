@@ -7,13 +7,13 @@ namespace StateR;
 public class Dispatcher : IDispatcher
 {
     private readonly IDispatchContextFactory _dispatchContextFactory;
-    private readonly IActionFilterFactory _actionFilterFactory;
+    private readonly IPipelineFactory _pipelineFactory;
     private readonly ILogger _logger;
 
-    public Dispatcher(IDispatchContextFactory dispatchContextFactory, IActionFilterFactory actionFilterFactory, ILogger<Dispatcher> logger)
+    public Dispatcher(IDispatchContextFactory dispatchContextFactory, IPipelineFactory actionFilterFactory, ILogger<Dispatcher> logger)
     {
         _dispatchContextFactory = dispatchContextFactory ?? throw new ArgumentNullException(nameof(dispatchContextFactory));
-        _actionFilterFactory = actionFilterFactory ?? throw new ArgumentNullException(nameof(actionFilterFactory));
+        _pipelineFactory = actionFilterFactory ?? throw new ArgumentNullException(nameof(actionFilterFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -23,10 +23,10 @@ public class Dispatcher : IDispatcher
     {
         using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         var dispatchContext = _dispatchContextFactory.Create<TAction, TState>(action, this, cancellationTokenSource);
-        var actionFilter = _actionFilterFactory.Create(dispatchContext);
+        var pipeline = _pipelineFactory.Create(dispatchContext);
         try
         {
-            await actionFilter.InvokeAsync(dispatchContext, null, cancellationToken);
+            await pipeline.Invoke(dispatchContext, cancellationToken).ConfigureAwait(false);
         }
         catch (DispatchCancelledException ex)
         {
@@ -46,7 +46,9 @@ public class Dispatcher : IDispatcher
             throw new InvalidOperationException($"The action must implement the {typeof(IAction<>).Name} interface.");
         }
         var stateType = actionInterface.GetGenericArguments()[0];
-        var method = GetType().GetMethods().FirstOrDefault(m => m.IsGenericMethod && m.Name == nameof(DispatchAsync));
+        var method = GetType()
+            .GetMethods()
+            .FirstOrDefault(m => m.IsGenericMethod && m.Name == nameof(DispatchAsync));
         if(method == null)
         {
             throw new MissingMethodException(nameof(Dispatcher), nameof(DispatchAsync));

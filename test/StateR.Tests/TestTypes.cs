@@ -28,13 +28,29 @@ public class NotAnActionFilter { }
 public record TestAction1 : IAction<TestState1>;
 public record TestAction2 : IAction<TestState2>;
 
-public class TestUpdaters : IUpdater<TestAction1, TestState1>
+public class TestUpdater1 : IUpdater<TestAction1, TestState1>
 {
     public TestState1 Update(TestAction1 action, TestState1 state)
         => new();
 }
 
-public class TestActionFilter : IActionFilter<TestAction2, TestState2>
+public class TestUpdater2 : IUpdater<TestAction2, TestState2>
+{
+    public TestState2 Update(TestAction2 action, TestState2 state)
+        => new();
+}
+
+public class TestActionFilter1 : IActionFilter<TestAction2, TestState2>
+{
+    public Task InvokeAsync(
+        IDispatchContext<TestAction2, TestState2> context,
+        ActionDelegate<TestAction2, TestState2> next,
+        CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+}
+public class TestActionFilter2 : IActionFilter<TestAction2, TestState2>
 {
     public Task InvokeAsync(
         IDispatchContext<TestAction2, TestState2> context,
