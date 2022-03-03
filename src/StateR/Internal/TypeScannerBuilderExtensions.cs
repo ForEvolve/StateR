@@ -53,6 +53,7 @@ public static class TypeScanner
         );
         return updaters;
     }
+
     public static IEnumerable<Type> FindMiddlewares(IEnumerable<Type> types)
     {
         var handlers = types

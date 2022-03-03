@@ -153,7 +153,7 @@ public static class StatorStartupExtensions
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == iUpdaterType);
             foreach (var @interface in interfaces)
             {
-                // Equivalent to: AddSingleton<IMiddleware<TAction>, UpdaterMiddleware<TState, TAction>>
+                // Equivalent to: AddSingleton<IActionFilter<TAction>, UpdaterMiddleware<TState, TAction>>
                 var actionType = @interface.GenericTypeArguments[0];
                 var stateType = @interface.GenericTypeArguments[1];
                 var iMiddlewareServiceType = handlerType.MakeGenericType(actionType, stateType);
