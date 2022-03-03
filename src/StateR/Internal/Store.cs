@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace StateR;
+namespace StateR.Internal;
 
 public class Store : IStore
 {
