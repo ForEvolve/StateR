@@ -1,12 +1,23 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Collections.ObjectModel;
 
 namespace StateR;
 
-public interface IStatorBuilder
+public interface IStatorBuilder : IOldStatorBuilder
 {
     IServiceCollection Services { get; }
+    ReadOnlyCollection<Type> States { get; }
+    ReadOnlyCollection<Type> InitialStates { get; }
+
+    IStatorBuilder AddState<TState, TInitialState>()
+        where TState : StateBase
+        where TInitialState : IInitialState<TState>;
+    IStatorBuilder AddState(Type state, Type initialState);
+}
+
+public interface IOldStatorBuilder
+{
     List<Type> Actions { get; }
-    List<Type> States { get; }
     //List<Type> Interceptors { get; }
     List<Type> ActionHandlers { get; }
     //List<Type> AfterEffects { get; }
@@ -21,10 +32,6 @@ public interface IStatorBuilder
 
     IStatorBuilder AddMiddlewares(IEnumerable<Type> types);
     List<Type> Middlewares { get; }
-
-
-    IStatorBuilder AddState<TState>()
-        where TState : StateBase;
 
     //IStatorBuilder AddAction<TAction, TState>()
     //    where TState : StateBase

@@ -48,6 +48,28 @@ public static class StatorStartupExtensions
 
     public static IServiceCollection Apply(this IStatorBuilder builder, Action<IStatorBuilder>? postConfiguration = null)
     {
+        // Register States
+        foreach (var state in builder.States)
+        {
+            Console.WriteLine($"state: {state.FullName}");
+
+            // Equivalent to: AddSingleton<IState<TState>, State<TState>>();
+            var stateServiceType = typeof(IState<>).MakeGenericType(state);
+            var stateImplementationType = typeof(State<>).MakeGenericType(state);
+            builder.Services.AddSingleton(stateServiceType, stateImplementationType);
+        }
+
+        // Register Initial States
+        builder.Services.Scan(s => s
+            .AddTypes(builder.InitialStates)
+
+            // Equivalent to: AddSingleton<IInitialState<TState>, Implementation>();
+            .AddClasses(classes => classes.AssignableTo(typeof(IInitialState<>)))
+            .AsImplementedInterfaces()
+            .WithSingletonLifetime()
+        );
+
+
         return builder.Services;
 
         // Extract types

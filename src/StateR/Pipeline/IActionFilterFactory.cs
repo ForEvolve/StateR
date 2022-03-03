@@ -22,5 +22,4 @@ public class ActionFilterFactory : IActionFilterFactory
         where TAction : IAction<TState>
         where TState : StateBase
         => _serviceProvider.GetRequiredService<IActionFilter<TAction, TState>>();
-    
 }
