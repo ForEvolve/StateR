@@ -17,16 +17,16 @@ public interface IStatorBuilder : IOldStatorBuilder
         where TInitialState : IInitialState<TState>;
     IStatorBuilder AddState(Type state, Type initialState);
 
-    IStatorBuilder AddAction<TAction, TState>()
-        where TAction : IAction<TState>
-        where TState : StateBase;
+    //IStatorBuilder AddAction<TAction, TState>()
+    //    where TAction : IAction<TState>
+    //    where TState : StateBase;
     IStatorBuilder AddAction(Type actionType);
 
-    IStatorBuilder AddUpdater<TUpdater, TAction, TState>()
-        where TUpdater : IUpdater<TAction, TState>
-        where TAction : IAction<TState>
-        where TState : StateBase;
-    IStatorBuilder AddUpdater(Type updaterType);
+    //IStatorBuilder AddUpdater<TUpdater, TAction, TState>()
+    //    where TUpdater : IUpdater<TAction, TState>
+    //    where TAction : IAction<TState>
+    //    where TState : StateBase;
+    IStatorBuilder AddUpdaters(Type updaterType);
 }
 
 public interface IOldStatorBuilder

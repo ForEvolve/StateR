@@ -54,8 +54,8 @@ public class StatorStartupExtensionsTest
             var services = new ServiceCollection();
             var sut = new StatorBuilder(services)
                 .AddState<TestState1, InitialTestState1>()
-                .AddAction<TestAction1, TestState1>()
-                .AddUpdater<TestUpdaters, TestAction1, TestState1>()
+                .AddAction(typeof(TestAction1))
+                .AddUpdaters(typeof(TestUpdaters))
             ;
 
             // Act

@@ -74,24 +74,24 @@ public class StatorBuilderTest
         }
     }
 
-    public class AddAction_TAction_TState
-    {
-        [Fact]
-        public void Should_add_TAction_to_Actions()
-        {
-            // Arrange
-            var services = new ServiceCollection();
-            var sut = new StatorBuilder(services);
+    //public class AddAction_TAction_TState
+    //{
+    //    [Fact]
+    //    public void Should_add_TAction_to_Actions()
+    //    {
+    //        // Arrange
+    //        var services = new ServiceCollection();
+    //        var sut = new StatorBuilder(services);
 
-            // Act
-            sut.AddAction<TestAction1, TestState1>();
+    //        // Act
+    //        sut.AddAction<TestAction1, TestState1>();
 
-            // Assert
-            Assert.Collection(sut.Actions,
-                type => Assert.Equal(typeof(TestAction1), type)
-            );
-        }
-    }
+    //        // Assert
+    //        Assert.Collection(sut.Actions,
+    //            type => Assert.Equal(typeof(TestAction1), type)
+    //        );
+    //    }
+    //}
 
     public class AddAction_Type
     {
@@ -126,26 +126,26 @@ public class StatorBuilderTest
         }
     }
 
-    public class AddUpdater_TUpdater_TAction_TState
-    {
-        [Fact]
-        public void Should_add_TUpdater_to_Updaters()
-        {
-            // Arrange
-            var services = new ServiceCollection();
-            var sut = new StatorBuilder(services);
+    //public class AddUpdater_TUpdater_TAction_TState
+    //{
+    //    [Fact]
+    //    public void Should_add_TUpdater_to_Updaters()
+    //    {
+    //        // Arrange
+    //        var services = new ServiceCollection();
+    //        var sut = new StatorBuilder(services);
 
-            // Act
-            sut.AddUpdater<TestUpdaters, TestAction1, TestState1>();
+    //        // Act
+    //        sut.AddUpdater<TestUpdaters, TestAction1, TestState1>();
 
-            // Assert
-            Assert.Collection(sut.Updaters,
-                type => Assert.Equal(typeof(TestUpdaters), type)
-            );
-        }
-    }
+    //        // Assert
+    //        Assert.Collection(sut.Updaters,
+    //            type => Assert.Equal(typeof(TestUpdaters), type)
+    //        );
+    //    }
+    //}
 
-    public class AddUpdater_Type
+    public class AddUpdaters_Type
     {
         [Fact]
         public void Should_add_updaterType_to_Updaters()
@@ -156,7 +156,7 @@ public class StatorBuilderTest
             var updaterType = typeof(TestUpdaters);
 
             // Act
-            sut.AddUpdater(updaterType);
+            sut.AddUpdaters(updaterType);
 
             // Assert
             Assert.Collection(sut.Updaters,
@@ -173,7 +173,7 @@ public class StatorBuilderTest
             var sut = new StatorBuilder(services);
 
             // Act & Assert
-            var ex = Assert.Throws<InvalidUpdaterException>(() => sut.AddUpdater(updaterType));
+            var ex = Assert.Throws<InvalidUpdaterException>(() => sut.AddUpdaters(updaterType));
             Assert.Same(updaterType, ex.UpdaterType);
         }
 

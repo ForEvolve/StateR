@@ -24,8 +24,6 @@ public class NotAnAction { }
 public class NotAnUpdater { }
 
 public record TestAction1 : IAction<TestState1>;
-public record TestAction2 : IAction<TestState2>;
-public record TestAction3 : IAction<TestState3>;
 
 public class TestUpdaters : IUpdater<TestAction1, TestState1>
 {
