@@ -30,7 +30,7 @@ public class StatorBuilderTest
     public class AddState_Type : StatorBuilderTest
     {
         [Fact]
-        public void Should_add_a_valid_state_type_to_States()
+        public void Should_add_a_valid_state_type_to_States_and_valid_initialState_to_InitialStates()
         {
             // Arrange
             var services = new ServiceCollection();
@@ -42,6 +42,9 @@ public class StatorBuilderTest
             // Assert
             Assert.Collection(sut.States,
                 type => Assert.Equal(typeof(TestState1), type)
+            );
+            Assert.Collection(sut.InitialStates,
+                type => Assert.Equal(typeof(InitialTestState1), type)
             );
         }
 

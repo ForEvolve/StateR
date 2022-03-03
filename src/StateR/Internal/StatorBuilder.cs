@@ -74,6 +74,7 @@ public class StatorBuilder : IStatorBuilder
             throw new InvalidInitialStateException(state, initialState);
         }
         _states.Add(state);
+        _initialStates.Add(initialState);
         return this;
     }
 
