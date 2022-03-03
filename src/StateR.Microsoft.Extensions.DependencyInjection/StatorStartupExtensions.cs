@@ -21,9 +21,10 @@ public static class StatorStartupExtensions
 
     public static IStatorBuilder ScanAndAddStates(this IStatorBuilder builder, params Assembly[] assembliesToScan)
     {
-        var allTypes = assembliesToScan
-            .SelectMany(a => a.GetTypes());
-        var initialStates = TypeScanner.FindInitialStates(allTypes);
+        var initialStates = assembliesToScan
+            .SelectMany(a => a.GetTypes())
+            .FindInitialStates()
+        ;
 
         foreach (var initialState in initialStates)
         {
