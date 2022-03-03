@@ -50,7 +50,7 @@ public static class StateValidatorStartupExtensions
 {
     public static IStatorBuilder AddStateValidation(this IStatorBuilder builder)
     {
-        RegisterStateDecorator(builder.Services, builder.All);
+        //RegisterStateDecorator(builder.Services, builder.All);
         //ActionHandlerDecorator(builder.Services);
         return builder;
     }
@@ -61,20 +61,20 @@ public static class StateValidatorStartupExtensions
     //    services.Decorate<IActionHandlersManager, ValidationExceptionActionHandlersManagerDecorator>();
     //}
 
-    private static void RegisterStateDecorator(IServiceCollection services, IEnumerable<Type> types)
-    {
-        var states = TypeScanner.FindStates(types);
-        Console.WriteLine("StateValidator:");
-        foreach (var state in states)
-        {
-            Console.WriteLine($"- Decorate<IState<{state.GetStatorName()}>, StateValidationDecorator<{state.GetStatorName()}>>()");
+    //private static void RegisterStateDecorator(IServiceCollection services, IEnumerable<Type> types)
+    //{
+    //    var states = TypeScanner.FindStates(types);
+    //    Console.WriteLine("StateValidator:");
+    //    foreach (var state in states)
+    //    {
+    //        Console.WriteLine($"- Decorate<IState<{state.GetStatorName()}>, StateValidationDecorator<{state.GetStatorName()}>>()");
 
-            // Equivalent to: Decorate<IState<TState>, StateValidationDecorator<TState>>();
-            var stateType = typeof(IState<>).MakeGenericType(state);
-            var stateSessionDecoratorType = typeof(StateValidationDecorator<>).MakeGenericType(state);
-            services.Decorate(stateType, stateSessionDecoratorType);
-        }
-    }
+    //        // Equivalent to: Decorate<IState<TState>, StateValidationDecorator<TState>>();
+    //        var stateType = typeof(IState<>).MakeGenericType(state);
+    //        var stateSessionDecoratorType = typeof(StateValidationDecorator<>).MakeGenericType(state);
+    //        services.Decorate(stateType, stateSessionDecoratorType);
+    //    }
+    //}
 }
 
 //public class ValidationExceptionActionHandlersManagerDecorator : IActionFilter

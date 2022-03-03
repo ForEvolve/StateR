@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\StateR.Blazor\StateR.Blazor.csproj" />
     <ProjectReference Include="..\..\..\src\StateR.Experiments\StateR.Experiments.csproj" />
+    <ProjectReference Include="..\..\..\src\StateR.Microsoft.Extensions.DependencyInjection\StateR.Microsoft.Extensions.DependencyInjection.csproj" />
   </ItemGroup>
 
 </Project>
