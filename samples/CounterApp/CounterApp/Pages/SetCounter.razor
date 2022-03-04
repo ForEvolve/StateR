@@ -1,0 +1,49 @@
+﻿@page "/set-counter"
+@inherits StatorComponent
+@inject IState<Features.Counter.State> CounterState
+
+<PageTitle>Set Counter</PageTitle>
+
+<h1>Set Counter</h1>
+
+<p role="status">Current count: @CounterState.Current.Count</p>
+
+
+<div class="row my-4">
+    <div class="col-4">
+        <input class="form-control" @bind="countPositive" />
+        <small>The value should be greater than 0 or will fail validation.</small>
+    </div>
+    <div class="col"><button class="btn btn-primary" @onclick="SetPositive">Set positive number</button></div>
+</div>
+
+<div class="row my-4">
+    <div class="col-4">
+        <input class="form-control" @bind="countNegative" />
+        <small>The value should be lesser than 0 or will fail validation.</small>
+    </div>
+    <div class="col"><button class="btn btn-primary" @onclick="SetNegative">Set negative number</button></div>
+</div>
+
+
+@code{
+    int countPositive = 0;
+    int countNegative = 0;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    public async Task SetPositive()
+    {
+        await DispatchAsync(new Features.Counter.SetPositive(countPositive));
+        countPositive = 0;
+    }
+
+    public async Task SetNegative()
+    {
+        await DispatchAsync(new Features.Counter.SetNegative(countNegative));
+        countNegative = 0;
+    }
+}

@@ -1,24 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>StateR.Blazor</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.0" />
+      <PackageReference Include="ForEvolve.Blazor.WebStorage" Version="0.1.5-g46279c2f75" />
+      <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\StateR.Blazor\StateR.Blazor.csproj" />
     <ProjectReference Include="..\StateR.Experiments\StateR.Experiments.csproj" />
   </ItemGroup>
-  
+
   <!--<ItemGroup>
-    --><!-- .js/.css files will be referenced via <script>/<link> tags; other content files will just be included in the app's 'dist' directory without any tags referencing them --><!--
+    -->  <!-- .js/.css files will be referenced via <script>/<link> tags; other content files will just be included in the app's 'dist' directory without any tags referencing them -->  <!--
     <EmbeddedResource Include="wwwroot/**/*.js" LogicalName="blazor:js:%(RecursiveDir)%(Filename)%(Extension)" />
     <EmbeddedResource Include="wwwroot/**/*.css" LogicalName="blazor:css:%(RecursiveDir)%(Filename)%(Extension)" />
-    --><!-- <EmbeddedResource Include="content\**" Exclude="**\*.js;**\*.css" LogicalName="blazor:file:%(RecursiveDir)%(Filename)%(Extension)" /> --><!--
+    -->  <!-- <EmbeddedResource Include="content\**" Exclude="**\*.js;**\*.css" LogicalName="blazor:file:%(RecursiveDir)%(Filename)%(Extension)" /> -->  <!--
   </ItemGroup>
 
   <ItemGroup>

@@ -1,10 +1,9 @@
-﻿namespace StateR.AsyncLogic
+﻿namespace StateR.AsyncLogic;
+
+public enum AsyncOperationStatus
 {
-    public enum AsyncOperationStatus
-    {
-        Idle,
-        Loading,
-        Succeeded,
-        Failed,
-    }
+    Idle,
+    Loading,
+    Succeeded,
+    Failed,
 }

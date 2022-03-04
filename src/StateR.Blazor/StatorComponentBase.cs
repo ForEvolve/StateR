@@ -1,41 +1,55 @@
 ﻿using Microsoft.AspNetCore.Components;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
-namespace StateR.Blazor
+namespace StateR.Blazor;
+
+public abstract class StatorComponentBase : ComponentBase, IDisposable
 {
-    public abstract class StatorComponentBase : ComponentBase, IDisposable
+    private bool _disposedValue;
+
+    [Inject]
+    public IDispatcher? Dispatcher { get; set; }
+
+    protected virtual async Task DispatchAsync(object action, CancellationToken cancellationToken = default)
     {
-        private bool disposedValue;
+        GuardAgainstNullDispatcher();
+        await Dispatcher.DispatchAsync(action, cancellationToken);
+    }
 
-        [Inject]
-        public IDispatcher Dispatcher { get; set; }
 
-        protected virtual async Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken = default)
-            where TAction : IAction
-            => await Dispatcher.DispatchAsync(action, cancellationToken);
+    protected virtual async Task DispatchAsync<TAction, TState>(TAction action, CancellationToken cancellationToken = default)
+        where TAction : IAction<TState>
+        where TState : StateBase
+    {
+        GuardAgainstNullDispatcher();
+        await Dispatcher.DispatchAsync<TAction, TState>(action, cancellationToken);
+    }
 
-        protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
         {
-            if (!disposedValue)
+            if (disposing)
             {
-                if (disposing)
-                {
-                    FreeManagedResources();
-                }
-                FreeUnmanagedResources();
-                disposedValue = true;
+                FreeManagedResources();
             }
+            FreeUnmanagedResources();
+            _disposedValue = true;
         }
+    }
 
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 
-        protected virtual void FreeManagedResources() { }
-        protected virtual void FreeUnmanagedResources() { }
+    protected virtual void FreeManagedResources() { }
+    protected virtual void FreeUnmanagedResources() { }
+
+    [MemberNotNull(nameof(Dispatcher))]
+    protected void GuardAgainstNullDispatcher()
+    {
+        ArgumentNullException.ThrowIfNull(Dispatcher, nameof(Dispatcher));
     }
 }

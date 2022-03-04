@@ -1,12 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Concurrent;
-using System.Threading;
-using System.Threading.Tasks;
+﻿namespace StateR;
 
-namespace StateR
+public interface IDispatcher
 {
-    public interface IDispatcher
-    {
-        Task DispatchAsync<TAction>(TAction action, CancellationToken cancellationToken) where TAction : IAction;
-    }
+    Task DispatchAsync(object action, CancellationToken cancellationToken);
+    Task DispatchAsync<TAction, TState>(TAction action, CancellationToken cancellationToken)
+        where TAction : IAction<TState>
+        where TState : StateBase;
 }

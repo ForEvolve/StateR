@@ -14,6 +14,9 @@ indent_style = space
 
 #Formatting - indentation
 
+# Namespace
+csharp_style_namespace_declarations = file_scoped:warning
+
 #size of soft tabs (spaces)
 indent_size = 4
 #remove any whitespace characters preceding newline characters
@@ -234,9 +237,12 @@ dotnet_naming_style.interfaces_style.required_prefix = I
 # This fix record class naming issues; to be targetted at records only when possible
 dotnet_diagnostic.IDE1006.severity = suggestion
 
+# IDE0057: Use range operator
+dotnet_diagnostic.IDE0057.severity = none
+
 # private fields and Async methods naming are optional for tests.
 # this allows to declare `private sut` and name async test without the `Async` suffix.
-[**/*.{Tests,IntegrationTests,FunctionalTests}/**.cs]
-dotnet_naming_rule.private_fields_should_be_camel_case.severity = suggestion
-dotnet_naming_rule.async_methods_should_end_in_async.severity = suggestion
+[**/*.*Tests/**.cs]
+dotnet_naming_rule.private_fields_should_be_camel_case.severity = none
+dotnet_naming_rule.async_methods_should_end_in_async.severity = none
 

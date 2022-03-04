@@ -1,14 +1,12 @@
-﻿namespace StateR
-{
-    public interface IDispatchContext<TAction>
-        where TAction : IAction
-    {
-        IDispatcher Dispatcher { get; }
-        TAction Action { get; set; }
-        bool StopReduce { get; set; }
-        bool StopInterception { get; set; }
-        bool StopAfterEffect { get; set; }
+﻿namespace StateR;
 
-        void DoNotContinue();
-    }
+public interface IDispatchContext<TAction, TState>
+    where TAction : IAction<TState>
+    where TState : StateBase
+{
+    IDispatcher Dispatcher { get; }
+    TAction Action { get; }
+
+    CancellationToken CancellationToken { get; }
+    void Cancel();
 }

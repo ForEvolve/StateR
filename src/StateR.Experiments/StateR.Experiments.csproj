@@ -1,9 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>StateR</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="AsyncLogic\AsyncError.cs" />
+    <Compile Remove="AsyncLogic\AsyncOperation.cs" />
+    <Compile Remove="AsyncLogic\AsyncOperationStatus.cs" />
+    <Compile Remove="AsyncLogic\AsyncState.cs" />
+    <Compile Remove="AsyncLogic\StartupExtensions.cs" />
+    <Compile Remove="AsyncLogic\StatusUpdated.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="AsyncLogic\AsyncError.cs" />
+    <None Include="AsyncLogic\AsyncOperation.cs" />
+    <None Include="AsyncLogic\AsyncOperationStatus.cs" />
+    <None Include="AsyncLogic\AsyncState.cs" />
+    <None Include="AsyncLogic\StartupExtensions.cs" />
+    <None Include="AsyncLogic\StatusUpdated.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="10.3.6" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="10.3.6" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\StateR\StateR.csproj" />

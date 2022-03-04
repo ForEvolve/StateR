@@ -1,27 +1,27 @@
-﻿using System;
-namespace StateR
+﻿namespace StateR;
+
+public class DispatchContext<TAction, TState> : IDispatchContext<TAction, TState>
+    where TAction : IAction<TState>
+    where TState : StateBase
 {
-    public class DispatchContext<TAction> : IDispatchContext<TAction>
-        where TAction : IAction
+    private readonly CancellationTokenSource _cancellationTokenSource;
+    public DispatchContext(TAction action, IDispatcher dispatcher, CancellationTokenSource cancellationTokenSource)
     {
-        public DispatchContext(TAction action, IDispatcher dispatcher)
-        {
-            Action = action;
-            Dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
-        }
-
-        public IDispatcher Dispatcher { get; }
-        public TAction Action { get; set; }
-
-        public bool StopReduce { get; set; }
-        public bool StopInterception { get; set; }
-        public bool StopAfterEffect { get; set; }
-
-        public void DoNotContinue()
-        {
-            StopAfterEffect = true;
-            StopInterception = true;
-            StopReduce = true;
-        }
+        Action = action;
+        Dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
+        _cancellationTokenSource = cancellationTokenSource ?? throw new ArgumentNullException(nameof(cancellationTokenSource));
     }
+
+    public IDispatcher Dispatcher { get; }
+    public TAction Action { get; }
+    public CancellationToken CancellationToken => _cancellationTokenSource.Token;
+
+    public void Cancel()
+        => throw new DispatchCancelledException(Action.GetType());
+}
+
+public class DispatchCancelledException : Exception
+{
+    public DispatchCancelledException(Type actionType)
+        : base($"The dispatch operation '{actionType.FullName}' has been cancelled.") { }
 }

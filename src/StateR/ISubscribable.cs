@@ -1,11 +1,8 @@
-﻿using System;
+﻿namespace StateR;
 
-namespace StateR
+public interface ISubscribable
 {
-    public interface ISubscribable
-    {
-        void Subscribe(Action stateHasChangedDelegate);
-        void Unsubscribe(Action stateHasChangedDelegate);
-        void Notify();
-    }
+    void Subscribe(Action stateHasChangedDelegate);
+    void Unsubscribe(Action stateHasChangedDelegate);
+    void Notify();
 }

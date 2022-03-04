@@ -1,44 +1,49 @@
-﻿using StateR;
-using Microsoft.AspNetCore.Components;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
+﻿using Microsoft.AspNetCore.Components;
+using System.Diagnostics.CodeAnalysis;
 
-namespace StateR.Blazor
+namespace StateR.Blazor;
+
+public abstract class StoreBasedStatorComponent : StatorComponentBase
 {
-    public abstract class StoreBasedStatorComponent : StatorComponentBase
+    private bool _subscribed = false;
+    private readonly List<Action> _unsubscribeDelegates = new();
+
+    [Inject]
+    public IStore? Store { get; set; }
+
+    protected virtual TState GetState<TState>() where TState : StateBase
     {
-        private bool _subscribed = false;
-        private readonly List<Action> _unsubscribeDelegates = new List<Action>();
+        GuardAgainstNullStore();
+        Subscribe<TState>();
+        return Store.GetState<TState>();
+    }
 
-        [Inject]
-        public IStore Store { get; set; }
-
-        protected virtual TState GetState<TState>() where TState : StateBase
+    protected virtual void Subscribe<TState>() where TState : StateBase
+    {
+        // TODO: update this so it does not limit to on TState
+        if (!_subscribed)
         {
-            Subscribe<TState>();
-            return Store.GetState<TState>();
+            GuardAgainstNullStore();
+            _subscribed = true;
+            Store.Subscribe<TState>(StateHasChanged);
+            _unsubscribeDelegates.Add(() => Store.Unsubscribe<TState>(StateHasChanged));
         }
+    }
 
-        protected virtual void Subscribe<TState>() where TState : StateBase
+    protected override void FreeManagedResources()
+    {
+        foreach (var unsubscribe in _unsubscribeDelegates)
         {
-            if (!_subscribed)
-            {
-                _subscribed = true;
-                Store.Subscribe<TState>(StateHasChanged);
-                _unsubscribeDelegates.Add(() => Store.Unsubscribe<TState>(StateHasChanged));
-            }
+            unsubscribe();
         }
+    }
 
-        protected override void FreeManagedResources()
+    [MemberNotNull(nameof(Store))]
+    protected void GuardAgainstNullStore()
+    {
+        if (Store == null)
         {
-            foreach (var unsubscribe in _unsubscribeDelegates)
-            {
-                unsubscribe();
-            }
+            throw new ArgumentNullException(nameof(Store));
         }
     }
 }

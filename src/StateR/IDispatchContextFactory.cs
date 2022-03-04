@@ -1,7 +1,8 @@
-﻿namespace StateR
+﻿namespace StateR;
+
+public interface IDispatchContextFactory
 {
-    public interface IDispatchContextFactory
-    {
-        IDispatchContext<TAction> Create<TAction>(TAction action, IDispatcher dispatcher) where TAction : IAction;
-    }
+    IDispatchContext<TAction, TState> Create<TAction, TState>(TAction action, IDispatcher dispatcher, CancellationTokenSource cancellationTokenSource)
+        where TAction : IAction<TState>
+        where TState : StateBase;
 }

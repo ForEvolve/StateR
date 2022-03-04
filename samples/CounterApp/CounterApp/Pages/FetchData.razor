@@ -1,0 +1,63 @@
+﻿@*@using StateR.AsyncLogic
+@using StateR.Blazor.Components
+@page "/fetchdata"
+@inherits StatorComponent
+@inject IState<Features.WeatherForecast.State> WeatherState
+<PageTitle>Weather forecast</PageTitle>
+
+<h1>Weather forecast</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+<p><strong>Async Status:</strong> @WeatherState.Current.Status</p>
+
+<Dispatch TAction="Features.WeatherForecast.Fetch" />*@
+@*<DispatchAction
+    TAction="Features.WeatherForecast.Fetch"
+    Action="new Features.WeatherForecast.Fetch()" />*@
+@*<DispatchActionFactory 
+    TAction="Features.WeatherForecast.Fetch"
+    ActionFactory="() => ValueTask.FromResult(new Features.WeatherForecast.Fetch())" />*@
+@*<AsyncOperationSwitch Status="WeatherState.Current.Status">
+    <Idle>
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+    </Idle>
+    <Loading>
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+    </Loading>
+    <Succeeded>
+        <button class="btn btn-outline-dark" 
+            @onclick="@(async () => await DispatchAsync(new Features.WeatherForecast.Reload()))">Reload</button>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Temp. (C)</th>
+                    <th>Temp. (F)</th>
+                    <th>Summary</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var forecast in WeatherState.Current.Forecasts)
+                {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Succeeded>
+    <Failed>
+        <div class="alert alert-danger" role="alert">
+            An error occured!
+        </div>
+    </Failed>
+</AsyncOperationSwitch>
+*@
